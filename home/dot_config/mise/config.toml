@@ -1,0 +1,12 @@
+[tools]
+python = "latest"
+node = "lts"
+rust = "latest"
+jq = "latest"
+ripgrep = "latest"
+fd = "latest"
+fzf = "latest"
+uv = "latest"
+
+[settings]
+experimental = true

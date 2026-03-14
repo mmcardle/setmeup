@@ -1,0 +1,12 @@
+README.md
+LICENSE
+
+# Ignore macOS-specific files on Linux
+{{ if ne .chezmoi.os "darwin" }}
+# (reserved for future macOS-only files)
+{{ end }}
+
+# Ignore Linux-specific files on macOS
+{{ if ne .chezmoi.os "linux" }}
+# (reserved for future Linux-only files)
+{{ end }}

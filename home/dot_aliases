@@ -1,0 +1,24 @@
+# Shared shell aliases — sourced by both .bashrc and .zshrc
+
+# Git
+alias gs='git status'
+alias gb='git branch'
+alias gl='git log --oneline --graph --decorate -20'
+alias gd='git diff'
+alias gpo='git push origin'
+alias gc='git rev-parse --abbrev-ref HEAD'
+alias gco='git checkout'
+
+# Docker
+alias dc='docker compose'
+
+# Utilities
+alias rando='openssl rand -hex 20'
+alias rand='openssl rand -hex 20'
+alias pc='pre-commit'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# setmeup
+alias setmeup='~/.local/bin/setmeup-update.sh'

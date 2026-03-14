@@ -1,0 +1,30 @@
+#!/bin/sh
+# Install system-level packages (runs once per machine)
+set -e
+
+{{ if eq .chezmoi.os "linux" -}}
+echo "[setmeup] Installing system packages via apt..."
+sudo apt-get update -qq
+sudo apt-get install -y -qq \
+    build-essential \
+    curl \
+    git \
+    wget \
+    unzip \
+    zip \
+    software-properties-common \
+    apt-transport-https \
+    ca-certificates \
+    gnupg \
+    zsh
+{{ else if eq .chezmoi.os "darwin" -}}
+echo "[setmeup] Installing system packages via brew..."
+brew install \
+    curl \
+    git \
+    wget \
+    gnupg \
+    zsh
+{{ end -}}
+
+echo "[setmeup] System packages installed."
