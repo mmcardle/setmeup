@@ -33,10 +33,17 @@ setmeup/
 │       └── run_onchange_install-mise-tools.sh.tmpl  # Mise tools (runs when config changes)
 │
 └── tests/
-    ├── run_tests.sh                # Test runner (builds Docker, runs tests)
-    ├── test_bootstrap.sh           # 8-phase test suite
-    ├── Dockerfile                  # Test container (Ubuntu 24.04, non-root testuser)
-    └── chezmoi-test-config.toml    # Pre-seeded config for non-interactive tests
+    ├── run_tests.sh                # Test runner (builds Docker, supports argument passthrough)
+    ├── Dockerfile                  # Test container (Ubuntu 24.04, BATS, cached chezmoi/mise)
+    ├── chezmoi-test-config.toml    # Pre-seeded config for non-interactive tests
+    ├── setup_environment.sh        # Phases 1-3: verify tools, backup dotfiles, chezmoi apply
+    ├── test_helper.bash            # Shared BATS assertion helpers
+    ├── backup.bats                 # Backup verification tests
+    ├── dotfiles.bats               # Dotfile existence and content tests
+    ├── shell_clean.bats            # Interactive shell cleanliness test
+    ├── mise_tools.bats             # Mise tool installation tests
+    ├── idempotency.bats            # Chezmoi re-apply idempotency test
+    └── update_script.bats          # Update script tests
 ```
 
 ### Chezmoi naming conventions
@@ -54,10 +61,24 @@ setmeup/
 
 ## Tests
 
-To run the tests, run the following command:
+Tests use [BATS](https://github.com/bats-core/bats-core) (Bash Automated Testing System) and run in Docker.
 
 ```sh
-./tests/run_tests.sh
+# Full suite
+make test
+
+# Single file
+make test-file FILE=dotfiles.bats
+
+# Filter by test name
+make test-filter FILTER="aliases"
+
+# Fast tests (skip slow mise_tools and shell_clean)
+make test-quick
+
+# Interactive TDD loop
+make shell
+# Then: ~/tests/setup_environment.sh && bats ~/tests/dotfiles.bats
 ```
 
 ## Development

@@ -14,6 +14,13 @@ if [ -n "${GITHUB_TOKEN:-}" ]; then
     DOCKER_RUN_ARGS="-e GITHUB_TOKEN"
     echo "[setmeup] GITHUB_TOKEN detected, passing to container"
 fi
-docker run --rm $DOCKER_RUN_ARGS setmeup-test
+
+# Support argument passthrough for file/filter selection
+# Usage: ./tests/run_tests.sh                          # run all tests
+#        ./tests/run_tests.sh ~/tests/dotfiles.bats    # run one file
+#        ./tests/run_tests.sh --filter "aliases"       # filter tests
+BATS_ARGS="${*:-\$HOME/tests/*.bats}"
+docker run --rm $DOCKER_RUN_ARGS setmeup-test \
+    bash -c "\$HOME/tests/setup_environment.sh && bats $BATS_ARGS"
 
 echo "[setmeup] Tests complete."
