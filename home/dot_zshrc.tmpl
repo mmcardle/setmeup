@@ -79,14 +79,14 @@ _setmeup_check_updates() {
     # Check for updates in the background, write to a flag file
     {
         if (( $+commands[chezmoi] )); then
-            chezmoi git -- fetch --quiet 2>/dev/null
-            local local_rev=$(chezmoi git -- rev-parse HEAD 2>/dev/null)
-            local remote_rev=$(chezmoi git -- rev-parse '@{u}' 2>/dev/null)
+            chezmoi git -- fetch --quiet
+            local local_rev=$(chezmoi git -- rev-parse HEAD)
+            local remote_rev=$(chezmoi git -- rev-parse '@{u}')
             if [[ -n "$local_rev" && -n "$remote_rev" && "$local_rev" != "$remote_rev" ]]; then
                 touch "$state_dir/update-available"
             fi
         fi
-    } &!
+    } >/dev/null 2>&1 &!
 
     # Show update notice from a previous check
     if [[ -f "$state_dir/update-available" ]]; then

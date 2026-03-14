@@ -165,7 +165,24 @@ assert_file_contains "$HOME/.ssh/config" "IdentityFile ~/.ssh/id_ed25519"
 # =========================================================================
 echo ""
 echo "========================================"
-echo " Phase 5: Verify mise tools install"
+echo " Phase 5: Verify interactive shell is clean"
+echo "========================================"
+echo ""
+
+# Start an interactive bash shell, wait for background jobs to produce output,
+# then echo a marker. If background processes corrupt the terminal, the marker
+# line will contain garbage.
+shell_output=$(bash -ic 'sleep 2; echo CLEAN_TEST_MARKER; exit' 2>&1)
+if echo "$shell_output" | grep -qx 'CLEAN_TEST_MARKER'; then
+    pass "interactive shell output is clean (no background noise)"
+else
+    fail "interactive shell output corrupted by background processes: $(echo "$shell_output" | grep -i 'CLEAN_TEST_MARKER')"
+fi
+
+# =========================================================================
+echo ""
+echo "========================================"
+echo " Phase 6: Verify mise tools install"
 echo "========================================"
 echo ""
 
@@ -183,7 +200,7 @@ assert_mise_tool uv
 # =========================================================================
 echo ""
 echo "========================================"
-echo " Phase 6: Verify idempotency"
+echo " Phase 7: Verify idempotency"
 echo "========================================"
 echo ""
 
@@ -197,7 +214,7 @@ fi
 # =========================================================================
 echo ""
 echo "========================================"
-echo " Phase 7: Verify update script"
+echo " Phase 8: Verify update script"
 echo "========================================"
 echo ""
 
