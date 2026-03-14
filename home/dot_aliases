@@ -3,19 +3,21 @@
 # Git
 alias gs='git status'
 alias gb='git branch'
-alias gl='git log --oneline --graph --decorate -20'
+alias gl='git log --pretty=oneline'
 alias gd='git diff'
+alias gp='git pull'
 alias gpo='git push origin'
 alias gc='git rev-parse --abbrev-ref HEAD'
-alias gco='git checkout'
+alias gco='git checkout '
+alias gbs='git branch | grep -i'
 
 # Docker
 alias dc='docker compose'
 
 # Utilities
-alias rando='openssl rand -hex 20'
-alias rand='openssl rand -hex 20'
-alias pc='pre-commit'
+alias rando='openssl rand -base64 16'
+alias rand=rando
+alias pc='pre-commit run -a'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
