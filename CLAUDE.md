@@ -19,3 +19,9 @@ To run the tests, run the following command:
 ```sh
 ./tests/run_tests.sh
 ```
+
+## Development
+
+Always update the tests when making changes to the code.
+
+Run the tests before completing the users requests.

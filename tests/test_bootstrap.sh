@@ -68,17 +68,70 @@ assert_command mise
 # =========================================================================
 echo ""
 echo "========================================"
-echo " Phase 2: Apply chezmoi from local source"
+echo " Phase 2: Verify dotfile backup"
+echo "========================================"
+echo ""
+
+# Create fake pre-existing dotfiles with identifiable content
+echo "# user's original bashrc with secrets" > "$HOME/.bashrc"
+chmod 600 "$HOME/.bashrc"
+echo "# user's original zshrc with secrets" > "$HOME/.zshrc"
+mkdir -p "$HOME/.config/git"
+echo "# user's original gitconfig" > "$HOME/.config/git/config"
+
+# Source bootstrap.sh to get the real backup_dotfiles function
+SETMEUP_SOURCED=true
+. "$HOME/setmeup/bootstrap.sh"
+
+# Call the real backup function
+backup_dotfiles
+
+# Find the backup directory (there should be exactly one)
+backup_root="$HOME/.local/state/setmeup/backups"
+backup_dir=$(ls -d "$backup_root"/*/ 2>/dev/null | head -1)
+
+if [ -n "$backup_dir" ]; then
+    pass "backup directory created: $backup_dir"
+else
+    fail "no backup directory found in $backup_root"
+fi
+
+# Verify backed-up files exist with correct content
+assert_file "${backup_dir}.bashrc"
+assert_file "${backup_dir}.zshrc"
+assert_file "${backup_dir}.config/git/config"
+assert_file_contains "${backup_dir}.bashrc" "user's original bashrc"
+assert_file_contains "${backup_dir}.zshrc" "user's original zshrc"
+assert_file_contains "${backup_dir}.config/git/config" "user's original gitconfig"
+
+# Verify file permissions were preserved (cp -p)
+if [ "$(stat -c '%a' "${backup_dir}.bashrc")" = "600" ]; then
+    pass "backup preserved file permissions"
+else
+    fail "backup did not preserve file permissions"
+fi
+
+# =========================================================================
+echo ""
+echo "========================================"
+echo " Phase 3: Apply chezmoi from local source"
 echo "========================================"
 echo ""
 
 # Initialize chezmoi using local source directory
 chezmoi init --source="$HOME/setmeup/home" --apply
 
+# Verify chezmoi overwrote the fake pre-existing files
+if ! grep -q "user's original bashrc" "$HOME/.bashrc"; then
+    pass "chezmoi overwrote original .bashrc"
+else
+    fail "chezmoi did not overwrite original .bashrc"
+fi
+
 # =========================================================================
 echo ""
 echo "========================================"
-echo " Phase 3: Verify dotfiles"
+echo " Phase 4: Verify dotfiles"
 echo "========================================"
 echo ""
 
@@ -112,7 +165,7 @@ assert_file_contains "$HOME/.ssh/config" "IdentityFile ~/.ssh/id_ed25519"
 # =========================================================================
 echo ""
 echo "========================================"
-echo " Phase 4: Verify mise tools install"
+echo " Phase 5: Verify mise tools install"
 echo "========================================"
 echo ""
 
@@ -130,7 +183,7 @@ assert_mise_tool uv
 # =========================================================================
 echo ""
 echo "========================================"
-echo " Phase 5: Verify idempotency"
+echo " Phase 6: Verify idempotency"
 echo "========================================"
 echo ""
 
@@ -144,7 +197,7 @@ fi
 # =========================================================================
 echo ""
 echo "========================================"
-echo " Phase 6: Verify update script"
+echo " Phase 7: Verify update script"
 echo "========================================"
 echo ""
 

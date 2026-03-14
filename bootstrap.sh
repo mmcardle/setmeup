@@ -15,6 +15,41 @@ error() { printf '\033[1;31m[setmeup]\033[0m %s\n' "$1" >&2; exit 1; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
 # ---------------------------------------------------------------------------
+# Back up existing dotfiles before chezmoi overwrites them
+# ---------------------------------------------------------------------------
+backup_dotfiles() {
+    local BACKUP_FILES=".bashrc .zshrc .aliases .config/git/config .config/mise/config.toml .ssh/config"
+    local has_files=false
+    local f
+    local backup_dir
+
+    # Check if any managed files exist
+    for f in $BACKUP_FILES; do
+        if [ -f "$HOME/$f" ]; then
+            has_files=true
+            break
+        fi
+    done
+
+    if [ "$has_files" = false ]; then
+        info "No existing dotfiles to back up (fresh machine)"
+        return
+    fi
+
+    backup_dir="$HOME/.local/state/setmeup/backups/$(date +%Y-%m-%d-%H%M%S)"
+    info "Backing up existing dotfiles to $backup_dir/"
+
+    for f in $BACKUP_FILES; do
+        if [ -f "$HOME/$f" ]; then
+            mkdir -p "$backup_dir/$(dirname "$f")"
+            cp -p "$HOME/$f" "$backup_dir/$f"
+        fi
+    done
+
+    info "Backup complete — you can restore from there if needed"
+}
+
+# ---------------------------------------------------------------------------
 # Detect OS and package manager
 # ---------------------------------------------------------------------------
 detect_os() {
@@ -99,6 +134,8 @@ main() {
     install_chezmoi
     install_mise
 
+    backup_dotfiles
+
     info "Initializing chezmoi with $SETMEUP_REPO..."
     chezmoi init --apply "$SETMEUP_REPO"
 
@@ -112,4 +149,7 @@ main() {
     echo ""
 }
 
-main "$@"
+# Allow sourcing for tests: only run main when executed directly
+if [ "${SETMEUP_SOURCED:-}" != "true" ]; then
+    main "$@"
+fi

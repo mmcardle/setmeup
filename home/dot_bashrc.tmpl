@@ -91,3 +91,8 @@ _setmeup_check_updates() {
     ) &
 }
 _setmeup_check_updates
+
+# ---------------------------------------------------------------------------
+# Private/local settings (not managed by chezmoi)
+# ---------------------------------------------------------------------------
+[ -f ~/.secrets ] && source ~/.secrets

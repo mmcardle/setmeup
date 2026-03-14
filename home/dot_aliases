@@ -15,8 +15,7 @@ alias gbs='git branch | grep -i'
 alias dc='docker compose'
 
 # Utilities
-alias rando='openssl rand -base64 16'
-alias rand=rando
+alias rand='openssl rand -base64 16'
 alias pc='pre-commit run -a'
 alias ll='ls -alF'
 alias la='ls -A'

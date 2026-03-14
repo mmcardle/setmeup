@@ -1,0 +1,2 @@
+# Files chezmoi should never manage
+.secrets
