@@ -139,6 +139,13 @@ main() {
     info "Initializing chezmoi with $SETMEUP_REPO..."
     chezmoi init --apply "$SETMEUP_REPO"
 
+    info "Installing mise tools..."
+    mise install --yes || warn "Some mise tools failed to install (retry with: mise install)"
+
+    # Install the update script
+    cp "$HOME/.local/share/chezmoi/update.sh" "$HOME/.local/bin/setmeup-update.sh"
+    chmod +x "$HOME/.local/bin/setmeup-update.sh"
+
     info "Bootstrap complete!"
     echo ""
     echo "  Your development environment is ready."
