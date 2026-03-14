@@ -62,6 +62,10 @@ To run the tests, run the following command:
 
 ## Development
 
+Always use TDD (test-driven development) when adding features. Write the failing test first, then implement.
+
+See [docs/adding-features.md](docs/adding-features.md) for a step-by-step guide.
+
 Always update the tests when making changes to the code.
 
 Run the tests before completing the users requests.
