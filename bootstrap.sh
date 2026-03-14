@@ -155,7 +155,9 @@ main() {
     mise install --yes || warn "Some mise tools failed to install (retry with: mise install)"
 
     # Install the update script
-    cp "$HOME/.local/share/chezmoi/update.sh" "$HOME/.local/bin/setmeup-update.sh"
+    local chezmoi_source
+    chezmoi_source="$(chezmoi source-path)/.."
+    cp "$chezmoi_source/update.sh" "$HOME/.local/bin/setmeup-update.sh"
     chmod +x "$HOME/.local/bin/setmeup-update.sh"
 
     info "Bootstrap complete!"

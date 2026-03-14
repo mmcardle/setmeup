@@ -13,3 +13,7 @@ RUN useradd -m -s /bin/bash testuser && \
 USER testuser
 WORKDIR /home/testuser
 ENV PATH="/home/testuser/.local/bin:${PATH}"
+
+# Pre-seed chezmoi config to avoid interactive prompts
+RUN mkdir -p /home/testuser/.config/chezmoi
+COPY --chown=testuser:testuser tests/chezmoi-test-config.toml /home/testuser/.config/chezmoi/chezmoi.toml
