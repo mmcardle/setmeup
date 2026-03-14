@@ -162,6 +162,23 @@ assert_file_contains "$HOME/.zshrc" "mise activate zsh"
 # Check SSH config is OS-appropriate (should be Linux path, not macOS)
 assert_file_contains "$HOME/.ssh/config" "IdentityFile ~/.ssh/id_ed25519"
 
+# Check oh-my-zsh integration in .zshrc
+assert_file_contains "$HOME/.zshrc" 'ZSH_THEME="powerlevel10k/powerlevel10k"'
+assert_file_contains "$HOME/.zshrc" 'source "$ZSH/oh-my-zsh.sh"'
+
+# Check oh-my-zsh and powerlevel10k are installed
+if [ -d "$HOME/.oh-my-zsh" ]; then
+    pass "oh-my-zsh installed: $HOME/.oh-my-zsh"
+else
+    fail "oh-my-zsh not installed: $HOME/.oh-my-zsh"
+fi
+
+if [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]; then
+    pass "powerlevel10k theme installed"
+else
+    fail "powerlevel10k theme not installed"
+fi
+
 # =========================================================================
 echo ""
 echo "========================================"

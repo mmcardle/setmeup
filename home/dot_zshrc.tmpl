@@ -3,6 +3,28 @@
 [[ $- != *i* ]] && return
 
 # ---------------------------------------------------------------------------
+# Powerlevel10k instant prompt (must stay near top)
+# ---------------------------------------------------------------------------
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# ---------------------------------------------------------------------------
+# Oh My Zsh
+# ---------------------------------------------------------------------------
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+DISABLE_AUTO_UPDATE="true"
+
+plugins=(
+    git
+    z
+    command-not-found
+)
+
+source "$ZSH/oh-my-zsh.sh"
+
+# ---------------------------------------------------------------------------
 # History
 # ---------------------------------------------------------------------------
 HISTFILE=~/.zsh_history
@@ -12,27 +34,6 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 setopt SHARE_HISTORY
 setopt APPEND_HISTORY
-
-# ---------------------------------------------------------------------------
-# Completion
-# ---------------------------------------------------------------------------
-autoload -Uz compinit
-compinit
-
-zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-
-# ---------------------------------------------------------------------------
-# Prompt
-# ---------------------------------------------------------------------------
-autoload -Uz promptinit
-promptinit
-PROMPT='%F{green}%n@%m%f:%F{blue}%~%f%# '
-
-# ---------------------------------------------------------------------------
-# Key bindings
-# ---------------------------------------------------------------------------
-bindkey -e
 
 {{ if eq .chezmoi.os "darwin" -}}
 # macOS-specific settings
@@ -95,6 +96,11 @@ _setmeup_check_updates() {
     fi
 }
 _setmeup_check_updates
+
+# ---------------------------------------------------------------------------
+# Powerlevel10k config
+# ---------------------------------------------------------------------------
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # ---------------------------------------------------------------------------
 # Private/local settings (not managed by chezmoi)
