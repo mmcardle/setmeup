@@ -123,6 +123,11 @@ install_mise() {
 # Main
 # ---------------------------------------------------------------------------
 main() {
+    USE_LOCAL=false
+    if [ "${1:-}" = "--local" ]; then
+        USE_LOCAL=true
+    fi
+
     info "Starting setmeup bootstrap..."
 
     detect_os
@@ -136,8 +141,15 @@ main() {
 
     backup_dotfiles
 
-    info "Initializing chezmoi with $SETMEUP_REPO..."
-    chezmoi init --apply "$SETMEUP_REPO"
+    if [ "$USE_LOCAL" = true ]; then
+        local script_dir
+        script_dir="$(cd "$(dirname "$0")" && pwd)"
+        info "Initializing chezmoi from local source ($script_dir/home)..."
+        chezmoi init --source="$script_dir/home" --apply
+    else
+        info "Initializing chezmoi with $SETMEUP_REPO..."
+        chezmoi init --apply "$SETMEUP_REPO"
+    fi
 
     info "Installing mise tools..."
     mise install --yes || warn "Some mise tools failed to install (retry with: mise install)"
