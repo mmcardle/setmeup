@@ -142,3 +142,29 @@ setup() {
 @test "system package installed: httpie" {
     assert_command_exists http
 }
+
+# --- Modern tool aliases ---
+
+@test "aliases file conditionally aliases cat to bat" {
+    assert_file_contains "$HOME/.aliases" 'alias cat="bat'
+}
+
+@test "aliases file conditionally aliases ls to eza" {
+    assert_file_contains "$HOME/.aliases" 'alias ls="eza'
+}
+
+@test "aliases file conditionally aliases ll to eza" {
+    assert_file_contains "$HOME/.aliases" 'alias ll="eza -l'
+}
+
+@test "aliases file conditionally aliases la to eza" {
+    assert_file_contains "$HOME/.aliases" 'alias la="eza -la'
+}
+
+@test "aliases file conditionally aliases find to fd" {
+    assert_file_contains "$HOME/.aliases" 'alias find="fd'
+}
+
+@test "aliases file conditionally aliases grep to rg" {
+    assert_file_contains "$HOME/.aliases" 'alias grep="rg'
+}

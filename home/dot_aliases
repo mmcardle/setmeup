@@ -21,5 +21,11 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
+# Modern tool replacements (only alias if the tool is available)
+command -v bat &>/dev/null && alias cat="bat"
+command -v eza &>/dev/null && alias ls="eza --icons" && alias ll="eza -l --icons" && alias la="eza -la --icons"
+command -v fd  &>/dev/null && alias find="fd"
+command -v rg  &>/dev/null && alias grep="rg"
+
 # setmeup
 alias setmeup='~/.local/bin/setmeup-update.sh'
