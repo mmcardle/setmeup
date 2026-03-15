@@ -98,3 +98,21 @@ setup() {
 @test "powerlevel10k theme is installed" {
     assert_dir_exists "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
 }
+
+# --- Zsh plugins ---
+
+@test "zsh-autosuggestions plugin is installed" {
+    assert_dir_exists "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+}
+
+@test "zsh-syntax-highlighting plugin is installed" {
+    assert_dir_exists "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+}
+
+@test "zshrc enables zsh-autosuggestions plugin" {
+    assert_file_contains "$HOME/.zshrc" "zsh-autosuggestions"
+}
+
+@test "zshrc enables zsh-syntax-highlighting plugin" {
+    assert_file_contains "$HOME/.zshrc" "zsh-syntax-highlighting"
+}

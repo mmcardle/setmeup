@@ -21,6 +21,6 @@ fi
 #        ./tests/run_tests.sh --filter "aliases"       # filter tests
 BATS_ARGS="${*:-\$HOME/tests/*.bats}"
 docker run --rm $DOCKER_RUN_ARGS setmeup-test \
-    bash -c "\$HOME/tests/setup_environment.sh && bats $BATS_ARGS"
+    bash -c "bats $BATS_ARGS"
 
 echo "[setmeup] Tests complete."

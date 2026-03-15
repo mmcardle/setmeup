@@ -37,4 +37,7 @@ COPY --chown=testuser:testuser . /home/testuser/setmeup
 COPY --chown=testuser:testuser tests/ /home/testuser/tests/
 RUN chmod +x /home/testuser/tests/setup_environment.sh
 
-CMD ["/bin/bash", "-c", "$HOME/tests/setup_environment.sh && bats $HOME/tests/*.bats"]
+# Bake test setup into the image so repeated test runs are fast
+RUN /home/testuser/tests/setup_environment.sh
+
+CMD ["/bin/bash", "-c", "bats $HOME/tests/*.bats"]

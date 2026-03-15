@@ -11,12 +11,13 @@ shell: ## Interactive shell in a fresh Ubuntu container with the repo mounted
 		$(if $(GITHUB_TOKEN),-e GITHUB_TOKEN -e MISE_GITHUB_TOKEN=$(GITHUB_TOKEN)) \
 		$(TEST_IMAGE) bash -c '\
 			echo ""; \
-			echo "  Run setup once:"; \
-			echo "    ~/tests/setup_environment.sh"; \
-			echo ""; \
-			echo "  Then iterate with BATS:"; \
+			echo "  Setup is baked into the image."; \
+			echo "  Run tests directly:"; \
 			echo "    bats ~/tests/dotfiles.bats"; \
 			echo "    bats --filter \"aliases\" ~/tests/*.bats"; \
+			echo ""; \
+			echo "  To re-run setup after source changes:"; \
+			echo "    rm ~/.local/state/setmeup/test-setup-complete && ~/tests/setup_environment.sh"; \
 			echo ""; \
 			exec bash'
 
