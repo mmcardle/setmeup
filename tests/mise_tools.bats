@@ -40,3 +40,23 @@ setup() {
 @test "mise tool installed: uv" {
     assert_mise_tool uv
 }
+
+@test "mise tool installed: bat" {
+    assert_mise_tool bat
+}
+
+@test "mise tool installed: eza" {
+    assert_mise_tool eza
+}
+
+@test "mise tool installed: lazygit" {
+    assert_mise_tool lazygit
+}
+
+@test "mise tool installed: gh" {
+    assert_mise_tool gh
+}
+
+@test "mise tool installed: direnv" {
+    assert_mise_tool direnv
+}

@@ -116,3 +116,29 @@ setup() {
 @test "zshrc enables zsh-syntax-highlighting plugin" {
     assert_file_contains "$HOME/.zshrc" "zsh-syntax-highlighting"
 }
+
+# --- System packages (CLI tools) ---
+
+@test "system package installed: htop" {
+    assert_command_exists htop
+}
+
+@test "system package installed: tree" {
+    assert_command_exists tree
+}
+
+@test "system package installed: ncdu" {
+    assert_command_exists ncdu
+}
+
+@test "system package installed: tmux" {
+    assert_command_exists tmux
+}
+
+@test "system package installed: neovim" {
+    assert_command_exists nvim
+}
+
+@test "system package installed: httpie" {
+    assert_command_exists http
+}

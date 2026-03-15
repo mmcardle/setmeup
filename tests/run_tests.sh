@@ -5,7 +5,14 @@ set -e
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "[setmeup] Building test image..."
-docker build -t setmeup-test -f "$REPO_ROOT/tests/Dockerfile" "$REPO_ROOT"
+# Try to get GITHUB_TOKEN from gh CLI if not already set
+GITHUB_TOKEN="${GITHUB_TOKEN:-$(gh auth token 2>/dev/null || true)}"
+BUILD_ARGS=""
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+    BUILD_ARGS="--build-arg GITHUB_TOKEN=$GITHUB_TOKEN"
+    echo "[setmeup] GITHUB_TOKEN detected, passing to build"
+fi
+docker build $BUILD_ARGS -t setmeup-test -f "$REPO_ROOT/tests/Dockerfile" "$REPO_ROOT"
 
 echo "[setmeup] Running tests..."
 # Pass GITHUB_TOKEN to avoid GitHub API rate limits during mise installs

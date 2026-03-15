@@ -7,6 +7,11 @@ ripgrep = "latest"
 fd = "latest"
 fzf = "latest"
 uv = "latest"
+bat = "latest"
+eza = "latest"
+lazygit = "latest"
+gh = "latest"
+direnv = "latest"
 
 [settings]
 experimental = true

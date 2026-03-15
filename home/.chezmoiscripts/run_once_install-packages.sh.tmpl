@@ -16,7 +16,13 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
     apt-transport-https \
     ca-certificates \
     gnupg \
-    zsh
+    zsh \
+    htop \
+    tree \
+    ncdu \
+    tmux \
+    neovim \
+    httpie
 {{ else if eq .chezmoi.os "darwin" -}}
 echo "[setmeup] Installing system packages via brew..."
 brew install \
@@ -24,7 +30,13 @@ brew install \
     git \
     wget \
     gnupg \
-    zsh
+    zsh \
+    htop \
+    tree \
+    ncdu \
+    tmux \
+    neovim \
+    httpie
 {{ end -}}
 
 echo "[setmeup] System packages installed."

@@ -26,6 +26,9 @@ RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin" && \
     curl -fsLS https://mise.run | sh
 ENV PATH="/home/testuser/.local/bin:${PATH}"
 
+# Skip Powerlevel10k configuration wizard in test/debug shells
+ENV POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+
 # Pre-seed chezmoi config to avoid interactive prompts
 RUN mkdir -p /home/testuser/.config/chezmoi
 COPY --chown=testuser:testuser tests/chezmoi-test-config.toml /home/testuser/.config/chezmoi/chezmoi.toml
@@ -39,5 +42,10 @@ RUN chmod +x /home/testuser/tests/setup_environment.sh
 
 # Bake test setup into the image so repeated test runs are fast
 RUN /home/testuser/tests/setup_environment.sh
+
+# Pre-install mise tools so they're available in interactive shells
+# GITHUB_TOKEN avoids GitHub API rate limits for aqua-based tool downloads
+ARG GITHUB_TOKEN
+RUN GITHUB_TOKEN="${GITHUB_TOKEN}" MISE_GITHUB_TOKEN="${GITHUB_TOKEN}" mise install --yes
 
 CMD ["/bin/bash", "-c", "bats $HOME/tests/*.bats"]
