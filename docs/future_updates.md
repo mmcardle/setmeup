@@ -74,7 +74,6 @@ The guide sets many `defaults write` preferences:
 - Fast key repeat (KeyRepeat=2, InitialKeyRepeat=15)
 - Disable auto-correct/capitalize/period-substitution
 - Show all file extensions
-- Tap to click on trackpad
 
 **What to do:** Add a `run_once_macos-defaults.sh.tmpl` chezmoi script (guarded with `{{ if eq .chezmoi.os "darwin" }}`).
 
