@@ -28,9 +28,12 @@ setmeup/
 │   │
 │   ├── dot_ssh/config.tmpl         # SSH config (macOS: 1Password agent, Linux: ed25519)
 │   │
-│   └── .chezmoiscripts/            # Chezmoi lifecycle scripts
-│       ├── run_once_install-packages.sh.tmpl       # System packages (apt/brew, runs once)
-│       └── run_onchange_install-mise-tools.sh.tmpl  # Mise tools (runs when config changes)
+│   └── .chezmoiscripts/            # Chezmoi lifecycle scripts (numbered for execution order)
+│       ├── run_onchange_001-install-packages.sh.tmpl      # System packages (apt/brew)
+│       ├── run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
+│       ├── run_onchange_003-install-mise-tools.sh.tmpl    # Mise tools (runs when config changes)
+│       ├── run_onchange_004-install-ai-agents.sh.tmpl     # Claude Code + Codex
+│       └── run_onchange_005-install-agent-skills.sh.tmpl  # Superpowers skills
 │
 └── tests/
     ├── run_tests.sh                # Test runner (builds Docker, supports argument passthrough)
@@ -43,6 +46,7 @@ setmeup/
     ├── shell_clean.bats            # Interactive shell cleanliness test
     ├── mise_tools.bats             # Mise tool installation tests
     ├── idempotency.bats            # Chezmoi re-apply idempotency test
+    ├── ai_agents.bats              # AI coding agent and skills tests
     └── update_script.bats          # Update script tests
 ```
 
@@ -50,8 +54,7 @@ setmeup/
 
 - `dot_` prefix → becomes `.` in home (e.g. `dot_aliases` → `~/.aliases`)
 - `.tmpl` suffix → templated file (chezmoi variables interpolated)
-- `run_once_*` scripts → execute once per machine
-- `run_onchange_*` scripts → execute when content hash changes
+- `run_onchange_NNN-*` scripts → execute when content hash changes; numeric prefix controls order
 
 ### Key paths at runtime
 

@@ -1,0 +1,33 @@
+#!/bin/sh
+# Configure macOS defaults for development (re-runs when this script changes)
+# hash: {{ include ".chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl" | sha256sum }}
+set -e
+
+{{ if eq .chezmoi.os "darwin" -}}
+echo "[setmeup] Configuring macOS defaults..."
+
+# Show hidden files in Finder
+defaults write com.apple.finder AppleShowAllFiles -bool true
+
+# Enable key repeat (disable character accent menu)
+defaults write -g ApplePressAndHoldEnabled -bool false
+defaults write -g KeyRepeat -int 2
+defaults write -g InitialKeyRepeat -int 15
+
+# Disable automatic spelling corrections
+defaults write -g NSAutomaticSpellingCorrectionEnabled -bool false
+defaults write -g NSAutomaticCapitalizationEnabled -bool false
+defaults write -g NSAutomaticPeriodSubstitutionEnabled -bool false
+
+# Show all file extensions
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+# Enable tap to click on trackpad
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
+# Apply Finder changes
+killall Finder 2>/dev/null || true
+
+echo "[setmeup] macOS defaults configured."
+{{ end -}}

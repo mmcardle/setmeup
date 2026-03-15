@@ -198,25 +198,25 @@ setup() {
 # --- macOS defaults script ---
 
 @test "macos-defaults script exists in chezmoi source" {
-    assert_file_exists "$HOME/setmeup/home/.chezmoiscripts/run_once_macos-defaults.sh.tmpl"
+    assert_file_exists "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl"
 }
 
 @test "macos-defaults script sets Finder to show hidden files" {
-    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_once_macos-defaults.sh.tmpl" "AppleShowAllFiles"
+    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl" "AppleShowAllFiles"
 }
 
 @test "macos-defaults script sets fast key repeat" {
-    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_once_macos-defaults.sh.tmpl" "KeyRepeat"
+    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl" "KeyRepeat"
 }
 
 @test "macos-defaults script disables auto-correct" {
-    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_once_macos-defaults.sh.tmpl" "NSAutomaticSpellingCorrectionEnabled"
+    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl" "NSAutomaticSpellingCorrectionEnabled"
 }
 
 @test "macos-defaults script shows all file extensions" {
-    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_once_macos-defaults.sh.tmpl" "AppleShowAllExtensions"
+    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl" "AppleShowAllExtensions"
 }
 
 @test "macos-defaults script enables tap to click" {
-    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_once_macos-defaults.sh.tmpl" "com.apple.driver.AppleBluetoothMultitouch.trackpad"
+    assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl" "com.apple.driver.AppleBluetoothMultitouch.trackpad"
 }

@@ -114,7 +114,72 @@ make test-file FILE=dotfiles.bats
 ### Adding a new system package
 
 1. Test: `assert_command_exists <package>` in the appropriate `.bats` file
-2. Implement: add the package to the appropriate list in `home/.chezmoiscripts/run_once_install-packages.sh.tmpl`
+2. Implement: add the package to the appropriate list in `home/.chezmoiscripts/run_onchange_001-install-packages.sh.tmpl`
+
+### Adding a new chezmoi script
+
+Scripts live in `home/.chezmoiscripts/` and use a **numeric prefix** for execution order:
+
+```
+run_onchange_001-install-packages.sh.tmpl      # system packages (apt/brew)
+run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
+run_onchange_003-install-mise-tools.sh.tmpl    # mise tool installs
+run_onchange_004-install-ai-agents.sh.tmpl     # AI coding agents
+run_onchange_005-install-agent-skills.sh.tmpl  # agent skills
+```
+
+When adding a new script, pick the next number (e.g. `006`). To insert between existing scripts, use a number in the gap (e.g. `003` and `004` have room for `0035` if needed, but generally append).
+
+All scripts use `run_onchange_` with a self-referencing hash so they re-run when their content changes:
+
+```bash
+#!/bin/bash
+# hash: {{ include ".chezmoiscripts/run_onchange_006-my-script.sh.tmpl" | sha256sum }}
+set -e
+# ... your script here
+```
+
+#### Scripts that need mise tools (node, python, etc.)
+
+Chezmoi applies entries alphabetically by target path. `.chezmoiscripts/` sorts before `.config/`, so **all scripts run before `~/.config/mise/config.toml` is written**. This means:
+
+- `mise install --yes` finds no config and installs nothing
+- `mise exec -- npm ...` (without a version) fails because mise doesn't know which tool version to use
+
+**Use `mise exec <tool>@<version> --` with an explicit version** — this auto-installs the tool if missing, no config file needed:
+
+```bash
+#!/bin/bash
+# hash: {{ include ".chezmoiscripts/run_onchange_006-my-script.sh.tmpl" | sha256sum }}
+set -e
+export PATH="$HOME/.local/bin:$PATH"
+if command -v mise >/dev/null 2>&1; then
+    mise exec node@lts -- npm i -g some-package
+else
+    echo "[setmeup] Warning: mise not found, skipping install"
+fi
+```
+
+#### Other gotchas
+
+- Use `#!/bin/bash` not `#!/bin/sh` if the script uses `mise activate bash` — its output contains bash-specific syntax (`[[`, `export -a`)
+- In tests, use `mise exec node@lts -- <command>` instead of expecting npm globals on PATH directly
+
+#### Debugging chezmoi scripts
+
+If a script fails during `docker build`, don't repeatedly rebuild the full image. Build a debug image that stops before `chezmoi apply` and explore interactively:
+
+```sh
+# Build without running setup_environment.sh (copy Dockerfile up to COPY steps, skip RUN setup_environment.sh)
+docker build -f - -t setmeup-debug . <<'DOCKERFILE'
+FROM ubuntu:24.04
+# ... (same as tests/Dockerfile up to the COPY steps, omit RUN setup_environment.sh and beyond)
+DOCKERFILE
+
+# Explore
+docker run --rm setmeup-debug bash -c 'chezmoi managed --source=$HOME/setmeup/home'
+docker run --rm setmeup-debug bash -c 'mise exec node@lts -- node --version'
+```
 
 ### Adding OS-conditional behavior
 
@@ -145,6 +210,7 @@ dot_some_macos_thing
 | `shell_clean.bats` | Interactive shell has no background noise |
 | `mise_tools.bats` | Mise tools are installed correctly |
 | `idempotency.bats` | Chezmoi re-apply succeeds without errors |
+| `ai_agents.bats` | AI coding agent and skills installation |
 | `update_script.bats` | Update script exists and is executable |
 
 ## Test Helpers Reference

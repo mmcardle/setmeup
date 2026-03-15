@@ -1,0 +1,16 @@
+#!/bin/bash
+# Install agent skills (re-runs when this script changes)
+# hash: {{ include ".chezmoiscripts/run_onchange_005-install-agent-skills.sh.tmpl" | sha256sum }}
+set -e
+
+echo "[setmeup] Installing agent skills..."
+
+export PATH="$HOME/.local/bin:$PATH"
+if command -v mise >/dev/null 2>&1; then
+    mise exec node@lts -- npx -y skills add obra/superpowers -a claude-code -g -y
+    mise exec node@lts -- npx -y skills add obra/superpowers -a codex -g -y
+else
+    echo "[setmeup] Warning: mise not found, skipping agent skills install"
+fi
+
+echo "[setmeup] Agent skills installed."

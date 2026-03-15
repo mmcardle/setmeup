@@ -1,5 +1,6 @@
 #!/bin/sh
-# Install system-level packages (runs once per machine)
+# Install system-level packages (re-runs when this script changes)
+# hash: {{ include ".chezmoiscripts/run_onchange_001-install-packages.sh.tmpl" | sha256sum }}
 set -e
 
 {{ if eq .chezmoi.os "linux" -}}
