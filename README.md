@@ -13,18 +13,20 @@ curl -fsLS https://raw.githubusercontent.com/mmcardle/setmeup/main/bootstrap.sh 
 This will:
 1. Install chezmoi and mise
 2. Apply all dotfiles and shell configurations
-3. Install development tools (Python, Node, Rust, jq, ripgrep, fd, fzf, uv)
+3. Install system packages (htop, tree, ncdu, tmux, neovim, httpie, etc.)
+4. Install development tools via mise (Python, Node, Rust, and more)
 
 ## What's Managed
 
 | Component | Details |
 |-----------|---------|
 | **Shell configs** | `.bashrc`, `.zshrc` with mise activation, auto-update checks |
-| **Aliases** | Git, Docker, and utility aliases shared across shells |
-| **Git config** | User name/email (prompted on first run), sensible defaults |
-| **SSH config** | Platform-aware SSH settings |
-| **Dev tools** | Python, Node (LTS), Rust, jq, ripgrep, fd, fzf, uv via mise |
-| **System packages** | build-essential, curl, git, zsh, etc. via apt/brew |
+| **Oh My Zsh** | With Powerlevel10k theme, autosuggestions, and syntax highlighting |
+| **Aliases** | Git, Docker, utility aliases, plus modern tool replacements (`cat→bat`, `ls→eza`, `find→fd`, `grep→rg`) |
+| **Git config** | User name/email (prompted on first run), sensible defaults, global gitignore |
+| **SSH config** | Platform-aware SSH settings (1Password agent on macOS, ed25519 on Linux) |
+| **Dev tools (mise)** | Python, Node (LTS), Rust, jq, ripgrep, fd, fzf, uv, bat, eza, lazygit, gh, direnv |
+| **System packages** | build-essential, curl, git, zsh, htop, tree, ncdu, tmux, neovim, httpie via apt/brew |
 
 ## Updating
 
@@ -55,12 +57,15 @@ setmeup/
 └── home/                           # chezmoi source directory
     ├── .chezmoi.toml.tmpl          # chezmoi config with prompts
     ├── .chezmoiignore              # OS-specific ignore rules
+    ├── .chezmoiexternal.toml       # oh-my-zsh, powerlevel10k, zsh plugins
     ├── dot_bashrc.tmpl             # managed .bashrc
     ├── dot_zshrc.tmpl              # managed .zshrc
-    ├── dot_aliases                 # shared shell aliases
+    ├── dot_aliases                 # shared shell aliases + modern tool aliases
     ├── dot_config/
     │   ├── mise/config.toml        # mise tool definitions
-    │   └── git/config.tmpl         # git config (templated)
+    │   └── git/
+    │       ├── config.tmpl         # git config (templated)
+    │       └── ignore              # global gitignore
     ├── dot_ssh/config.tmpl         # SSH config (templated)
     └── .chezmoiscripts/
         ├── run_once_install-packages.sh.tmpl
