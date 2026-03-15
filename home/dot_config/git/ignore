@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build artifacts
+*.pyc
+__pycache__/
+*.o
+*.so
+
+# OS files
+Thumbs.db
+Desktop.ini

@@ -168,3 +168,29 @@ setup() {
 @test "aliases file conditionally aliases grep to rg" {
     assert_file_contains "$HOME/.aliases" 'alias grep="rg'
 }
+
+# --- Global gitignore ---
+
+@test "managed dotfile exists: .config/git/ignore" {
+    assert_file_exists "$HOME/.config/git/ignore"
+}
+
+@test "git config sets excludesFile" {
+    assert_file_contains "$HOME/.config/git/config" "excludesFile"
+}
+
+@test "global gitignore contains .DS_Store" {
+    assert_file_contains "$HOME/.config/git/ignore" ".DS_Store"
+}
+
+@test "global gitignore contains .env" {
+    assert_file_contains "$HOME/.config/git/ignore" ".env"
+}
+
+@test "global gitignore contains node_modules" {
+    assert_file_contains "$HOME/.config/git/ignore" "node_modules"
+}
+
+@test "global gitignore contains IDE files" {
+    assert_file_contains "$HOME/.config/git/ignore" ".idea"
+}
