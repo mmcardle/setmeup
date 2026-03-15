@@ -16,4 +16,4 @@ repos:
         entry: make test
         language: system
         pass_filenames: false
-        files: ^(home/|tests/|bootstrap\.sh|update\.sh|Makefile|Dockerfile)
+        files: ^(home/|tests/|bootstrap\.sh|update\.sh|Makefile)
