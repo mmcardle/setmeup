@@ -10,10 +10,6 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 # Codex — requires Node.js (mise exec auto-installs node@lts)
 export PATH="$HOME/.local/bin:$PATH"
-if command -v mise >/dev/null 2>&1; then
-    mise exec node@lts -- npm i -g @openai/codex
-else
-    echo "[setmeup] Warning: mise not found, skipping Codex install"
-fi
+mise exec node@lts -- npm i -g @openai/codex
 
 echo "[setmeup] AI coding agents installed."

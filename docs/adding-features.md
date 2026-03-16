@@ -153,12 +153,10 @@ Chezmoi applies entries alphabetically by target path. `.chezmoiscripts/` sorts 
 # hash: {{ include ".chezmoiscripts/run_onchange_006-my-script.sh.tmpl" | sha256sum }}
 set -e
 export PATH="$HOME/.local/bin:$PATH"
-if command -v mise >/dev/null 2>&1; then
-    mise exec node@lts -- npm i -g some-package
-else
-    echo "[setmeup] Warning: mise not found, skipping install"
-fi
+mise exec node@lts -- npm i -g some-package
 ```
+
+Mise is installed by `bootstrap.sh` before chezmoi runs, so it will always be available. Don't add defensive guards — let `set -e` catch failures loudly.
 
 #### Other gotchas
 

@@ -197,6 +197,23 @@ setup() {
 
 # --- macOS defaults script ---
 
+# --- Chezmoi scripts fail fast if mise is missing ---
+
+@test "install-mise-tools script fails fast without mise guard" {
+    run grep -c "skipping tool install" "$HOME/setmeup/home/.chezmoiscripts/run_onchange_003-install-mise-tools.sh.tmpl"
+    [ "$output" = "0" ]
+}
+
+@test "install-ai-agents script fails fast without mise guard" {
+    run grep -c "skipping Codex install" "$HOME/setmeup/home/.chezmoiscripts/run_onchange_004-install-ai-agents.sh.tmpl"
+    [ "$output" = "0" ]
+}
+
+@test "install-agent-skills script fails fast without mise guard" {
+    run grep -c "skipping agent skills install" "$HOME/setmeup/home/.chezmoiscripts/run_onchange_005-install-agent-skills.sh.tmpl"
+    [ "$output" = "0" ]
+}
+
 @test "macos-defaults script exists in chezmoi source" {
     assert_file_exists "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl"
 }

@@ -7,9 +7,5 @@ echo "[setmeup] Installing mise tools..."
 
 export PATH="$HOME/.local/bin:$PATH"
 
-if command -v mise >/dev/null 2>&1; then
-    mise install --yes
-    echo "[setmeup] Mise tools installed."
-else
-    echo "[setmeup] Warning: mise not found, skipping tool install"
-fi
+mise install --yes
+echo "[setmeup] Mise tools installed."
