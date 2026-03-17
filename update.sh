@@ -17,8 +17,8 @@ info "Upgrading mise tools..."
 mise upgrade --yes
 
 info "Refreshing agent skills..."
-mise exec node@lts -- npx -y skills add obra/superpowers -a claude-code -g -y || warn "Skills refresh failed (non-fatal)"
-mise exec node@lts -- npx -y skills add obra/superpowers -a codex -g -y || warn "Skills refresh failed (non-fatal)"
+mise exec node@lts -- npx -y skills update -a claude-code -g -y || warn "Skills refresh failed (non-fatal)"
+mise exec node@lts -- npx -y skills update -a codex -g -y || warn "Skills refresh failed (non-fatal)"
 
 # Update the check timestamp
 mkdir -p "$HOME/.local/state/setmeup"
