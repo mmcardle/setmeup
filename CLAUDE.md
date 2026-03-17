@@ -24,7 +24,7 @@ setmeup/
 │   │
 │   ├── dot_config/
 │   │   ├── git/config.tmpl         # Git config (templated user, aliases, defaults)
-│   │   └── mise/config.toml        # Mise tool definitions (python, node, rust, jq, rg, fd, fzf, uv)
+│   │   └── mise/config.toml        # Mise tool definitions (python, node, rust, jq, rg, fd, fzf, uv, claude-code, codex)
 │   │
 │   ├── dot_ssh/config.tmpl         # SSH config (macOS: 1Password agent, Linux: ed25519)
 │   │
@@ -32,8 +32,7 @@ setmeup/
 │       ├── run_onchange_001-install-packages.sh.tmpl      # System packages (apt/brew)
 │       ├── run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
 │       ├── run_onchange_003-install-mise-tools.sh.tmpl    # Mise tools (runs when config changes)
-│       ├── run_onchange_004-install-ai-agents.sh.tmpl     # Claude Code + Codex
-│       └── run_onchange_005-install-agent-skills.sh.tmpl  # Superpowers skills
+│       └── run_onchange_004-install-agent-skills.sh.tmpl  # Superpowers skills (re-runs when mise config changes)
 │
 └── tests/
     ├── run_tests.sh                # Test runner (builds Docker, supports argument passthrough)

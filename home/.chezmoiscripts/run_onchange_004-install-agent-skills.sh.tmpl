@@ -1,6 +1,7 @@
 #!/bin/bash
-# Install agent skills (re-runs when this script changes)
-# hash: {{ include ".chezmoiscripts/run_onchange_005-install-agent-skills.sh.tmpl" | sha256sum }}
+# Install agent skills (re-runs when this script or mise config changes)
+# hash: {{ include ".chezmoiscripts/run_onchange_004-install-agent-skills.sh.tmpl" | sha256sum }}
+# mise config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
 set -e
 
 echo "[setmeup] Installing agent skills..."

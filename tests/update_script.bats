@@ -12,3 +12,11 @@ setup() {
 @test "update.sh is executable" {
     [ -x "$HOME/setmeup/update.sh" ]
 }
+
+@test "update.sh contains skills refresh" {
+    assert_file_contains "$HOME/setmeup/update.sh" "skills"
+}
+
+@test "update.sh contains mise upgrade" {
+    assert_file_contains "$HOME/setmeup/update.sh" "mise upgrade"
+}

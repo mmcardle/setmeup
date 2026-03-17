@@ -204,13 +204,8 @@ setup() {
     [ "$output" = "0" ]
 }
 
-@test "install-ai-agents script fails fast without mise guard" {
-    run grep -c "skipping Codex install" "$HOME/setmeup/home/.chezmoiscripts/run_onchange_004-install-ai-agents.sh.tmpl"
-    [ "$output" = "0" ]
-}
-
 @test "install-agent-skills script fails fast without mise guard" {
-    run grep -c "skipping agent skills install" "$HOME/setmeup/home/.chezmoiscripts/run_onchange_005-install-agent-skills.sh.tmpl"
+    run grep -c "skipping agent skills install" "$HOME/setmeup/home/.chezmoiscripts/run_onchange_004-install-agent-skills.sh.tmpl"
     [ "$output" = "0" ]
 }
 

@@ -60,3 +60,7 @@ setup() {
 @test "mise tool installed: direnv" {
     assert_mise_tool direnv
 }
+
+@test "mise tool installed: claude" {
+    assert_mise_tool claude
+}

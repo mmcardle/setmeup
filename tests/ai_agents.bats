@@ -6,12 +6,11 @@ setup() {
 }
 
 @test "claude code is installed" {
-    assert_command_exists claude
+    assert_mise_tool claude
 }
 
 @test "codex is installed" {
-    # codex is installed as npm global under mise's node
-    mise exec node@lts -- codex --version
+    mise which codex
 }
 
 @test "npx skills CLI is available" {

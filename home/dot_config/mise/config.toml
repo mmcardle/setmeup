@@ -12,6 +12,8 @@ eza = "latest"
 lazygit = "latest"
 gh = "latest"
 direnv = "latest"
+claude-code = "latest"
+"npm:@openai/codex" = "latest"
 
 [settings]
 experimental = true

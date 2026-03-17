@@ -124,11 +124,10 @@ Scripts live in `home/.chezmoiscripts/` and use a **numeric prefix** for executi
 run_onchange_001-install-packages.sh.tmpl      # system packages (apt/brew)
 run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
 run_onchange_003-install-mise-tools.sh.tmpl    # mise tool installs
-run_onchange_004-install-ai-agents.sh.tmpl     # AI coding agents
-run_onchange_005-install-agent-skills.sh.tmpl  # agent skills
+run_onchange_004-install-agent-skills.sh.tmpl  # agent skills (re-runs when mise config changes)
 ```
 
-When adding a new script, pick the next number (e.g. `006`). To insert between existing scripts, use a number in the gap (e.g. `003` and `004` have room for `0035` if needed, but generally append).
+When adding a new script, pick the next number (e.g. `005`). To insert between existing scripts, use a number in the gap (e.g. `003` and `004` have room for `0035` if needed, but generally append).
 
 All scripts use `run_onchange_` with a self-referencing hash so they re-run when their content changes:
 
