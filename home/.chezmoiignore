@@ -1,5 +1,6 @@
 README.md
 LICENSE
+**/*.zwc
 
 # Ignore macOS-specific files on Linux
 {{ if ne .chezmoi.os "darwin" }}
