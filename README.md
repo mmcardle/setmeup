@@ -7,14 +7,19 @@ A single command bootstraps a fully configured environment with dotfiles, shell 
 ## Quick Start
 
 ```sh
+# Optional: set a GitHub token to avoid API rate limits (see below)
+export GITHUB_TOKEN=ghp_your_token_here
+
 curl -fsLS https://raw.githubusercontent.com/mmcardle/setmeup/main/bootstrap.sh | sh
 ```
 
 This will:
 1. Install chezmoi and mise
-2. Apply all dotfiles and shell configurations
-3. Install system packages (htop, tree, ncdu, tmux, neovim, httpie, etc.)
-4. Install development tools via mise (Python, Node, Rust, and more)
+2. Back up any existing dotfiles to `~/.local/state/setmeup/backups/`
+3. Apply all dotfiles and shell configurations
+4. Install system packages (htop, tree, ncdu, tmux, neovim, httpie, etc.)
+5. Install development tools via mise (Python, Node, Rust, and more)
+6. Install AI coding agents (Claude Code, Codex) and agent skills
 
 ## What's Managed
 
@@ -40,6 +45,21 @@ chezmoi update && mise install
 ```
 
 A daily auto-check runs on shell start and notifies you when updates are available.
+
+## GitHub API Rate Limits
+
+Mise downloads tools from GitHub, which rate-limits unauthenticated requests. If bootstrap fails with 403 errors, export a GitHub token first:
+
+```sh
+# Option 1: GitHub CLI (easiest — no scopes needed)
+gh auth login
+export GITHUB_TOKEN=$(gh auth token)
+
+# Option 2: Personal access token (https://github.com/settings/tokens — no scopes needed)
+export GITHUB_TOKEN=ghp_your_token_here
+```
+
+Then re-run the bootstrap or `mise install`. Mise automatically picks up `GITHUB_TOKEN`.
 
 ## Supported Platforms
 

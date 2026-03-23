@@ -7,7 +7,9 @@ set -e
 echo "[setmeup] Installing agent skills..."
 
 export PATH="$HOME/.local/bin:$PATH"
+
 mise exec node@lts -- npx -y skills add obra/superpowers -a claude-code -g -y
 mise exec node@lts -- npx -y skills add obra/superpowers -a codex -g -y
+mise exec node@lts -- npx -y skills add gianchub/claude-plugins -a claude-code -g -y
 
 echo "[setmeup] Agent skills installed."
