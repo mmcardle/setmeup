@@ -1,0 +1,6 @@
+# Agent skills to install via `npx skills add`
+# Format: <package> <agent>
+obra/superpowers claude-code
+obra/superpowers codex
+gianchub/claude-plugins claude-code
+gianchub/claude-plugins codex

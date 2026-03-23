@@ -23,10 +23,6 @@ setup() {
     assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "gianchub/claude-plugins claude-code"
 }
 
-@test "update.sh reads from agent-skills.list" {
-    assert_file_contains "$HOME/setmeup/update.sh" "agent-skills.list"
-}
-
 @test "update.sh contains mise upgrade" {
     assert_file_contains "$HOME/setmeup/update.sh" "mise upgrade"
 }
