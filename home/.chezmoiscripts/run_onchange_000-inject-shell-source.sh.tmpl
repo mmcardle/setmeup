@@ -1,0 +1,20 @@
+#!/bin/bash
+# Inject source lines into ~/.bashrc and ~/.zshrc (idempotent)
+# This ensures setmeup's shell config is loaded without overwriting user customizations.
+set -euo pipefail
+
+BASHRC="$HOME/.bashrc"
+ZSHRC="$HOME/.zshrc"
+
+BASH_SOURCE_LINE='[ -f "$HOME/.config/setmeup/bashrc" ] && . "$HOME/.config/setmeup/bashrc"'
+ZSH_SOURCE_LINE='[[ -f "$HOME/.config/setmeup/zshrc" ]] && source "$HOME/.config/setmeup/zshrc"'
+
+# Inject into bashrc
+if [ ! -f "$BASHRC" ] || ! grep -qF '.config/setmeup/bashrc' "$BASHRC"; then
+    echo "$BASH_SOURCE_LINE" >> "$BASHRC"
+fi
+
+# Inject into zshrc
+if [ ! -f "$ZSHRC" ] || ! grep -qF '.config/setmeup/zshrc' "$ZSHRC"; then
+    echo "$ZSH_SOURCE_LINE" >> "$ZSHRC"
+fi

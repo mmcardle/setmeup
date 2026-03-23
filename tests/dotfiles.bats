@@ -7,12 +7,12 @@ setup() {
 
 # --- File existence ---
 
-@test "managed dotfile exists: .bashrc" {
-    assert_file_exists "$HOME/.bashrc"
+@test "managed dotfile exists: .config/setmeup/bashrc" {
+    assert_file_exists "$HOME/.config/setmeup/bashrc"
 }
 
-@test "managed dotfile exists: .zshrc" {
-    assert_file_exists "$HOME/.zshrc"
+@test "managed dotfile exists: .config/setmeup/zshrc" {
+    assert_file_exists "$HOME/.config/setmeup/zshrc"
 }
 
 @test "managed dotfile exists: .aliases" {
@@ -29,6 +29,27 @@ setup() {
 
 @test "managed dotfile exists: .ssh/config" {
     assert_file_exists "$HOME/.ssh/config"
+}
+
+# --- Source injection ---
+
+@test "bashrc sources setmeup config" {
+    assert_file_contains "$HOME/.bashrc" '.config/setmeup/bashrc'
+}
+
+@test "zshrc sources setmeup config" {
+    assert_file_contains "$HOME/.zshrc" '.config/setmeup/zshrc'
+}
+
+@test "source injection is idempotent" {
+    # Count source lines — should be exactly 1 each
+    local bash_count
+    bash_count=$(grep -c '.config/setmeup/bashrc' "$HOME/.bashrc")
+    [ "$bash_count" -eq 1 ]
+
+    local zsh_count
+    zsh_count=$(grep -c '.config/setmeup/zshrc' "$HOME/.zshrc")
+    [ "$zsh_count" -eq 1 ]
 }
 
 # --- Templated values ---
@@ -57,22 +78,22 @@ setup() {
 
 # --- Shell config sources aliases ---
 
-@test "bashrc sources aliases" {
-    assert_file_contains "$HOME/.bashrc" ". ~/.aliases"
+@test "setmeup bashrc sources aliases" {
+    assert_file_contains "$HOME/.config/setmeup/bashrc" ". ~/.aliases"
 }
 
-@test "zshrc sources aliases" {
-    assert_file_contains "$HOME/.zshrc" "source ~/.aliases"
+@test "setmeup zshrc sources aliases" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "source ~/.aliases"
 }
 
 # --- Mise activation ---
 
-@test "bashrc activates mise" {
-    assert_file_contains "$HOME/.bashrc" "mise activate bash"
+@test "setmeup bashrc activates mise" {
+    assert_file_contains "$HOME/.config/setmeup/bashrc" "mise activate bash"
 }
 
-@test "zshrc activates mise" {
-    assert_file_contains "$HOME/.zshrc" "mise activate zsh"
+@test "setmeup zshrc activates mise" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "mise activate zsh"
 }
 
 # --- SSH config ---
@@ -83,12 +104,12 @@ setup() {
 
 # --- Oh-my-zsh ---
 
-@test "zshrc sets powerlevel10k theme" {
-    assert_file_contains "$HOME/.zshrc" 'ZSH_THEME="powerlevel10k/powerlevel10k"'
+@test "setmeup zshrc sets powerlevel10k theme" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" 'ZSH_THEME="powerlevel10k/powerlevel10k"'
 }
 
-@test "zshrc sources oh-my-zsh" {
-    assert_file_contains "$HOME/.zshrc" 'source "$ZSH/oh-my-zsh.sh"'
+@test "setmeup zshrc sources oh-my-zsh" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" 'source "$ZSH/oh-my-zsh.sh"'
 }
 
 @test "oh-my-zsh is installed" {
@@ -109,12 +130,12 @@ setup() {
     assert_dir_exists "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
 }
 
-@test "zshrc enables zsh-autosuggestions plugin" {
-    assert_file_contains "$HOME/.zshrc" "zsh-autosuggestions"
+@test "setmeup zshrc enables zsh-autosuggestions plugin" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "zsh-autosuggestions"
 }
 
-@test "zshrc enables zsh-syntax-highlighting plugin" {
-    assert_file_contains "$HOME/.zshrc" "zsh-syntax-highlighting"
+@test "setmeup zshrc enables zsh-syntax-highlighting plugin" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "zsh-syntax-highlighting"
 }
 
 # --- System packages (CLI tools) ---

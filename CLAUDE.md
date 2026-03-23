@@ -8,7 +8,6 @@ A tool for setting up a new development machine.
 setmeup/
 ├── bootstrap.sh                    # Curl-able entry point: detects OS, installs chezmoi+mise, applies dotfiles
 ├── update.sh                       # Manual update script (installed to ~/.local/bin/setmeup-update.sh)
-├── Dockerfile                      # Dev container
 ├── Makefile                        # make test, make shell
 ├── .chezmoiroot                    # Marks "home/" as chezmoi source root
 │
@@ -18,17 +17,19 @@ setmeup/
 │   ├── .chezmoiexternal.toml       # External downloads (oh-my-zsh, powerlevel10k)
 │   ├── dot_chezmoiignore           # Never-manage list (.secrets)
 │   │
-│   ├── dot_bashrc.tmpl             # Managed ~/.bashrc (mise activation, auto-update check)
-│   ├── dot_zshrc.tmpl              # Managed ~/.zshrc (mise activation, auto-update check)
 │   ├── dot_aliases                 # Shared shell aliases (git, docker, utilities)
 │   │
 │   ├── dot_config/
 │   │   ├── git/config.tmpl         # Git config (templated user, aliases, defaults)
-│   │   └── mise/config.toml        # Mise tool definitions (python, node, rust, jq, rg, fd, fzf, uv, claude-code, codex)
+│   │   ├── mise/config.toml        # Mise tool definitions (python, node, rust, jq, rg, fd, fzf, uv, claude-code, codex)
+│   │   └── setmeup/
+│   │       ├── bashrc.tmpl         # Shell config sourced from ~/.bashrc (mise, history, prompt, auto-update)
+│   │       └── zshrc.tmpl          # Shell config sourced from ~/.zshrc (p10k, oh-my-zsh, mise, auto-update)
 │   │
 │   ├── dot_ssh/config.tmpl         # SSH config (macOS: 1Password agent, Linux: ed25519)
 │   │
 │   └── .chezmoiscripts/            # Chezmoi lifecycle scripts (numbered for execution order)
+│       ├── run_onchange_000-inject-shell-source.sh.tmpl   # Injects source lines into ~/.bashrc and ~/.zshrc
 │       ├── run_onchange_001-install-packages.sh.tmpl      # System packages (apt/brew)
 │       ├── run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
 │       ├── run_onchange_003-install-mise-tools.sh.tmpl    # Mise tools (runs when config changes)

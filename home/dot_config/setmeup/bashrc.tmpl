@@ -1,4 +1,6 @@
-# ~/.bashrc — managed by chezmoi (setmeup)
+# ~/.config/setmeup/bashrc — managed by chezmoi (setmeup)
+# Sourced from ~/.bashrc
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -104,7 +106,3 @@ _setmeup_check_updates() {
 }
 _setmeup_check_updates
 
-# ---------------------------------------------------------------------------
-# Private/local settings (not managed by chezmoi)
-# ---------------------------------------------------------------------------
-[ -f ~/.secrets ] && source ~/.secrets

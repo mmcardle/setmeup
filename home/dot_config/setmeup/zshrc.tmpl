@@ -1,4 +1,6 @@
-# ~/.zshrc — managed by chezmoi (setmeup)
+# ~/.config/setmeup/zshrc — managed by chezmoi (setmeup)
+# Sourced from ~/.zshrc
+
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
@@ -104,7 +106,3 @@ _setmeup_check_updates
 # ---------------------------------------------------------------------------
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# ---------------------------------------------------------------------------
-# Private/local settings (not managed by chezmoi)
-# ---------------------------------------------------------------------------
-[ -f ~/.secrets ] && source ~/.secrets
