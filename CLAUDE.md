@@ -26,7 +26,6 @@ setmeup/
 │   │       ├── bashrc.tmpl         # Shell config sourced from ~/.bashrc (mise, history, prompt, auto-update)
 │   │       └── zshrc.tmpl          # Shell config sourced from ~/.zshrc (p10k, oh-my-zsh, mise, auto-update)
 │   │
-│   ├── dot_ssh/config.tmpl         # SSH config (macOS: 1Password agent, Linux: ed25519)
 │   │
 │   └── .chezmoiscripts/            # Chezmoi lifecycle scripts (numbered for execution order)
 │       ├── run_onchange_000-inject-shell-source.sh.tmpl   # Injects source lines into ~/.bashrc and ~/.zshrc

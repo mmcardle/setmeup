@@ -27,9 +27,6 @@ setup() {
     assert_file_exists "$HOME/.config/mise/config.toml"
 }
 
-@test "managed dotfile exists: .ssh/config" {
-    assert_file_exists "$HOME/.ssh/config"
-}
 
 # --- Source injection ---
 
@@ -98,9 +95,6 @@ setup() {
 
 # --- SSH config ---
 
-@test "SSH config uses Linux identity file" {
-    assert_file_contains "$HOME/.ssh/config" "IdentityFile ~/.ssh/id_ed25519"
-}
 
 # --- Oh-my-zsh ---
 

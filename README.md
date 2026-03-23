@@ -29,7 +29,6 @@ This will:
 | **Oh My Zsh** | With Powerlevel10k theme, autosuggestions, and syntax highlighting |
 | **Aliases** | Git, Docker, utility aliases, plus modern tool replacements (`cat→bat`, `ls→eza`, `find→fd`, `grep→rg`) |
 | **Git config** | User name/email (prompted on first run), sensible defaults, global gitignore |
-| **SSH config** | Platform-aware SSH settings (1Password agent on macOS, ed25519 on Linux) |
 | **Dev tools (mise)** | Python, Node (LTS), Rust, jq, ripgrep, fd, fzf, uv, bat, eza, lazygit, gh, direnv |
 | **System packages** | build-essential, curl, git, zsh, htop, tree, ncdu, tmux, neovim, httpie via apt/brew |
 
@@ -86,7 +85,6 @@ setmeup/
     │   └── git/
     │       ├── config.tmpl         # git config (templated)
     │       └── ignore              # global gitignore
-    ├── dot_ssh/config.tmpl         # SSH config (templated)
     └── .chezmoiscripts/
         ├── run_once_install-packages.sh.tmpl
         └── run_onchange_install-mise-tools.sh.tmpl

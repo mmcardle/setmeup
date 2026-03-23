@@ -34,7 +34,7 @@ assert_file_contains() {
         echo "file does not exist: $file" >&2
         return 1
     fi
-    if ! grep -q "$pattern" "$file"; then
+    if ! grep -qF "$pattern" "$file"; then
         echo "expected '$file' to contain '$pattern'" >&2
         return 1
     fi

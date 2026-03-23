@@ -18,7 +18,7 @@ command_exists() { command -v "$1" >/dev/null 2>&1; }
 # Back up existing dotfiles before chezmoi overwrites them
 # ---------------------------------------------------------------------------
 backup_dotfiles() {
-    local BACKUP_FILES=".aliases .config/git/config .config/mise/config.toml .ssh/config"
+    local BACKUP_FILES=".aliases .config/git/config .config/mise/config.toml"
     local has_files=false
     local f
     local backup_dir
