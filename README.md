@@ -8,9 +8,7 @@ A single command bootstraps a fully configured environment with dotfiles, shell 
 
 ```sh
 # Optional: set a GitHub token to avoid API rate limits (see below)
-export GITHUB_TOKEN=ghp_your_token_here
-
-curl -fsLS https://raw.githubusercontent.com/mmcardle/setmeup/main/bootstrap.sh | sh
+GITHUB_TOKEN=$(gh auth token) curl -fsLS https://raw.githubusercontent.com/mmcardle/setmeup/main/bootstrap.sh | sh
 ```
 
 This will:
