@@ -2,14 +2,22 @@
 # Install agent skills (re-runs when this script or mise config changes)
 # hash: {{ include ".chezmoiscripts/run_onchange_004-install-agent-skills.sh.tmpl" | sha256sum }}
 # mise config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+# skills list hash: {{ include "dot_config/setmeup/agent-skills.list" | sha256sum }}
 set -e
 
 echo "[setmeup] Installing agent skills..."
 
 export PATH="$HOME/.local/bin:$PATH"
 
-mise exec node@lts -- npx -y skills add obra/superpowers -a claude-code -g -y
-mise exec node@lts -- npx -y skills add obra/superpowers -a codex -g -y
-mise exec node@lts -- npx -y skills add gianchub/claude-plugins -a claude-code -g -y
+SKILLS_LIST="{{ .chezmoi.sourceDir }}/dot_config/setmeup/agent-skills.list"
+if [[ ! -f "$SKILLS_LIST" ]]; then
+    echo "[setmeup] ERROR: agent-skills.list not found at $SKILLS_LIST"
+    exit 1
+fi
+
+while read -r package agent; do
+    echo "[setmeup] Installing $package for $agent..."
+    mise exec node@lts -- npx -y skills add "$package" -a "$agent" -g -y </dev/null
+done < <(grep -v '^\s*#' "$SKILLS_LIST" | grep -v '^\s*$')
 
 echo "[setmeup] Agent skills installed."

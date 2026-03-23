@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM ubuntu:24.04
 
 # Avoid interactive prompts during apt installs
@@ -45,7 +46,12 @@ RUN /home/testuser/tests/setup_environment.sh
 
 # Pre-install mise tools so they're available in interactive shells
 # GITHUB_TOKEN avoids GitHub API rate limits for aqua-based tool downloads
-ARG GITHUB_TOKEN
-RUN GITHUB_TOKEN="${GITHUB_TOKEN}" MISE_GITHUB_TOKEN="${GITHUB_TOKEN}" mise install --yes
+RUN --mount=type=secret,id=GITHUB_TOKEN,mode=0444 \
+    if [ ! -s /run/secrets/GITHUB_TOKEN ]; then \
+        echo "ERROR: GITHUB_TOKEN secret is required to avoid GitHub API rate limits" && exit 1; \
+    fi && \
+    export GITHUB_TOKEN="$(cat /run/secrets/GITHUB_TOKEN)" && \
+    export MISE_GITHUB_TOKEN="$GITHUB_TOKEN" && \
+    mise install --yes
 
 CMD ["/bin/bash", "-c", "bats $HOME/tests/*.bats"]

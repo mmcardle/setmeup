@@ -4,7 +4,7 @@ TEST_IMAGE := setmeup-test
 
 shell: GITHUB_TOKEN ?= $(shell gh auth token 2>/dev/null)
 shell: ## Interactive shell in a fresh Ubuntu container with the repo mounted
-	docker build $(if $(GITHUB_TOKEN),--build-arg GITHUB_TOKEN=$(GITHUB_TOKEN)) -t $(TEST_IMAGE) -f tests/Dockerfile .
+	GITHUB_TOKEN="$(GITHUB_TOKEN)" DOCKER_BUILDKIT=1 docker build --secret id=GITHUB_TOKEN,env=GITHUB_TOKEN -t $(TEST_IMAGE) -f tests/Dockerfile .
 	docker run --rm -it \
 		-v "$(PWD):/home/testuser/setmeup" \
 		$(if $(GITHUB_TOKEN),-e GITHUB_TOKEN -e MISE_GITHUB_TOKEN=$(GITHUB_TOKEN)) \

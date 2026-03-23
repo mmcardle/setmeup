@@ -13,8 +13,18 @@ setup() {
     [ -x "$HOME/setmeup/update.sh" ]
 }
 
-@test "update.sh contains skills refresh" {
-    assert_file_contains "$HOME/setmeup/update.sh" "skills"
+@test "agent-skills.list exists" {
+    assert_file_exists "$HOME/.config/setmeup/agent-skills.list"
+}
+
+@test "agent-skills.list contains expected skills" {
+    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "obra/superpowers claude-code"
+    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "obra/superpowers codex"
+    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "gianchub/claude-plugins claude-code"
+}
+
+@test "update.sh reads from agent-skills.list" {
+    assert_file_contains "$HOME/setmeup/update.sh" "agent-skills.list"
 }
 
 @test "update.sh contains mise upgrade" {
