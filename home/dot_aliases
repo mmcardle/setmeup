@@ -24,8 +24,17 @@ alias l='ls -CF'
 # Modern tool replacements (only alias if the tool is available)
 command -v bat &>/dev/null && alias cat="bat"
 command -v eza &>/dev/null && alias ls="eza --icons" && alias ll="eza -l --icons" && alias la="eza -la --icons"
-command -v fd  &>/dev/null && alias find="fd"
 command -v rg  &>/dev/null && alias grep="rg"
+
+# Run a command repeatedly, stopping at the first failure
+retry_until_fail() {
+    local max_attempts="${1:-3}"
+    shift
+    for ((i=1; i<=max_attempts; i++)); do
+        "$@" || { echo "Failed on attempt $i"; return 1; }
+    done
+    echo "All $max_attempts attempts passed"
+}
 
 # setmeup
 alias setmeup='~/.local/bin/setmeup-update.sh'

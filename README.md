@@ -25,7 +25,7 @@ This will:
 |-----------|---------|
 | **Shell configs** | `.bashrc`, `.zshrc` with mise activation, auto-update checks |
 | **Oh My Zsh** | With Powerlevel10k theme, autosuggestions, and syntax highlighting |
-| **Aliases** | Git, Docker, utility aliases, plus modern tool replacements (`cat→bat`, `ls→eza`, `find→fd`, `grep→rg`) |
+| **Aliases** | Git, Docker, utility aliases, plus modern tool replacements (`cat→bat`, `ls→eza`, `grep→rg`) |
 | **Git config** | User name/email (prompted on first run), sensible defaults, global gitignore |
 | **Dev tools (mise)** | Python, Node (LTS), Rust, jq, ripgrep, fd, fzf, uv, bat, eza, lazygit, gh, direnv |
 | **System packages** | build-essential, curl, git, zsh, htop, tree, ncdu, tmux, neovim, httpie via apt/brew |

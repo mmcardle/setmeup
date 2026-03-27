@@ -176,12 +176,49 @@ setup() {
     assert_file_contains "$HOME/.aliases" 'alias la="eza -la'
 }
 
-@test "aliases file conditionally aliases find to fd" {
-    assert_file_contains "$HOME/.aliases" 'alias find="fd'
-}
-
 @test "aliases file conditionally aliases grep to rg" {
     assert_file_contains "$HOME/.aliases" 'alias grep="rg'
+}
+
+# --- retry_until_fail function ---
+
+@test "aliases file defines retry_until_fail function" {
+    assert_file_contains "$HOME/.aliases" "retry_until_fail()"
+}
+
+@test "retry_until_fail passes when all attempts succeed" {
+    source "$HOME/.aliases"
+    run retry_until_fail 3 true
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"All 3 attempts passed"* ]]
+}
+
+@test "retry_until_fail fails immediately on first failure" {
+    source "$HOME/.aliases"
+    run retry_until_fail 3 false
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"Failed on attempt 1"* ]]
+}
+
+@test "retry_until_fail stops at the failing attempt" {
+    source "$HOME/.aliases"
+    # Script that succeeds once then fails
+    local tmpscript
+    tmpscript=$(mktemp)
+    echo '#!/bin/bash
+    if [ ! -f /tmp/retry_until_fail_test_ran ]; then
+        touch /tmp/retry_until_fail_test_ran
+        exit 0
+    fi
+    exit 1' > "$tmpscript"
+    chmod +x "$tmpscript"
+    rm -f /tmp/retry_until_fail_test_ran
+
+    run retry_until_fail 3 "$tmpscript"
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"Failed on attempt 2"* ]]
+
+    rm -f /tmp/retry_until_fail_test_ran "$tmpscript"
 }
 
 # --- Global gitignore ---
