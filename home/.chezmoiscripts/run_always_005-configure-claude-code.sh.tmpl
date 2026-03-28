@@ -13,6 +13,11 @@ mkdir -p "$HOME/.claude"
 # Define the statusLine config to merge
 STATUSLINE_JSON='{"statusLine":{"type":"command","command":"bash ~/.claude/statusline-command.sh"}}'
 
+# Permissions to ensure are in the allow list
+REQUIRED_PERMISSIONS=(
+    'Read(~/.claude/skills/*)'
+)
+
 if [[ -f "$SETTINGS_FILE" ]]; then
     # Merge statusLine into existing settings, preserving all other keys
     jq --argjson sl "$STATUSLINE_JSON" '. * $sl' "$SETTINGS_FILE" > "${SETTINGS_FILE}.tmp"
@@ -21,5 +26,13 @@ else
     # Create new settings file with just statusLine
     echo "$STATUSLINE_JSON" | jq . > "$SETTINGS_FILE"
 fi
+
+# Ensure required permissions are present in the allow list
+for perm in "${REQUIRED_PERMISSIONS[@]}"; do
+    if ! jq -e --arg p "$perm" '.permissions.allow // [] | index($p)' "$SETTINGS_FILE" > /dev/null 2>&1; then
+        jq --arg p "$perm" '.permissions.allow = ((.permissions.allow // []) + [$p])' "$SETTINGS_FILE" > "${SETTINGS_FILE}.tmp"
+        mv "${SETTINGS_FILE}.tmp" "$SETTINGS_FILE"
+    fi
+done
 
 echo "[setmeup] Claude Code settings configured."

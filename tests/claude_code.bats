@@ -33,6 +33,11 @@ setup() {
     assert_file_contains "$HOME/.claude/settings.json" 'statusline-command.sh'
 }
 
+@test "claude settings.json contains Read skills permission" {
+    run jq -r '.permissions.allow[]' "$HOME/.claude/settings.json"
+    [[ "$output" == *"Read(~/.claude/skills/*)"* ]]
+}
+
 @test "claude settings.json preserves existing keys" {
     # The configure-claude-code script should preserve keys that were already in settings.json
     # setup_environment.sh pre-seeds a test key before chezmoi apply
