@@ -3,10 +3,10 @@
 TEST_IMAGE := setmeup-test
 
 shell: GITHUB_TOKEN ?= $(shell gh auth token 2>/dev/null)
-shell: ## Interactive shell in a fresh Ubuntu container with the repo mounted
+shell: ## Interactive shell in a fresh Ubuntu container for testing
+	@if [ -z "$(GITHUB_TOKEN)" ]; then echo "[setmeup] ERROR: GITHUB_TOKEN is required (run 'gh auth login' or export GITHUB_TOKEN)"; exit 1; fi
 	GITHUB_TOKEN="$(GITHUB_TOKEN)" DOCKER_BUILDKIT=1 docker build --secret id=GITHUB_TOKEN,env=GITHUB_TOKEN -t $(TEST_IMAGE) -f tests/Dockerfile .
 	docker run --rm -it \
-		-v "$(PWD):/home/testuser/setmeup" \
 		$(if $(GITHUB_TOKEN),-e GITHUB_TOKEN -e MISE_GITHUB_TOKEN=$(GITHUB_TOKEN)) \
 		$(TEST_IMAGE) bash -c '\
 			echo ""; \
@@ -14,9 +14,6 @@ shell: ## Interactive shell in a fresh Ubuntu container with the repo mounted
 			echo "  Run tests directly:"; \
 			echo "    bats ~/tests/dotfiles.bats"; \
 			echo "    bats --filter \"aliases\" ~/tests/*.bats"; \
-			echo ""; \
-			echo "  To re-run setup after source changes:"; \
-			echo "    rm ~/.local/state/setmeup/test-setup-complete && ~/tests/setup_environment.sh"; \
 			echo ""; \
 			exec bash -i'
 

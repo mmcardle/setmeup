@@ -17,3 +17,6 @@ claude-code = "latest"
 
 [settings]
 experimental = true
+
+[settings.python]
+precompiled_flavor = "install_only"

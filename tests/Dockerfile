@@ -34,24 +34,28 @@ ENV POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 RUN mkdir -p /home/testuser/.config/chezmoi
 COPY --chown=testuser:testuser tests/chezmoi-test-config.toml /home/testuser/.config/chezmoi/chezmoi.toml
 
-# Copy the repo source (used as chezmoi source directory)
+# Copy the repo source and init as git repo (COPY strips .git;
+# chezmoi update needs a git repo to pull from)
 COPY --chown=testuser:testuser . /home/testuser/setmeup
+RUN cd /home/testuser/setmeup && \
+    git init -b main && \
+    git config user.email "test@example.com" && \
+    git config user.name "Test User" && \
+    git add -A && \
+    git commit --no-verify -m "initial"
 
 # Copy tests
 COPY --chown=testuser:testuser tests/ /home/testuser/tests/
 RUN chmod +x /home/testuser/tests/setup_environment.sh
 
 # Bake test setup into the image so repeated test runs are fast
-RUN /home/testuser/tests/setup_environment.sh
-
-# Pre-install mise tools so they're available in interactive shells
-# GITHUB_TOKEN avoids GitHub API rate limits for aqua-based tool downloads
+# GITHUB_TOKEN avoids GitHub API rate limits during mise tool installs
 RUN --mount=type=secret,id=GITHUB_TOKEN,mode=0444 \
     if [ ! -s /run/secrets/GITHUB_TOKEN ]; then \
         echo "ERROR: GITHUB_TOKEN secret is required to avoid GitHub API rate limits" && exit 1; \
     fi && \
     export GITHUB_TOKEN="$(cat /run/secrets/GITHUB_TOKEN)" && \
     export MISE_GITHUB_TOKEN="$GITHUB_TOKEN" && \
-    mise install --yes
+    /home/testuser/tests/setup_environment.sh
 
 CMD ["/bin/bash", "-c", "bats $HOME/tests/*.bats"]

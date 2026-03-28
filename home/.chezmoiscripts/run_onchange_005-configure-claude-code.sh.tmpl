@@ -1,0 +1,27 @@
+#!/bin/bash
+# Configure Claude Code settings (re-runs when this script or statusline-command.sh changes)
+# hash: {{ include ".chezmoiscripts/run_onchange_005-configure-claude-code.sh.tmpl" | sha256sum }}
+# statusline hash: {{ include "dot_claude/statusline-command.sh" | sha256sum }}
+set -e
+
+echo "[setmeup] Configuring Claude Code settings..."
+
+export PATH="$HOME/.local/bin:$PATH"
+
+SETTINGS_FILE="$HOME/.claude/settings.json"
+
+mkdir -p "$HOME/.claude"
+
+# Define the statusLine config to merge
+STATUSLINE_JSON='{"statusLine":{"type":"command","command":"bash ~/.claude/statusline-command.sh"}}'
+
+if [[ -f "$SETTINGS_FILE" ]]; then
+    # Merge statusLine into existing settings, preserving all other keys
+    jq --argjson sl "$STATUSLINE_JSON" '. * $sl' "$SETTINGS_FILE" > "${SETTINGS_FILE}.tmp"
+    mv "${SETTINGS_FILE}.tmp" "$SETTINGS_FILE"
+else
+    # Create new settings file with just statusLine
+    echo "$STATUSLINE_JSON" | jq . > "$SETTINGS_FILE"
+fi
+
+echo "[setmeup] Claude Code settings configured."

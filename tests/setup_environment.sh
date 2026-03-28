@@ -1,6 +1,6 @@
 #!/bin/bash
 # Setup environment for BATS tests — runs once before test files
-# Phases: verify tools, backup existing dotfiles, apply chezmoi
+# Runs bootstrap.sh --local to mirror what real users experience
 set -euo pipefail
 
 SETUP_SENTINEL="$HOME/.local/state/setmeup/test-setup-complete"
@@ -31,7 +31,7 @@ echo "OK: chezmoi and mise are available"
 # =========================================================================
 echo ""
 echo "========================================"
-echo " Phase 2: Create fake dotfiles and backup"
+echo " Phase 2: Create fake dotfiles for backup testing"
 echo "========================================"
 echo ""
 
@@ -41,13 +41,36 @@ chmod 600 "$HOME/.bashrc"
 echo "# user's original zshrc with secrets" > "$HOME/.zshrc"
 mkdir -p "$HOME/.config/git"
 echo "# user's original gitconfig" > "$HOME/.config/git/config"
+echo "OK: fake dotfiles created"
 
-# Source bootstrap.sh to get the real backup_dotfiles function
-SETMEUP_SOURCED=true
-. "$HOME/setmeup/bootstrap.sh"
+# Pre-seed Claude settings to test merge preservation
+mkdir -p "$HOME/.claude"
+cat > "$HOME/.claude/settings.json" << 'SEED'
+{
+  "setmeup_test_marker": true,
+  "permissions": {
+    "allow": ["Bash(echo test)"]
+  }
+}
+SEED
+echo "OK: Claude settings pre-seeded"
 
-# Call the real backup function
-backup_dotfiles
+# =========================================================================
+echo ""
+echo "========================================"
+echo " Phase 3: Run bootstrap.sh --local"
+echo "========================================"
+echo ""
+
+"$HOME/setmeup/bootstrap.sh" --local
+echo "OK: bootstrap complete"
+
+# =========================================================================
+echo ""
+echo "========================================"
+echo " Phase 4: Save state for tests"
+echo "========================================"
+echo ""
 
 # Find the backup directory and save its path for tests
 backup_root="$HOME/.local/state/setmeup/backups"
@@ -61,16 +84,6 @@ fi
 mkdir -p "$(dirname "$BACKUP_STATE_FILE")"
 echo "$backup_dir" > "$BACKUP_STATE_FILE"
 echo "OK: backup directory saved to $BACKUP_STATE_FILE"
-
-# =========================================================================
-echo ""
-echo "========================================"
-echo " Phase 3: Apply chezmoi from local source"
-echo "========================================"
-echo ""
-
-chezmoi init --source="$HOME/setmeup/home" --apply
-echo "OK: chezmoi applied"
 
 # Write sentinel
 mkdir -p "$(dirname "$SETUP_SENTINEL")"

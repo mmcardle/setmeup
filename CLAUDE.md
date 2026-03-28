@@ -19,6 +19,9 @@ setmeup/
 │   │
 │   ├── dot_aliases                 # Shared shell aliases (git, docker, utilities)
 │   │
+│   ├── dot_claude/
+│   │   └── statusline-command.sh    # Claude Code statusline display script
+│   │
 │   ├── dot_config/
 │   │   ├── git/config.tmpl         # Git config (templated user, aliases, defaults)
 │   │   ├── mise/config.toml        # Mise tool definitions (python, node, rust, jq, rg, fd, fzf, uv, claude-code, codex)
@@ -32,7 +35,8 @@ setmeup/
 │       ├── run_onchange_001-install-packages.sh.tmpl      # System packages (apt/brew)
 │       ├── run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
 │       ├── run_onchange_003-install-mise-tools.sh.tmpl    # Mise tools (runs when config changes)
-│       └── run_onchange_004-install-agent-skills.sh.tmpl  # Superpowers skills (re-runs when mise config changes)
+│       ├── run_onchange_004-install-agent-skills.sh.tmpl  # Superpowers skills (re-runs when mise config changes)
+│       └── run_onchange_005-configure-claude-code.sh.tmpl # Claude Code settings (statusLine merge)
 │
 └── tests/
     ├── run_tests.sh                # Test runner (builds Docker, supports argument passthrough)
@@ -46,6 +50,7 @@ setmeup/
     ├── mise_tools.bats             # Mise tool installation tests
     ├── idempotency.bats            # Chezmoi re-apply idempotency test
     ├── ai_agents.bats              # AI coding agent and skills tests
+    ├── claude_code.bats            # Claude Code statusline and settings tests
     └── update_script.bats          # Update script tests
 ```
 

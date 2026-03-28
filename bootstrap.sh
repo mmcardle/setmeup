@@ -145,7 +145,11 @@ main() {
         local script_dir
         script_dir="$(cd "$(dirname "$0")" && pwd)"
         info "Initializing chezmoi from local source ($script_dir/home)..."
-        chezmoi init --source="$script_dir/home" --apply
+        # Symlink repo into chezmoi's default source so chezmoi update works
+        local chezmoi_src="$HOME/.local/share/chezmoi"
+        mkdir -p "$(dirname "$chezmoi_src")"
+        ln -sfn "$script_dir/home" "$chezmoi_src"
+        chezmoi init --apply
     else
         info "Initializing chezmoi with $SETMEUP_REPO..."
         chezmoi init --apply "$SETMEUP_REPO"
@@ -155,9 +159,13 @@ main() {
     mise install --yes || warn "Some mise tools failed to install (retry with: mise install)"
 
     # Install the update script
-    local chezmoi_source
-    chezmoi_source="$(chezmoi source-path)/.."
-    cp "$chezmoi_source/update.sh" "$HOME/.local/bin/setmeup-update.sh"
+    local repo_root
+    if [ "$USE_LOCAL" = true ]; then
+        repo_root="$script_dir"
+    else
+        repo_root="$(chezmoi source-path)/.."
+    fi
+    cp "$repo_root/update.sh" "$HOME/.local/bin/setmeup-update.sh"
     chmod +x "$HOME/.local/bin/setmeup-update.sh"
 
     info "Bootstrap complete!"

@@ -125,6 +125,7 @@ run_onchange_001-install-packages.sh.tmpl      # system packages (apt/brew)
 run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
 run_onchange_003-install-mise-tools.sh.tmpl    # mise tool installs
 run_onchange_004-install-agent-skills.sh.tmpl  # agent skills (re-runs when mise config changes)
+run_onchange_005-configure-claude-code.sh.tmpl # Claude Code settings (statusLine merge)
 ```
 
 When adding a new script, pick the next number (e.g. `005`). To insert between existing scripts, use a number in the gap (e.g. `003` and `004` have room for `0035` if needed, but generally append).
@@ -208,6 +209,7 @@ dot_some_macos_thing
 | `mise_tools.bats` | Mise tools are installed correctly |
 | `idempotency.bats` | Chezmoi re-apply succeeds without errors |
 | `ai_agents.bats` | AI coding agent and skills installation |
+| `claude_code.bats` | Claude Code statusline and settings configuration |
 | `update_script.bats` | Update script exists and is executable |
 
 ## Test Helpers Reference

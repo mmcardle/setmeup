@@ -8,7 +8,10 @@ warn()  { printf '\033[1;33m[setmeup]\033[0m %s\n' "$1"; }
 export PATH="$HOME/.local/bin:$PATH"
 
 info "Updating dotfiles..."
-chezmoi update
+if ! chezmoi update 2>/dev/null; then
+    warn "chezmoi update unavailable (no git remote), applying local changes"
+    chezmoi apply
+fi
 
 info "Installing mise tools..."
 mise install --yes
