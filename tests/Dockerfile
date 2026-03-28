@@ -1,55 +1,44 @@
 # syntax=docker/dockerfile:1
-FROM ubuntu:24.04
+FROM ubuntu:24.04 AS base
 
-# Avoid interactive prompts during apt installs
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Minimal base — simulate a fresh machine (only add sudo + a test user)
 RUN apt-get update -qq && \
     apt-get install -y -qq sudo curl git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install BATS
 RUN git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core && \
     /tmp/bats-core/install.sh /usr/local && \
     rm -rf /tmp/bats-core
 
-# Create a non-root user (bootstrap should not require root for everything)
 RUN useradd -m -s /bin/bash testuser && \
     echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER testuser
 WORKDIR /home/testuser
 
-# Pre-install chezmoi and mise (cached Docker layer — avoids re-downloading on dotfile changes)
 RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin" && \
     curl -fsLS https://mise.run | sh
 ENV PATH="/home/testuser/.local/bin:${PATH}"
-
-# Skip Powerlevel10k configuration wizard in test/debug shells
 ENV POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 
-# Pre-seed chezmoi config to avoid interactive prompts
-RUN mkdir -p /home/testuser/.config/chezmoi
+RUN mkdir -p /home/testuser/.config/chezmoi /home/testuser/setmeup /home/testuser/tests
 COPY --chown=testuser:testuser tests/chezmoi-test-config.toml /home/testuser/.config/chezmoi/chezmoi.toml
-
-# Copy the repo source and init as git repo (COPY strips .git;
-# chezmoi update needs a git repo to pull from)
-COPY --chown=testuser:testuser . /home/testuser/setmeup
-RUN cd /home/testuser/setmeup && \
+COPY --chown=testuser:testuser bootstrap.sh /home/testuser/setmeup/bootstrap.sh
+COPY --chown=testuser:testuser update.sh /home/testuser/setmeup/update.sh
+COPY --chown=testuser:testuser home/ /home/testuser/setmeup/home/
+COPY --chown=testuser:testuser tests/setup_environment.sh /home/testuser/tests/setup_environment.sh
+RUN chmod +x /home/testuser/tests/setup_environment.sh && \
+    cd /home/testuser/setmeup && \
     git init -b main && \
     git config user.email "test@example.com" && \
     git config user.name "Test User" && \
     git add -A && \
     git commit --no-verify -m "initial"
 
-# Copy tests
-COPY --chown=testuser:testuser tests/ /home/testuser/tests/
-RUN chmod +x /home/testuser/tests/setup_environment.sh
+FROM base AS prepared-setup
 
-# Bake test setup into the image so repeated test runs are fast
-# GITHUB_TOKEN avoids GitHub API rate limits during mise tool installs
 RUN --mount=type=secret,id=GITHUB_TOKEN,mode=0444 \
     if [ ! -s /run/secrets/GITHUB_TOKEN ]; then \
         echo "ERROR: GITHUB_TOKEN secret is required to avoid GitHub API rate limits" && exit 1; \
@@ -58,4 +47,20 @@ RUN --mount=type=secret,id=GITHUB_TOKEN,mode=0444 \
     export MISE_GITHUB_TOKEN="$GITHUB_TOKEN" && \
     /home/testuser/tests/setup_environment.sh
 
-CMD ["/bin/bash", "-c", "bats $HOME/tests/*.bats"]
+FROM prepared-setup AS prepared
+
+COPY --chown=testuser:testuser tests/test_helper.bash /home/testuser/tests/test_helper.bash
+COPY --chown=testuser:testuser tests/backup.bats /home/testuser/tests/backup.bats
+COPY --chown=testuser:testuser tests/claude_code.bats /home/testuser/tests/claude_code.bats
+COPY --chown=testuser:testuser tests/dotfiles.bats /home/testuser/tests/dotfiles.bats
+COPY --chown=testuser:testuser tests/idempotency.bats /home/testuser/tests/idempotency.bats
+COPY --chown=testuser:testuser tests/update_script.bats /home/testuser/tests/update_script.bats
+
+CMD ["/bin/bash", "-lc", "bats $HOME/tests/backup.bats $HOME/tests/claude_code.bats $HOME/tests/dotfiles.bats $HOME/tests/idempotency.bats $HOME/tests/update_script.bats"]
+
+FROM prepared-setup AS full
+
+COPY --chown=testuser:testuser tests/ /home/testuser/tests/
+RUN chmod +x /home/testuser/tests/setup_environment.sh
+
+CMD ["/bin/bash", "-lc", "bats $HOME/tests/*.bats"]

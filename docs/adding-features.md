@@ -16,8 +16,11 @@ Never write implementation code before the test exists.
 ## Running Tests
 
 ```sh
-# Full test suite (Docker-based, clean environment)
+# Fast local smoke suite
 make test
+
+# Clean full integration suite (fresh rebuild)
+make test-full
 
 # Single test file
 make test-file FILE=dotfiles.bats
@@ -25,21 +28,20 @@ make test-file FILE=dotfiles.bats
 # Tests matching a pattern
 make test-filter FILTER="aliases"
 
-# Fast tests only (skip slow mise_tools and shell_clean)
+# Alias for the fast local smoke suite
 make test-quick
+
+# Rebuild the prepared fast image after setup-affecting changes
+make test-rebuild
 
 # Interactive shell for fastest TDD loop
 make shell
-# Inside container (run once):
-~/tests/setup_environment.sh
-# Then iterate:
+# Inside container:
 bats ~/tests/dotfiles.bats                     # run one file
 bats --filter "aliases" ~/tests/*.bats          # run one test
-# After editing a dotfile on host:
-chezmoi apply --source=~/setmeup/home && bats ~/tests/dotfiles.bats
 ```
 
-Tests run inside a Docker container (Ubuntu 24.04) with a clean `testuser`, so they always start from a known state.
+`make test` and `make shell` reuse a prepared Docker image with setup already baked in. Use `make test-full` when you need the clean-machine rebuild path, and `make test-rebuild` after changing `bootstrap.sh`, `home/`, or other setup inputs that should invalidate the prepared image.
 
 ## Step-by-Step Example: Adding a New Dotfile
 

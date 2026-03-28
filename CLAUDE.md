@@ -8,7 +8,7 @@ A tool for setting up a new development machine.
 setmeup/
 ├── bootstrap.sh                    # Curl-able entry point: detects OS, installs chezmoi+mise, applies dotfiles
 ├── update.sh                       # Manual update script (installed to ~/.local/bin/setmeup-update.sh)
-├── Makefile                        # make test, make shell
+├── Makefile                        # make test, make test-full, make shell
 ├── .chezmoiroot                    # Marks "home/" as chezmoi source root
 │
 ├── home/                           # Chezmoi source directory → maps to ~/
@@ -39,8 +39,8 @@ setmeup/
 │       └── run_always_005-configure-claude-code.sh.tmpl # Claude Code settings (statusLine merge)
 │
 └── tests/
-    ├── run_tests.sh                # Test runner (builds Docker, supports argument passthrough)
-    ├── Dockerfile                  # Test container (Ubuntu 24.04, BATS, cached chezmoi/mise)
+    ├── run_tests.sh                # Test runner (fast prepared image + full clean rebuild mode)
+    ├── Dockerfile                  # Multi-stage test container for prepared and full test paths
     ├── chezmoi-test-config.toml    # Pre-seeded config for non-interactive tests
     ├── setup_environment.sh        # Phases 1-3: verify tools, backup dotfiles, chezmoi apply
     ├── test_helper.bash            # Shared BATS assertion helpers
@@ -71,8 +71,11 @@ setmeup/
 Tests use [BATS](https://github.com/bats-core/bats-core) (Bash Automated Testing System) and run in Docker.
 
 ```sh
-# Full suite
+# Fast local smoke suite
 make test
+
+# Clean full integration suite
+make test-full
 
 # Single file
 make test-file FILE=dotfiles.bats
@@ -80,12 +83,16 @@ make test-file FILE=dotfiles.bats
 # Filter by test name
 make test-filter FILTER="aliases"
 
-# Fast tests (skip slow mise_tools and shell_clean)
+# Alias for the fast local smoke suite
 make test-quick
 
-# Interactive TDD loop
+# Rebuild the prepared fast image after setup-affecting changes
+make test-rebuild
+
+# Interactive TDD loop in the prepared container
 make shell
-# Then: ~/tests/setup_environment.sh && bats ~/tests/dotfiles.bats
+# Then:
+bats ~/tests/dotfiles.bats
 ```
 
 ## Development

@@ -343,7 +343,7 @@ render_chezmoi_script() {
 
 - [ ] **Step 2: Verify the helper works**
 
-Run: `make shell`, then inside the container:
+Run: `make shell`, then inside the prepared container:
 ```bash
 source ~/tests/test_helper.bash
 render_chezmoi_script "run_onchange_001-install-packages.sh.tmpl" | head -5
@@ -810,7 +810,7 @@ fi
 
 - [ ] **Step 1: Run the full test suite to confirm nothing is broken**
 
-Run: `make test`
+Run: `make test-full`
 Expected: All existing tests pass + new dry_run.bats tests pass
 
 - [ ] **Step 2: Fix any failures discovered**

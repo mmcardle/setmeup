@@ -43,6 +43,30 @@ chezmoi update && mise install
 
 A daily auto-check runs on shell start and notifies you when updates are available.
 
+## Testing
+
+```sh
+# Fast local smoke suite
+make test
+
+# Clean full integration suite
+make test-full
+
+# Rebuild the prepared fast image
+make test-rebuild
+
+# Run one test file
+make test-file FILE=dotfiles.bats
+
+# Run matching tests
+make test-filter FILTER="aliases"
+
+# Open a shell in the prepared test container
+make shell
+```
+
+`make test` and `make shell` reuse a prepared Docker image so normal local runs stay fast. Use `make test-full` when you want the clean-machine rebuild path.
+
 ## GitHub API Rate Limits
 
 Mise downloads tools from GitHub, which rate-limits unauthenticated requests. If bootstrap fails with 403 errors, export a GitHub token first:
