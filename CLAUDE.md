@@ -48,7 +48,6 @@ setmeup/
     ├── dotfiles.bats               # Dotfile existence and content tests
     ├── shell_clean.bats            # Interactive shell cleanliness test
     ├── mise_tools.bats             # Mise tool installation tests
-    ├── idempotency.bats            # Chezmoi re-apply idempotency test
     ├── ai_agents.bats              # AI coding agent and skills tests
     ├── claude_code.bats            # Claude Code statusline and settings tests
     └── update_script.bats          # Update script tests

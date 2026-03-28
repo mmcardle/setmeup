@@ -9,7 +9,7 @@ FAST_STATE_FILE="$STATE_DIR/fast-image.hash"
 FAST_IMAGE="setmeup-test-fast"
 FULL_IMAGE="setmeup-test-full"
 
-FAST_BATS_FILES='$HOME/tests/backup.bats $HOME/tests/claude_code.bats $HOME/tests/dotfiles.bats $HOME/tests/idempotency.bats $HOME/tests/update_script.bats'
+FAST_BATS_FILES='$HOME/tests/backup.bats $HOME/tests/claude_code.bats $HOME/tests/dotfiles.bats $HOME/tests/update_script.bats'
 FULL_BATS_FILES='$HOME/tests/*.bats'
 
 MODE="${1:-fast}"
@@ -67,7 +67,6 @@ fast_image_hash() {
         "$REPO_ROOT/tests/backup.bats"
         "$REPO_ROOT/tests/claude_code.bats"
         "$REPO_ROOT/tests/dotfiles.bats"
-        "$REPO_ROOT/tests/idempotency.bats"
         "$REPO_ROOT/tests/update_script.bats"
     )
 

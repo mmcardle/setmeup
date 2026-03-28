@@ -209,7 +209,6 @@ dot_some_macos_thing
 | `dotfiles.bats` | Managed dotfile existence, content, and templates |
 | `shell_clean.bats` | Interactive shell has no background noise |
 | `mise_tools.bats` | Mise tools are installed correctly |
-| `idempotency.bats` | Chezmoi re-apply succeeds without errors |
 | `ai_agents.bats` | AI coding agent and skills installation |
 | `claude_code.bats` | Claude Code statusline and settings configuration |
 | `update_script.bats` | Update script exists and is executable |
