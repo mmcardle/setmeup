@@ -36,7 +36,7 @@ setmeup/
 │       ├── run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
 │       ├── run_onchange_003-install-mise-tools.sh.tmpl    # Mise tools (runs when config changes)
 │       ├── run_onchange_004-install-agent-skills.sh.tmpl  # Superpowers skills (re-runs when mise config changes)
-│       └── run_onchange_005-configure-claude-code.sh.tmpl # Claude Code settings (statusLine merge)
+│       └── run_always_005-configure-claude-code.sh.tmpl # Claude Code settings (statusLine merge)
 │
 └── tests/
     ├── run_tests.sh                # Test runner (builds Docker, supports argument passthrough)

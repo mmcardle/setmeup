@@ -1,7 +1,5 @@
 #!/bin/bash
-# Configure Claude Code settings (re-runs when this script or statusline-command.sh changes)
-# hash: {{ include ".chezmoiscripts/run_onchange_005-configure-claude-code.sh.tmpl" | sha256sum }}
-# statusline hash: {{ include "dot_claude/statusline-command.sh" | sha256sum }}
+# Configure Claude Code settings (runs on every chezmoi apply)
 set -e
 
 echo "[setmeup] Configuring Claude Code settings..."
