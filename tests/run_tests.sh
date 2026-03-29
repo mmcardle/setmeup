@@ -2,20 +2,16 @@
 # Build and run the setmeup test suite in Docker.
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 STATE_DIR="$REPO_ROOT/.cache/setmeup"
 FAST_STATE_FILE="$STATE_DIR/fast-image.hash"
 
-FAST_IMAGE="setmeup-test-fast"
-FULL_IMAGE="setmeup-test-full"
+FAST_IMAGE_REPO="setmeup-test-fast"
+FULL_IMAGE_REPO="setmeup-test-full"
 
 FAST_BATS_FILES='$HOME/tests/banner.bats $HOME/tests/backup.bats $HOME/tests/claude_code.bats $HOME/tests/dotfiles.bats $HOME/tests/update_script.bats'
 FULL_BATS_FILES='$HOME/tests/*.bats'
-
-MODE="${1:-fast}"
-if [[ $# -gt 0 ]]; then
-    shift
-fi
 
 sha_file() {
     local path="$1"
@@ -39,6 +35,31 @@ composite_hash() {
             shasum -a 256
         fi
     ) | awk '{print $1}'
+}
+
+scope_for_path() {
+    local path="$1"
+    local scope
+
+    if command -v sha256sum >/dev/null 2>&1; then
+        scope="$(printf '%s' "$path" | sha256sum | awk '{print $1}')"
+    else
+        scope="$(printf '%s' "$path" | shasum -a 256 | awk '{print $1}')"
+    fi
+
+    printf 'wt-%s\n' "${scope:0:12}"
+}
+
+worktree_scope() {
+    scope_for_path "$REPO_ROOT"
+}
+
+fast_image_ref() {
+    printf '%s:%s\n' "$FAST_IMAGE_REPO" "$(worktree_scope)"
+}
+
+full_image_ref() {
+    printf '%s:%s\n' "$FULL_IMAGE_REPO" "$(worktree_scope)"
 }
 
 ensure_github_token() {
@@ -94,22 +115,24 @@ run_docker_bats() {
 prepare_fast_image() {
     local force="${1:-false}"
     local current_hash
+    local fast_image
 
     ensure_github_token
     mkdir -p "$STATE_DIR"
     current_hash="$(fast_image_hash)"
+    fast_image="$(fast_image_ref)"
 
-    if [[ "$force" != "true" ]] && docker image inspect "$FAST_IMAGE" >/dev/null 2>&1 && \
+    if [[ "$force" != "true" ]] && docker image inspect "$fast_image" >/dev/null 2>&1 && \
         [[ -f "$FAST_STATE_FILE" ]] && [[ "$(cat "$FAST_STATE_FILE")" = "$current_hash" ]]; then
-        echo "[setmeup] Reusing prepared fast test image"
+        echo "[setmeup] Reusing prepared fast test image: $fast_image"
         return
     fi
 
-    echo "[setmeup] Building prepared fast test image..."
+    echo "[setmeup] Building prepared fast test image: $fast_image"
     DOCKER_BUILDKIT=1 docker build \
         --secret id=GITHUB_TOKEN,env=GITHUB_TOKEN \
         --target prepared \
-        -t "$FAST_IMAGE" \
+        -t "$fast_image" \
         -f "$REPO_ROOT/tests/Dockerfile" \
         "$REPO_ROOT"
 
@@ -118,33 +141,77 @@ prepare_fast_image() {
 
 run_full_suite() {
     local bats_args="${*:-$FULL_BATS_FILES}"
+    local full_image
+
+    full_image="$(full_image_ref)"
 
     ensure_github_token
 
-    echo "[setmeup] Building clean full test image..."
+    echo "[setmeup] Building clean full test image: $full_image"
     DOCKER_BUILDKIT=1 docker build \
         --no-cache \
         --secret id=GITHUB_TOKEN,env=GITHUB_TOKEN \
         --target full \
-        -t "$FULL_IMAGE" \
+        -t "$full_image" \
         -f "$REPO_ROOT/tests/Dockerfile" \
         "$REPO_ROOT"
 
     echo "[setmeup] Running full test suite..."
-    run_docker_bats "$FULL_IMAGE" "$bats_args"
+    run_docker_bats "$full_image" "$bats_args"
 }
 
 run_fast_suite() {
     local bats_args="${*:-$FAST_BATS_FILES}"
+    local fast_image
+
+    fast_image="$(fast_image_ref)"
 
     prepare_fast_image false
 
     echo "[setmeup] Running fast smoke suite..."
-    run_docker_bats "$FAST_IMAGE" "$bats_args"
+    run_docker_bats "$fast_image" "$bats_args"
+}
+
+remove_image_if_present() {
+    local image="$1"
+
+    if docker image inspect "$image" >/dev/null 2>&1; then
+        docker image rm -f "$image" >/dev/null
+        echo "[setmeup] Removed image: $image"
+    fi
+}
+
+clean_current_images() {
+    local fast_image
+    local full_image
+
+    fast_image="$(fast_image_ref)"
+    full_image="$(full_image_ref)"
+
+    remove_image_if_present "$fast_image"
+    remove_image_if_present "$full_image"
+    rm -f "$FAST_STATE_FILE"
+    echo "[setmeup] Cleared worktree test cache: $STATE_DIR"
+}
+
+clean_all_images() {
+    local image
+
+    while IFS= read -r image; do
+        [[ -n "$image" ]] || continue
+        docker image rm -f "$image" >/dev/null
+        echo "[setmeup] Removed image: $image"
+    done < <(
+        docker image ls --format '{{.Repository}}:{{.Tag}}' | \
+            grep -E '^setmeup-test-(fast|full):' || true
+    )
 }
 
 open_shell() {
     local -a env_args=()
+    local fast_image
+
+    fast_image="$(fast_image_ref)"
 
     prepare_fast_image false
 
@@ -152,7 +219,7 @@ open_shell() {
         env_args+=("$arg")
     done < <(docker_run_env_args)
 
-    docker run --rm -it "${env_args[@]}" "$FAST_IMAGE" bash -lc '
+    docker run --rm -it "${env_args[@]}" "$fast_image" bash -lc '
         echo "";
         echo "  Setup is already baked into the prepared image.";
         echo "  Run fast tests directly:";
@@ -162,23 +229,41 @@ open_shell() {
         exec bash -i'
 }
 
-case "$MODE" in
-    fast)
-        run_fast_suite "$@"
-        ;;
-    full)
-        run_full_suite "$@"
-        ;;
-    rebuild)
-        prepare_fast_image true
-        ;;
-    shell)
-        open_shell
-        ;;
-    *)
-        echo "Usage: $0 [fast|full|rebuild|shell] [bats args...]" >&2
-        exit 1
-        ;;
-esac
+main() {
+    local mode="${1:-fast}"
 
-echo "[setmeup] Tests complete."
+    if [[ $# -gt 0 ]]; then
+        shift
+    fi
+
+    case "$mode" in
+        fast)
+            run_fast_suite "$@"
+            ;;
+        full)
+            run_full_suite "$@"
+            ;;
+        rebuild)
+            prepare_fast_image true
+            ;;
+        shell)
+            open_shell
+            ;;
+        clean)
+            clean_current_images
+            ;;
+        clean-all)
+            clean_all_images
+            ;;
+        *)
+            echo "Usage: $0 [fast|full|rebuild|shell|clean|clean-all] [bats args...]" >&2
+            exit 1
+            ;;
+    esac
+
+    echo "[setmeup] Tests complete."
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

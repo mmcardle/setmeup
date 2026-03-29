@@ -55,6 +55,12 @@ make test-full
 # Rebuild the prepared fast image
 make test-rebuild
 
+# Remove this worktree's scoped test images and cache
+make test-clean
+
+# Remove all scoped setmeup test images on this host
+make test-clean-all
+
 # Run one test file
 make test-file FILE=dotfiles.bats
 
@@ -65,7 +71,7 @@ make test-filter FILTER="aliases"
 make shell
 ```
 
-`make test` and `make shell` reuse a prepared Docker image so normal local runs stay fast. Use `make test-full` when you want the clean-machine rebuild path.
+Docker test images are isolated per worktree. `make test` and `make shell` reuse a prepared Docker image only within the current worktree so normal local runs stay fast without colliding with other branches. Use `make test-full` when you want the clean-machine rebuild path. The first test run after this change will build a new scoped image for the current worktree.
 
 ## GitHub API Rate Limits
 

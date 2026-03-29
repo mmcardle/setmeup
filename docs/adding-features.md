@@ -34,6 +34,12 @@ make test-quick
 # Rebuild the prepared fast image after setup-affecting changes
 make test-rebuild
 
+# Remove this worktree's scoped test images and cache
+make test-clean
+
+# Remove all scoped setmeup test images on this host
+make test-clean-all
+
 # Interactive shell for fastest TDD loop
 make shell
 # Inside container:
@@ -41,7 +47,7 @@ bats ~/tests/dotfiles.bats                     # run one file
 bats --filter "aliases" ~/tests/*.bats          # run one test
 ```
 
-`make test` and `make shell` reuse a prepared Docker image with setup already baked in. Use `make test-full` when you need the clean-machine rebuild path, and `make test-rebuild` after changing `bootstrap.sh`, `home/`, or other setup inputs that should invalidate the prepared image.
+Docker test images are isolated per worktree. `make test` and `make shell` reuse a prepared Docker image with setup already baked in only within the current worktree. Use `make test-full` when you need the clean-machine rebuild path, `make test-rebuild` after changing `bootstrap.sh`, `home/`, or other setup inputs that should invalidate the prepared image, and the cleanup targets when you want to remove stale scoped images. The first run in a worktree will build a new scoped image.
 
 ## Step-by-Step Example: Adding a New Dotfile
 

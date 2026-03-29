@@ -1,4 +1,4 @@
-.PHONY: shell test test-full test-file test-filter test-quick test-rebuild
+.PHONY: shell test test-full test-file test-filter test-quick test-rebuild test-clean test-clean-all
 
 shell: GITHUB_TOKEN ?= $(shell gh auth token 2>/dev/null)
 shell: ## Interactive shell in the prepared fast test container
@@ -21,3 +21,9 @@ test-quick: ## Alias for the fast local smoke suite
 
 test-rebuild: ## Rebuild the prepared fast test image
 	./tests/run_tests.sh rebuild
+
+test-clean: ## Remove the current worktree's scoped test images and cache
+	./tests/run_tests.sh clean
+
+test-clean-all: ## Remove all scoped setmeup test images on this host
+	./tests/run_tests.sh clean-all
