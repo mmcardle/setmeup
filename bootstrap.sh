@@ -14,6 +14,20 @@ error() { printf '\033[1;31m[setmeup]\033[0m %s\n' "$1" >&2; exit 1; }
 
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
+print_banner() {
+    cat <<'EOF'
+  ____  _____ _____ __  __ _____ _   _ ____
+ / ___|| ____|_   _|  \/  | ____| | | |  _ \
+ \___ \|  _|   | | | |\/| |  _| | | | | |_) |
+  ___) | |___  | | | |  | | |___| |_| |  __/
+ |____/|_____| |_| |_|  |_|_____|\___/|_|
+
+SETMEUP
+setmeup: bootstrap your dev machine
+EOF
+    echo ""
+}
+
 # ---------------------------------------------------------------------------
 # Back up existing dotfiles before chezmoi overwrites them
 # ---------------------------------------------------------------------------
@@ -128,6 +142,7 @@ main() {
         USE_LOCAL=true
     fi
 
+    print_banner
     info "Starting setmeup bootstrap..."
 
     detect_os
