@@ -88,11 +88,19 @@ make test-quick
 # Rebuild the prepared fast image after setup-affecting changes
 make test-rebuild
 
+# Remove this worktree's scoped test images and cache
+make test-clean
+
+# Remove all scoped setmeup test images on this host
+make test-clean-all
+
 # Interactive TDD loop in the prepared container
 make shell
 # Then:
 bats ~/tests/dotfiles.bats
 ```
+
+Docker test images are isolated per worktree. `make test` and `make shell` reuse the prepared image only within the current worktree, and the first run in a new worktree builds a new scoped image.
 
 ## Development
 
