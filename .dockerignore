@@ -1,0 +1,7 @@
+.git
+.cache
+docs
+.DS_Store
+*.swp
+*.swo
+*~

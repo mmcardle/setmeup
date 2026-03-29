@@ -16,6 +16,7 @@ STATUSLINE_JSON='{"statusLine":{"type":"command","command":"bash ~/.claude/statu
 # Permissions to ensure are in the allow list
 REQUIRED_PERMISSIONS=(
     'Read(~/.claude/skills/*)'
+    'Bash(make *)'
 )
 
 if [[ -f "$SETTINGS_FILE" ]]; then

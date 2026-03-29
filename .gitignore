@@ -11,3 +11,5 @@ Thumbs.db
 
 # Claude
 .claude/
+
+.cache/
