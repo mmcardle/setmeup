@@ -83,7 +83,7 @@ make test-file FILE=dotfiles.bats
 make test-filter FILTER="aliases"
 
 # Alias for the fast local smoke suite
-make test-quick
+make test
 
 # Rebuild the prepared fast image after setup-affecting changes
 make test-rebuild

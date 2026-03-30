@@ -1,4 +1,4 @@
-.PHONY: shell test test-full test-file test-filter test-quick test-rebuild test-clean test-clean-all
+.PHONY: shell test test-full test-file test-filter test-rebuild test-clean test-clean-all
 
 shell: GITHUB_TOKEN ?= $(shell gh auth token 2>/dev/null)
 shell: ## Interactive shell in the prepared fast test container
@@ -15,9 +15,6 @@ test-file: ## Run a single test file (usage: make test-file FILE=dotfiles.bats)
 
 test-filter: ## Run tests matching a pattern (usage: make test-filter FILTER="aliases")
 	./tests/run_tests.sh fast --filter '$(FILTER)' '$$HOME/tests/*.bats'
-
-test-quick: ## Alias for the fast local smoke suite
-	./tests/run_tests.sh fast
 
 test-rebuild: ## Rebuild the prepared fast test image
 	./tests/run_tests.sh rebuild
