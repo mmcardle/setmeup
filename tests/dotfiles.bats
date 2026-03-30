@@ -95,6 +95,21 @@ setup() {
 
 # --- SSH config ---
 
+@test "setmeup bashrc configures SSH agent socket" {
+    assert_file_contains "$HOME/.config/setmeup/bashrc" 'SSH_AUTH_SOCK="$HOME/.ssh/ssh_auth_sock"'
+}
+
+@test "setmeup zshrc configures SSH agent socket" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" 'SSH_AUTH_SOCK="$HOME/.ssh/ssh_auth_sock"'
+}
+
+@test "setmeup bashrc starts ssh-agent on stale socket" {
+    assert_file_contains "$HOME/.config/setmeup/bashrc" 'ssh-agent -a "$SSH_AUTH_SOCK"'
+}
+
+@test "setmeup zshrc starts ssh-agent on stale socket" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" 'ssh-agent -a "$SSH_AUTH_SOCK"'
+}
 
 # --- Oh-my-zsh ---
 

@@ -114,6 +114,11 @@ make test-file FILE=dotfiles.bats
 1. Test: `assert_file_contains "$HOME/.aliases" "alias myalias="` in `tests/dotfiles.bats`
 2. Implement: add the alias to `home/dot_aliases`
 
+### Adding a section to shell configs (bashrc/zshrc)
+
+1. Test: add `@test` blocks using `assert_file_contains` for both `$HOME/.config/setmeup/bashrc` and `$HOME/.config/setmeup/zshrc` in `tests/dotfiles.bats`
+2. Implement: add the section to both `home/dot_config/setmeup/bashrc.tmpl` and `home/dot_config/setmeup/zshrc.tmpl`, using the established `# ---` separator pattern. Place it in the correct position relative to other sections (e.g. SSH Agent goes before Mise so SSH is available for git-over-SSH operations).
+
 ### Adding a new mise tool
 
 1. Test: `assert_mise_tool <tool>` in `tests/mise_tools.bats`
