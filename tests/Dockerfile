@@ -56,8 +56,9 @@ COPY --chown=testuser:testuser tests/claude_code.bats /home/testuser/tests/claud
 COPY --chown=testuser:testuser tests/dotfiles.bats /home/testuser/tests/dotfiles.bats
 COPY --chown=testuser:testuser tests/ai_agents.bats /home/testuser/tests/ai_agents.bats
 COPY --chown=testuser:testuser tests/update_script.bats /home/testuser/tests/update_script.bats
+COPY --chown=testuser:testuser tests/mise_tools.bats /home/testuser/tests/mise_tools.bats
 
-CMD ["/bin/bash", "-lc", "bats $HOME/tests/banner.bats $HOME/tests/backup.bats $HOME/tests/claude_code.bats $HOME/tests/dotfiles.bats $HOME/tests/ai_agents.bats $HOME/tests/update_script.bats"]
+CMD ["/bin/bash", "-lc", "bats $HOME/tests/banner.bats $HOME/tests/backup.bats $HOME/tests/claude_code.bats $HOME/tests/dotfiles.bats $HOME/tests/ai_agents.bats $HOME/tests/update_script.bats $HOME/tests/mise_tools.bats"]
 
 FROM prepared-setup AS full
 

@@ -64,3 +64,11 @@ setup() {
 @test "mise tool installed: claude" {
     assert_mise_tool claude
 }
+
+@test "mise tool installed: sesh" {
+    assert_mise_tool sesh
+}
+
+@test "mise tool installed: zoxide" {
+    assert_mise_tool zoxide
+}
