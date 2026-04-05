@@ -109,6 +109,13 @@ make test-file FILE=dotfiles.bats
 1. Test: add `@test` blocks using `assert_file_exists` and `assert_file_contains` in `tests/dotfiles.bats`
 2. Implement: create `home/dot_<name>` (or `home/dot_<name>.tmpl` for templates)
 
+### Adding a tmux plugin
+
+1. Test: add `assert_file_contains "$HOME/.tmux.conf" "<author>/<plugin>"` and `assert_dir_exists "$HOME/.tmux/plugins/<plugin>"` in `tests/dotfiles.bats`
+2. Implement:
+   - Add `set -g @plugin '<author>/<plugin>'` to `home/dot_tmux.conf` (before the TPM `run` line)
+   - Add the plugin as a chezmoi external in `home/.chezmoiexternal.toml` (plugins are installed declaratively via chezmoi, not via TPM's runtime installer, because chezmoi scripts run before externals are downloaded)
+
 ### Adding a new shell alias
 
 1. Test: `assert_file_contains "$HOME/.aliases" "alias myalias="` in `tests/dotfiles.bats`

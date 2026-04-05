@@ -1,0 +1,11 @@
+#!/bin/sh
+# Rebuild font cache after chezmoi externals may have installed fonts
+# hash: {{ include ".chezmoiscripts/run_always_006-rebuild-font-cache.sh.tmpl" | sha256sum }}
+set -e
+
+{{ if eq .chezmoi.os "linux" -}}
+if command -v fc-cache >/dev/null 2>&1; then
+    echo "[setmeup] Rebuilding font cache..."
+    fc-cache -f "$HOME/.local/share/fonts" 2>/dev/null || true
+fi
+{{ end -}}

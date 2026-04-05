@@ -27,6 +27,87 @@ setup() {
     assert_file_exists "$HOME/.config/mise/config.toml"
 }
 
+@test "managed dotfile exists: .tmux.conf" {
+    assert_file_exists "$HOME/.tmux.conf"
+}
+
+@test "tmux.conf enables mouse mode" {
+    assert_file_contains "$HOME/.tmux.conf" "setw -g mouse on"
+}
+
+@test "tmux.conf sets prefix to C-a" {
+    assert_file_contains "$HOME/.tmux.conf" "set -g prefix C-a"
+}
+
+@test "tmux.conf uses vi mode keys" {
+    assert_file_contains "$HOME/.tmux.conf" "setw -g mode-keys vi"
+}
+
+@test "tmux.conf loads tpm" {
+    assert_file_contains "$HOME/.tmux.conf" "run '~/.tmux/plugins/tpm/tpm'"
+}
+
+@test "tmux.conf includes vim-tmux-navigator plugin" {
+    assert_file_contains "$HOME/.tmux.conf" "christoomey/vim-tmux-navigator"
+}
+
+@test "tmux.conf includes tmux-sensible plugin" {
+    assert_file_contains "$HOME/.tmux.conf" "tmux-plugins/tmux-sensible"
+}
+
+@test "tmux.conf includes tmux-yank plugin" {
+    assert_file_contains "$HOME/.tmux.conf" "tmux-plugins/tmux-yank"
+}
+
+@test "tmux.conf includes tmux-pain-control plugin" {
+    assert_file_contains "$HOME/.tmux.conf" "tmux-plugins/tmux-pain-control"
+}
+
+@test "tmux.conf includes tmux-fzf plugin" {
+    assert_file_contains "$HOME/.tmux.conf" "sainnhe/tmux-fzf"
+}
+
+@test "tmux.conf includes tmux-sessionx plugin" {
+    assert_file_contains "$HOME/.tmux.conf" "omerxx/tmux-sessionx"
+}
+
+@test "tpm is installed via chezmoi externals" {
+    assert_dir_exists "$HOME/.tmux/plugins/tpm"
+}
+
+# --- Nerd Font ---
+
+@test "nerd font directory exists" {
+    assert_dir_exists "$HOME/.local/share/fonts/JetBrainsMonoNerdFont"
+}
+
+@test "nerd font ttf files are installed" {
+    local count
+    count=$(find "$HOME/.local/share/fonts/JetBrainsMonoNerdFont" -name "*.ttf" 2>/dev/null | wc -l)
+    [ "$count" -gt 0 ]
+}
+
+@test "fontconfig finds JetBrainsMono nerd font" {
+    run fc-list : family
+    [[ "$output" == *"JetBrainsMono"* ]]
+}
+
+@test "system package installed: fontconfig" {
+    assert_command_exists fc-cache
+}
+
+@test "tmux-tokyo-night theme plugin is installed" {
+    assert_dir_exists "$HOME/.tmux/plugins/tmux-tokyo-night"
+}
+
+@test "tmux-resurrect plugin is installed" {
+    assert_dir_exists "$HOME/.tmux/plugins/tmux-resurrect"
+}
+
+@test "tmux-yank plugin is installed" {
+    assert_dir_exists "$HOME/.tmux/plugins/tmux-yank"
+}
+
 
 # --- Source injection ---
 

@@ -23,3 +23,85 @@
     exact = true
     stripComponents = 1
     refreshPeriod = "168h"
+
+[".local/share/fonts/JetBrainsMonoNerdFont"]
+    type = "archive"
+    url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
+    refreshPeriod = "720h"
+
+[".tmux/plugins/tpm"]
+    type = "archive"
+    url = "https://github.com/tmux-plugins/tpm/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/tmux-sensible"]
+    type = "archive"
+    url = "https://github.com/tmux-plugins/tmux-sensible/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/tmux-yank"]
+    type = "archive"
+    url = "https://github.com/tmux-plugins/tmux-yank/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/tmux-resurrect"]
+    type = "archive"
+    url = "https://github.com/tmux-plugins/tmux-resurrect/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/tmux-continuum"]
+    type = "archive"
+    url = "https://github.com/tmux-plugins/tmux-continuum/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/tmux-pain-control"]
+    type = "archive"
+    url = "https://github.com/tmux-plugins/tmux-pain-control/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/vim-tmux-navigator"]
+    type = "archive"
+    url = "https://github.com/christoomey/vim-tmux-navigator/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/tmux-tokyo-night"]
+    type = "archive"
+    url = "https://github.com/fabioluciano/tmux-tokyo-night/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/tmux-thumbs"]
+    type = "archive"
+    url = "https://github.com/fcsonline/tmux-thumbs/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/tmux-fzf"]
+    type = "archive"
+    url = "https://github.com/sainnhe/tmux-fzf/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
+
+[".tmux/plugins/tmux-sessionx"]
+    type = "archive"
+    url = "https://github.com/omerxx/tmux-sessionx/archive/master.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"

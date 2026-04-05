@@ -65,6 +65,11 @@ echo ""
 "$HOME/setmeup/bootstrap.sh" --local
 echo "OK: bootstrap complete"
 
+# Rebuild font cache (chezmoi scripts run before externals, so fc-cache
+# needs to run after apply to pick up fonts downloaded by externals)
+fc-cache -f "$HOME/.local/share/fonts" 2>/dev/null || true
+echo "OK: font cache rebuilt"
+
 # =========================================================================
 echo ""
 echo "========================================"
