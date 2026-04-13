@@ -18,9 +18,8 @@ setup() {
 }
 
 @test "agent-skills.list contains expected skills" {
-    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "obra/superpowers claude-code"
-    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "obra/superpowers codex"
-    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "gianchub/claude-plugins claude-code"
+    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "obra/superpowers claude-code codex"
+    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "gianchub/claude-plugins claude-code codex"
 }
 
 @test "update.sh contains mise upgrade" {

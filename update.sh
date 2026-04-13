@@ -38,9 +38,13 @@ mise upgrade --yes
 info "Installing and refreshing agent skills..."
 SKILLS_LIST="$HOME/.config/setmeup/agent-skills.list"
 if [ -f "$SKILLS_LIST" ]; then
-    grep -v '^\s*#' "$SKILLS_LIST" | grep -v '^\s*$' | while read -r package agent; do
-        info "Installing $package for $agent..."
-        mise exec node@lts -- npx -y skills add "$package" -a "$agent" -g -y </dev/null || warn "Failed to install $package for $agent (non-fatal)"
+    grep -v '^\s*#' "$SKILLS_LIST" | grep -v '^\s*$' | while read -r package agents; do
+        agent_flags=""
+        for agent in $agents; do
+            agent_flags="$agent_flags -a $agent"
+        done
+        info "Installing $package for $agents..."
+        mise exec node@lts -- npx -y skills add "$package" $agent_flags -g -y </dev/null || warn "Failed to install $package for $agents (non-fatal)"
     done
 else
     warn "agent-skills.list not found at $SKILLS_LIST, skipping skill installation"

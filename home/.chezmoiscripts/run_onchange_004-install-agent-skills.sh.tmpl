@@ -15,9 +15,13 @@ if [[ ! -f "$SKILLS_LIST" ]]; then
     exit 1
 fi
 
-while read -r package agent; do
-    echo "[setmeup] Installing $package for $agent..."
-    mise exec node@lts -- npx -y skills add "$package" -a "$agent" -g -y </dev/null
+while read -r package agents; do
+    agent_flags=""
+    for agent in $agents; do
+        agent_flags="$agent_flags -a $agent"
+    done
+    echo "[setmeup] Installing $package for $agents..."
+    mise exec node@lts -- npx -y skills add "$package" $agent_flags -g -y </dev/null
 done < <(grep -v '^\s*#' "$SKILLS_LIST" | grep -v '^\s*$')
 
 echo "[setmeup] Agent skills installed."
