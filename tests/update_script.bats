@@ -56,3 +56,8 @@ EOF
     [ "$status" -eq 0 ]
     [[ "$output" == *"setmeup: bootstrap your dev machine"* ]]
 }
+
+@test "update.sh reads agent-skills.list for installation" {
+    assert_file_contains "$HOME/setmeup/update.sh" "agent-skills.list"
+    assert_file_contains "$HOME/setmeup/update.sh" "skills add"
+}

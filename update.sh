@@ -35,9 +35,16 @@ mise install --yes
 info "Upgrading mise tools..."
 mise upgrade --yes
 
-info "Refreshing agent skills..."
-mise exec node@lts -- npx -y skills update -a claude-code -g -y || warn "Skills refresh failed (non-fatal)"
-mise exec node@lts -- npx -y skills update -a codex -g -y || warn "Skills refresh failed (non-fatal)"
+info "Installing and refreshing agent skills..."
+SKILLS_LIST="$HOME/.config/setmeup/agent-skills.list"
+if [ -f "$SKILLS_LIST" ]; then
+    grep -v '^\s*#' "$SKILLS_LIST" | grep -v '^\s*$' | while read -r package agent; do
+        info "Installing $package for $agent..."
+        mise exec node@lts -- npx -y skills add "$package" -a "$agent" -g -y </dev/null || warn "Failed to install $package for $agent (non-fatal)"
+    done
+else
+    warn "agent-skills.list not found at $SKILLS_LIST, skipping skill installation"
+fi
 
 # Update the check timestamp
 mkdir -p "$HOME/.local/state/setmeup"
