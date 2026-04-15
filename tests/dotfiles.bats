@@ -392,6 +392,32 @@ setup() {
     assert_file_contains "$HOME/.config/git/ignore" ".idea"
 }
 
+# --- git-delta ---
+
+@test "git config sets delta as pager" {
+    assert_file_contains "$HOME/.config/git/config" "pager = delta"
+}
+
+@test "git config sets delta as interactive diffFilter" {
+    assert_file_contains "$HOME/.config/git/config" "diffFilter = delta --color-only"
+}
+
+@test "git config enables delta navigate" {
+    assert_file_contains "$HOME/.config/git/config" "navigate = true"
+}
+
+@test "git config enables delta side-by-side" {
+    assert_file_contains "$HOME/.config/git/config" "side-by-side = true"
+}
+
+@test "git config enables delta line-numbers" {
+    assert_file_contains "$HOME/.config/git/config" "line-numbers = true"
+}
+
+@test "git config sets zdiff3 merge conflict style" {
+    assert_file_contains "$HOME/.config/git/config" "conflictstyle = zdiff3"
+}
+
 # --- macOS defaults script ---
 
 # --- Chezmoi scripts fail fast if mise is missing ---

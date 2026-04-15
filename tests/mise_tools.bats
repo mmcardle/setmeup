@@ -72,3 +72,7 @@ setup() {
 @test "mise tool installed: zoxide" {
     assert_mise_tool zoxide
 }
+
+@test "mise tool installed: delta" {
+    assert_mise_tool delta
+}
