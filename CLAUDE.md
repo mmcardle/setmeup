@@ -30,7 +30,8 @@ setmeup/
 │   │   ├── nvim/init.vim           # Neovim entry point (sources ~/.vimrc)
 │   │   └── setmeup/
 │   │       ├── bashrc.tmpl         # Shell config sourced from ~/.bashrc (mise, history, prompt, auto-update)
-│   │       └── zshrc.tmpl          # Shell config sourced from ~/.zshrc (p10k, oh-my-zsh, mise, auto-update)
+│   │       ├── zshrc.tmpl          # Shell config sourced from ~/.zshrc (p10k, oh-my-zsh, mise, auto-update)
+│   │       └── executable_sesh-popup.sh # Sesh+fzf launcher invoked by tmux Ctrl-a s (mise-shim safe)
 │   │
 │   │
 │   └── .chezmoiscripts/            # Chezmoi lifecycle scripts (numbered for execution order)
