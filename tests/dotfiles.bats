@@ -71,6 +71,33 @@ setup() {
     assert_file_contains "$HOME/.tmux.conf" "omerxx/tmux-sessionx"
 }
 
+# --- Sesh popup launcher ---
+
+@test "managed dotfile exists: .config/setmeup/sesh-popup.sh" {
+    assert_file_exists "$HOME/.config/setmeup/sesh-popup.sh"
+}
+
+@test "sesh-popup.sh is executable" {
+    [ -x "$HOME/.config/setmeup/sesh-popup.sh" ]
+}
+
+@test "sesh-popup.sh prepends mise shims to PATH" {
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" '.local/share/mise/shims'
+}
+
+@test "sesh-popup.sh invokes sesh connect" {
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "sesh connect"
+}
+
+@test "tmux.conf binds s to sesh-popup.sh" {
+    assert_file_contains "$HOME/.tmux.conf" "bind-key \"s\" run-shell '~/.config/setmeup/sesh-popup.sh'"
+}
+
+@test "tmux.conf no longer binds t to sesh" {
+    run grep -E '^bind-key "t".*sesh' "$HOME/.tmux.conf"
+    [ "$status" -ne 0 ]
+}
+
 @test "tpm is installed via chezmoi externals" {
     assert_dir_exists "$HOME/.tmux/plugins/tpm"
 }
