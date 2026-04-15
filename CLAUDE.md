@@ -19,6 +19,7 @@ setmeup/
 │   │
 │   ├── dot_aliases                 # Shared shell aliases (git, docker, utilities)
 │   ├── dot_tmux.conf               # Tmux configuration (plugins, keybindings, vim-navigator)
+│   ├── dot_vimrc                   # Vim config (syntax highlighting, filetype detection)
 │   │
 │   ├── dot_claude/
 │   │   └── statusline-command.sh    # Claude Code statusline display script
@@ -26,6 +27,7 @@ setmeup/
 │   ├── dot_config/
 │   │   ├── git/config.tmpl         # Git config (templated user, aliases, defaults)
 │   │   ├── mise/config.toml        # Mise tool definitions (python, node, rust, jq, rg, fd, fzf, uv, claude-code, codex)
+│   │   ├── nvim/init.vim           # Neovim entry point (sources ~/.vimrc)
 │   │   └── setmeup/
 │   │       ├── bashrc.tmpl         # Shell config sourced from ~/.bashrc (mise, history, prompt, auto-update)
 │   │       └── zshrc.tmpl          # Shell config sourced from ~/.zshrc (p10k, oh-my-zsh, mise, auto-update)
