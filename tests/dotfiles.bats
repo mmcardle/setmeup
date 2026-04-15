@@ -75,6 +75,28 @@ setup() {
     assert_dir_exists "$HOME/.tmux/plugins/tpm"
 }
 
+# --- Vim / Neovim ---
+
+@test "managed dotfile exists: .vimrc" {
+    assert_file_exists "$HOME/.vimrc"
+}
+
+@test "vimrc enables syntax highlighting" {
+    assert_file_contains "$HOME/.vimrc" "syntax on"
+}
+
+@test "vimrc enables filetype plugin indent" {
+    assert_file_contains "$HOME/.vimrc" "filetype plugin indent on"
+}
+
+@test "managed dotfile exists: .config/nvim/init.vim" {
+    assert_file_exists "$HOME/.config/nvim/init.vim"
+}
+
+@test "nvim init.vim sources vimrc" {
+    assert_file_contains "$HOME/.config/nvim/init.vim" "source ~/.vimrc"
+}
+
 # --- Nerd Font ---
 
 @test "nerd font directory exists" {
