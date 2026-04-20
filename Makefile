@@ -1,10 +1,13 @@
-.PHONY: shell test test-full test-file test-filter test-rebuild test-clean test-clean-all
+.PHONY: shell test test-self test-full test-file test-filter test-rebuild test-clean test-clean-all
 
 shell: GITHUB_TOKEN ?= $(shell gh auth token 2>/dev/null)
 shell: ## Interactive shell in the prepared fast test container
 	GITHUB_TOKEN="$(GITHUB_TOKEN)" ./tests/run_tests.sh shell
 
-test: ## Run the fast local smoke suite in Docker
+test-self: ## Run test-harness self-checks (no Docker)
+	./tests/test_fast_image_hash_covers_bats.sh
+
+test: test-self ## Run the fast local smoke suite in Docker
 	./tests/run_tests.sh fast
 
 test-full: ## Run the clean full integration suite in Docker

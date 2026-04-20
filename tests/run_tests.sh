@@ -85,10 +85,12 @@ fast_image_hash() {
         "$REPO_ROOT/tests/setup_environment.sh"
         "$REPO_ROOT/tests/chezmoi-test-config.toml"
         "$REPO_ROOT/tests/test_helper.bash"
+        "$REPO_ROOT/tests/ai_agents.bats"
         "$REPO_ROOT/tests/backup.bats"
         "$REPO_ROOT/tests/banner.bats"
         "$REPO_ROOT/tests/claude_code.bats"
         "$REPO_ROOT/tests/dotfiles.bats"
+        "$REPO_ROOT/tests/mise_tools.bats"
         "$REPO_ROOT/tests/update_script.bats"
     )
 
