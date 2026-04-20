@@ -65,6 +65,10 @@ setup() {
     assert_mise_tool claude
 }
 
+@test "mise tool installed: opencode" {
+    assert_mise_tool opencode
+}
+
 @test "mise tool installed: sesh" {
     assert_mise_tool sesh
 }

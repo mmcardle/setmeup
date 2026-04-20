@@ -13,6 +13,10 @@ setup() {
     mise which codex
 }
 
+@test "opencode is installed" {
+    mise which opencode
+}
+
 @test "npx skills CLI is available" {
     mise exec node@lts -- npx -y skills --version
 }

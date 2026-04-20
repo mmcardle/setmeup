@@ -17,6 +17,7 @@ zoxide = "latest"
 delta = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:@openai/codex" = "latest"
+"npm:opencode-ai" = "latest"
 
 [settings]
 experimental = true
