@@ -7,7 +7,7 @@ set -euo pipefail
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
 sesh connect "$(
-  sesh list --icons | fzf-tmux -p 80%,70% \
+  sesh list --icons | fzf --tmux 80%,70% \
     --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
     --header '  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find' \
     --bind 'tab:down,btab:up' \

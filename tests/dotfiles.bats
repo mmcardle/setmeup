@@ -103,8 +103,12 @@ setup() {
     assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "sesh connect"
 }
 
-@test "sesh-popup.sh uses fzf-tmux popup layout" {
-    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "fzf-tmux -p 80%,70%"
+@test "sesh-popup.sh uses built-in fzf --tmux popup (not external fzf-tmux)" {
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "fzf --tmux 80%,70%"
+    if grep -q "fzf-tmux" "$HOME/.config/setmeup/sesh-popup.sh"; then
+        echo "sesh-popup.sh references fzf-tmux; mise's fzf does not ship that script" >&2
+        return 1
+    fi
 }
 
 @test "sesh-popup.sh configures sesh preview" {
