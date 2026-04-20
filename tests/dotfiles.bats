@@ -322,6 +322,10 @@ setup() {
     assert_command_exists tmux
 }
 
+@test "system package installed: tmuxinator" {
+    assert_command_exists tmuxinator
+}
+
 @test "system package installed: neovim" {
     assert_command_exists nvim
 }
