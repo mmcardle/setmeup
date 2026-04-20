@@ -25,6 +25,7 @@ alias l='ls -CF'
 command -v bat &>/dev/null && alias cat="bat"
 command -v eza &>/dev/null && alias ls="eza --icons" && alias ll="eza -l --icons" && alias la="eza -la --icons"
 command -v rg  &>/dev/null && alias grep="rg"
+command -v sesh &>/dev/null && alias s='sesh connect $(sesh list | fzf)'
 
 # Run a command repeatedly, stopping at the first failure
 retry_until_fail() {

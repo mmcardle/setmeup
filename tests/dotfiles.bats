@@ -325,6 +325,10 @@ setup() {
     assert_file_contains "$HOME/.aliases" 'alias grep="rg'
 }
 
+@test "aliases file conditionally aliases s to sesh connect via fzf" {
+    assert_file_contains "$HOME/.aliases" "alias s='sesh connect \$(sesh list | fzf)'"
+}
+
 # --- retry_until_fail function ---
 
 @test "aliases file defines retry_until_fail function" {
