@@ -89,6 +89,15 @@ setup() {
     assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "sesh connect"
 }
 
+@test "sesh-popup.sh uses fzf-tmux popup layout" {
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "fzf-tmux -p 80%,70%"
+}
+
+@test "sesh-popup.sh configures sesh preview" {
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "right:55%"
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "sesh preview {}"
+}
+
 @test "tmux.conf binds s to sesh-popup.sh" {
     assert_file_contains "$HOME/.tmux.conf" "bind-key \"s\" run-shell '~/.config/setmeup/sesh-popup.sh'"
 }
