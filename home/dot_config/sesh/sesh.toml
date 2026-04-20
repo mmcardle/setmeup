@@ -1,0 +1,22 @@
+#:schema https://github.com/joshmedeski/sesh/raw/main/sesh.schema.json
+
+[default_session]
+preview_command = "eza --all --git --icons --color=always {}"
+
+[[session]]
+name = "zsh config"
+path = "~"
+startup_command = "nvim .zshrc"
+preview_command = "bat --color=always ~/.zshrc"
+
+[[session]]
+name = "tmux config"
+path = "~"
+startup_command = "nvim .tmux.conf"
+preview_command = "bat --color=always ~/.tmux.conf"
+
+[[session]]
+name = "sesh config"
+path = "~/.config/sesh/"
+startup_command = "nvim sesh.toml"
+preview_command = "bat --color=always ~/.config/sesh/sesh.toml"

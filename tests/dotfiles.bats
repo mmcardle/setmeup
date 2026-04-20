@@ -77,6 +77,20 @@ setup() {
     assert_file_exists "$HOME/.config/setmeup/sesh-popup.sh"
 }
 
+@test "managed dotfile exists: .config/sesh/sesh.toml" {
+    assert_file_exists "$HOME/.config/sesh/sesh.toml"
+}
+
+@test "managed sesh config includes shared preview command" {
+    assert_file_contains "$HOME/.config/sesh/sesh.toml" 'preview_command = "eza --all --git --icons --color=always {}"'
+}
+
+@test "managed sesh config includes shared session names" {
+    assert_file_contains "$HOME/.config/sesh/sesh.toml" 'name = "zsh config"'
+    assert_file_contains "$HOME/.config/sesh/sesh.toml" 'name = "tmux config"'
+    assert_file_contains "$HOME/.config/sesh/sesh.toml" 'name = "sesh config"'
+}
+
 @test "sesh-popup.sh is executable" {
     [ -x "$HOME/.config/setmeup/sesh-popup.sh" ]
 }
