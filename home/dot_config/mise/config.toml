@@ -15,7 +15,7 @@ direnv = "latest"
 "aqua:joshmedeski/sesh" = "latest"
 zoxide = "latest"
 delta = "latest"
-claude-code = "latest"
+"npm:@anthropic-ai/claude-code" = "latest"
 "npm:@openai/codex" = "latest"
 
 [settings]
