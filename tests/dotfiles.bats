@@ -250,6 +250,35 @@ setup() {
     assert_file_contains "$HOME/.config/setmeup/zshrc" "mise activate zsh"
 }
 
+# --- Aliases must be sourced AFTER mise activates so that
+#     command -v checks in ~/.aliases see mise shims on PATH ---
+
+@test "setmeup bashrc sources aliases after mise activation" {
+    local file="$HOME/.config/setmeup/bashrc"
+    local mise_line aliases_line
+    mise_line=$(grep -n "mise activate bash" "$file" | head -1 | cut -d: -f1)
+    aliases_line=$(grep -n '\. ~/\.aliases' "$file" | head -1 | cut -d: -f1)
+    [ -n "$mise_line" ] || { echo "mise activation not found in $file" >&2; return 1; }
+    [ -n "$aliases_line" ] || { echo "aliases source not found in $file" >&2; return 1; }
+    if (( aliases_line < mise_line )); then
+        echo "expected aliases source (line $aliases_line) to come AFTER mise activate (line $mise_line) in $file" >&2
+        return 1
+    fi
+}
+
+@test "setmeup zshrc sources aliases after mise activation" {
+    local file="$HOME/.config/setmeup/zshrc"
+    local mise_line aliases_line
+    mise_line=$(grep -n "mise activate zsh" "$file" | head -1 | cut -d: -f1)
+    aliases_line=$(grep -n "source ~/\.aliases" "$file" | head -1 | cut -d: -f1)
+    [ -n "$mise_line" ] || { echo "mise activation not found in $file" >&2; return 1; }
+    [ -n "$aliases_line" ] || { echo "aliases source not found in $file" >&2; return 1; }
+    if (( aliases_line < mise_line )); then
+        echo "expected aliases source (line $aliases_line) to come AFTER mise activate (line $mise_line) in $file" >&2
+        return 1
+    fi
+}
+
 # --- SSH config ---
 
 @test "setmeup bashrc configures SSH agent socket" {
