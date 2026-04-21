@@ -389,6 +389,58 @@ setup() {
     assert_file_contains "$HOME/.aliases" "alias s='sesh connect \$(sesh list | fzf)'"
 }
 
+@test "aliases file conditionally aliases mux to tmuxinator" {
+    assert_file_contains "$HOME/.aliases" "alias mux='tmuxinator'"
+}
+
+# --- EDITOR environment variable ---
+
+@test "setmeup bashrc exports EDITOR as vim" {
+    assert_file_contains "$HOME/.config/setmeup/bashrc" "export EDITOR='vim'"
+}
+
+@test "setmeup zshrc exports EDITOR as vim" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "export EDITOR='vim'"
+}
+
+@test "interactive bash has EDITOR=vim" {
+    run bash -ic 'echo "EDITOR_IS:$EDITOR"'
+    echo "$output" | grep -qx 'EDITOR_IS:vim'
+}
+
+@test "interactive zsh has EDITOR=vim" {
+    run zsh -ic 'echo "EDITOR_IS:$EDITOR"'
+    echo "$output" | grep -qx 'EDITOR_IS:vim'
+}
+
+@test "interactive bash has mux alias for tmuxinator" {
+    run bash -ic 'alias mux'
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"tmuxinator"* ]]
+}
+
+@test "interactive zsh has mux alias for tmuxinator" {
+    run zsh -ic 'alias mux'
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"tmuxinator"* ]]
+}
+
+# --- tmuxinator completion (shipped by package manager) ---
+
+@test "tmuxinator package ships bash completion" {
+    # On Debian/Ubuntu the apt package installs a bash-completion file.
+    # If this regresses we need to vendor the completion file.
+    run bash -c 'dpkg -L tmuxinator 2>/dev/null | grep -E "bash.?completion"'
+    [ "$status" -eq 0 ]
+    [ -n "$output" ]
+}
+
+@test "tmuxinator package ships zsh completion" {
+    run bash -c 'dpkg -L tmuxinator 2>/dev/null | grep -E "(zsh|_tmuxinator)"'
+    [ "$status" -eq 0 ]
+    [ -n "$output" ]
+}
+
 # --- retry_until_fail function ---
 
 @test "aliases file defines retry_until_fail function" {
