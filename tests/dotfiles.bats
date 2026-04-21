@@ -399,12 +399,20 @@ setup() {
     assert_file_exists "$HOME/.config/tmuxinator/default.yml"
 }
 
-@test "tmuxinator default template sets session name from args" {
-    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'name: <%= @args[0] %>-<%= @args[1] %>'
+@test "tmuxinator default template sanitises dots in the session name" {
+    # Tmux treats `.` as target syntax separator, so repo names like
+    # `hub.sohonet.com` must be rewritten before becoming a session name.
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" "name: <%= @args[0].gsub('.', '_') %>-<%= @args[1] %>"
 }
 
-@test "tmuxinator default template roots panes in the worktree" {
-    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'root: ~/devel/<%= @args[1] %>'
+@test "tmuxinator default template roots panes in the source repo" {
+    # Root must exist when tmuxinator cds into it; the worktree may not
+    # exist yet, so we point at the source repo and cd to the worktree via pre_window.
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'root: ~/devel/<%= @args[0] %>'
+}
+
+@test "tmuxinator default template cds panes into the worktree via pre_window" {
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'pre_window: cd ~/devel/<%= @args[1] %>'
 }
 
 @test "tmuxinator default template creates the worktree on first start" {
