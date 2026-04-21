@@ -23,7 +23,7 @@ windows:
   - editor:
       layout: main-vertical
       panes:
-        - nvim
+        - claude
+        - touch secrets.env && make setup && docker compose build
         -
   - server:
-  - logs:
