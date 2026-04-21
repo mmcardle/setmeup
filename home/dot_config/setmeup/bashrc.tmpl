@@ -73,6 +73,13 @@ if command -v mise >/dev/null 2>&1; then
 fi
 
 # ---------------------------------------------------------------------------
+# Worktrunk shell integration (enables `wt` directory switching)
+# ---------------------------------------------------------------------------
+if command -v wt >/dev/null 2>&1; then
+    eval "$(command wt config shell init bash)"
+fi
+
+# ---------------------------------------------------------------------------
 # Aliases (sourced after mise so command -v sees mise-managed shims)
 # ---------------------------------------------------------------------------
 [ -f ~/.aliases ] && . ~/.aliases

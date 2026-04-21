@@ -80,3 +80,7 @@ setup() {
 @test "mise tool installed: delta" {
     assert_mise_tool delta
 }
+
+@test "mise tool installed: wt (worktrunk)" {
+    assert_mise_tool wt
+}

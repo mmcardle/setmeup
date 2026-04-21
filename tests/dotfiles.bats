@@ -385,12 +385,61 @@ setup() {
     assert_file_contains "$HOME/.aliases" 'alias grep="rg'
 }
 
-@test "aliases file conditionally aliases s to sesh connect via fzf" {
-    assert_file_contains "$HOME/.aliases" "alias s='sesh connect \$(sesh list | fzf)'"
+@test "aliases file aliases s to the sesh popup launcher" {
+    assert_file_contains "$HOME/.aliases" "alias s='~/.config/setmeup/sesh-popup.sh'"
 }
 
 @test "aliases file conditionally aliases mux to tmuxinator" {
     assert_file_contains "$HOME/.aliases" "alias mux='tmuxinator'"
+}
+
+# --- Tmuxinator default template (worktrunk-aware) ---
+
+@test "managed dotfile exists: .config/tmuxinator/default.yml" {
+    assert_file_exists "$HOME/.config/tmuxinator/default.yml"
+}
+
+@test "tmuxinator default template sets session name from args" {
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'name: <%= @args[0] %>-<%= @args[1] %>'
+}
+
+@test "tmuxinator default template roots panes in the worktree" {
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'root: ~/devel/<%= @args[1] %>'
+}
+
+@test "tmuxinator default template creates the worktree on first start" {
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'on_project_first_start:'
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'wt switch --create <%= @args[1] %>'
+}
+
+@test "tmuxinator default template switches (no --create) on restart" {
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'on_project_restart:'
+}
+
+# --- Sesh popup new-ticket flow ---
+
+@test "sesh-popup.sh captures ctrl-n as a trigger key" {
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" 'expect=ctrl-n'
+}
+
+@test "sesh-popup.sh advertises ctrl-n in the header" {
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" 'new-ticket'
+}
+
+@test "sesh-popup.sh starts tmuxinator default on ctrl-n" {
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" 'tmuxinator start default'
+}
+
+# --- Worktrunk shell integration ---
+
+@test "setmeup zshrc sources worktrunk shell init when wt is present" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" 'command -v wt'
+    assert_file_contains "$HOME/.config/setmeup/zshrc" 'wt config shell init zsh'
+}
+
+@test "setmeup bashrc sources worktrunk shell init when wt is present" {
+    assert_file_contains "$HOME/.config/setmeup/bashrc" 'command -v wt'
+    assert_file_contains "$HOME/.config/setmeup/bashrc" 'wt config shell init bash'
 }
 
 # --- EDITOR environment variable ---
