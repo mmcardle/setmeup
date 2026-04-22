@@ -137,6 +137,10 @@ make test-file FILE=dotfiles.bats
 1. Test: `assert_command_exists <package>` in the appropriate `.bats` file
 2. Implement: add the package to the appropriate list in `home/.chezmoiscripts/run_onchange_001-install-packages.sh.tmpl`
 
+### Testing runtime behaviour of a config file
+
+`assert_file_contains` only verifies the words in a config file, not that those words *work*. When a dotfile encodes a runtime contract with another tool (e.g. tmuxinator's `pre_window` calling `wt list`), also add a test that executes the contract in a scratch repo under `$BATS_TEST_TMPDIR` and asserts the real outcome. The `tmuxinator pre_window resolves to the worktree that wt actually created` test in `dotfiles.bats` is the reference pattern: it creates a git repo, lets `wt` materialise a worktree, then evals the `pre_window` expression and compares the resolved path to what `git worktree list` reports. Remember to `export PATH="$HOME/.local/share/mise/shims:$PATH"` in such tests — bats subshells don't inherit `mise activate`.
+
 ### Adding a new chezmoi script
 
 Scripts live in `home/.chezmoiscripts/` and use a **numeric prefix** for execution order:

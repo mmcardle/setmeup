@@ -411,8 +411,50 @@ setup() {
     assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'root: ~/devel/<%= @args[0] %>'
 }
 
-@test "tmuxinator default template cds panes into the worktree via pre_window" {
-    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'pre_window: cd ~/devel/<%= @args[1] %>'
+@test "tmuxinator default template does not hardcode worktree path (regression)" {
+    # Regression: the ~/devel/<ticket> assumption broke when worktrunk's
+    # default path template places worktrees at <repo>.<ticket> instead.
+    local tmpl="$HOME/.config/tmuxinator/default.yml"
+    run grep -F 'cd ~/devel/<%= @args[1] %>' "$tmpl"
+    [ "$status" -ne 0 ]
+}
+
+@test "tmuxinator default template derives worktree path from wt list" {
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'wt list --format json'
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'select(.branch'
+}
+
+@test "tmuxinator pre_window resolves to the worktree that wt actually created" {
+    # Mirror new-ticket.sh: put mise shims on PATH so wt/jq resolve
+    # the same way they would at runtime.
+    export PATH="$HOME/.local/share/mise/shims:$PATH"
+
+    local repo="$BATS_TEST_TMPDIR/repo"
+    mkdir -p "$repo"
+    git -C "$repo" init -q -b main
+    git -C "$repo" config user.email "test@example.com"
+    git -C "$repo" config user.name "Test"
+    git -C "$repo" commit --allow-empty -qm init
+
+    local ticket="weird-ticket"
+    ( cd "$repo" && wt -y switch --create "$ticket" -x true >/dev/null 2>&1 )
+
+    local actual
+    actual="$(git -C "$repo" worktree list --porcelain | awk -v b="refs/heads/$ticket" '
+        /^worktree / { p = $2 }
+        $1 == "branch" && $2 == b { print p; exit }
+    ')"
+    [ -n "$actual" ]
+    [ -d "$actual" ]
+
+    local tmpl="$HOME/.config/tmuxinator/default.yml"
+    local expr
+    expr="$(sed -n 's/^pre_window: //p' "$tmpl" | sed "s|<%= @args\[1\] %>|$ticket|g")"
+    [ -n "$expr" ]
+
+    local derived
+    derived="$(cd "$repo" && eval "$expr" && pwd)"
+    [ "$derived" = "$actual" ]
 }
 
 @test "tmuxinator default template creates the worktree on first start" {
