@@ -424,18 +424,23 @@ setup() {
     assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'on_project_restart:'
 }
 
-# --- Sesh popup new-ticket flow ---
+# --- New-ticket launcher ---
 
-@test "sesh-popup.sh captures ctrl-n as a trigger key" {
-    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" 'expect=ctrl-n'
+@test "managed dotfile exists: .config/setmeup/new-ticket.sh" {
+    assert_file_exists "$HOME/.config/setmeup/new-ticket.sh"
 }
 
-@test "sesh-popup.sh advertises ctrl-n in the header" {
-    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" 'new-ticket'
+@test "new-ticket.sh is executable" {
+    [ -x "$HOME/.config/setmeup/new-ticket.sh" ]
 }
 
-@test "sesh-popup.sh starts tmuxinator default on ctrl-n" {
-    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" 'tmuxinator start default'
+@test "new-ticket.sh starts tmuxinator default" {
+    assert_file_contains "$HOME/.config/setmeup/new-ticket.sh" 'tmuxinator start default'
+}
+
+@test "tmux.conf binds n to new-ticket via command-prompt" {
+    assert_file_contains "$HOME/.tmux.conf" 'command-prompt -p "ticket:"'
+    assert_file_contains "$HOME/.tmux.conf" 'new-ticket.sh'
 }
 
 # --- Worktrunk shell integration ---

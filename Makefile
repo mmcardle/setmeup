@@ -1,4 +1,7 @@
-.PHONY: shell test test-self test-full test-file test-filter test-rebuild test-clean test-clean-all
+.PHONY: apply shell test test-self test-full test-file test-filter test-rebuild test-clean test-clean-all
+
+apply: ## Apply dotfiles from working copy (no commit needed)
+	chezmoi apply --source $(CURDIR)
 
 shell: GITHUB_TOKEN ?= $(shell gh auth token 2>/dev/null)
 shell: ## Interactive shell in the prepared fast test container
