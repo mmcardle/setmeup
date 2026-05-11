@@ -116,6 +116,11 @@ make test-file FILE=dotfiles.bats
    - Add `set -g @plugin '<author>/<plugin>'` to `home/dot_tmux.conf` (before the TPM `run` line)
    - Add the plugin as a chezmoi external in `home/.chezmoiexternal.toml` (plugins are installed declaratively via chezmoi, not via TPM's runtime installer, because chezmoi scripts run before externals are downloaded)
 
+### Adding a tmux key binding
+
+1. Test: add `assert_file_contains "$HOME/.tmux.conf" "bind-key \"<key>\" <command>"` in `tests/dotfiles.bats` near the other `tmux.conf binds <k>` tests
+2. Implement: add the binding to `home/dot_tmux.conf` under an appropriate `# --- <section> ---` heading. If the key has a default tmux binding you want to displace, precede it with `unbind-key -T prefix <key>`. For a self-dismissing shell popup the idiom is `bind-key "o" display-popup -E -w 80% -h 80%` — the `-E` flag closes the popup when the command (default `$SHELL`) exits.
+
 ### Adding a new shell alias
 
 1. Test: `assert_file_contains "$HOME/.aliases" "alias myalias="` in `tests/dotfiles.bats`

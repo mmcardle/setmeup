@@ -120,6 +120,12 @@ setup() {
     assert_file_contains "$HOME/.tmux.conf" "bind-key \"s\" run-shell '~/.config/setmeup/sesh-popup.sh'"
 }
 
+@test "tmux.conf binds o to a popup shell that closes on exit" {
+    # -E ("close popup when command exits") makes the popup self-dismiss
+    # when the user types `exit` or Ctrl-D in the shell.
+    assert_file_contains "$HOME/.tmux.conf" "bind-key \"o\" display-popup -E"
+}
+
 @test "tmux.conf no longer binds t to sesh" {
     run grep -E '^bind-key "t".*sesh' "$HOME/.tmux.conf"
     [ "$status" -ne 0 ]
