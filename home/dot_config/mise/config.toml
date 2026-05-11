@@ -19,6 +19,7 @@ delta = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:@openai/codex" = "latest"
 "npm:opencode-ai" = "latest"
+"npm:@mariozechner/pi-coding-agent" = "latest"
 
 [settings]
 experimental = true

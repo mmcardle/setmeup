@@ -1,18 +1,18 @@
 # ~/.config/tmuxinator/default.yml — managed by chezmoi (setmeup)
 #
 # Usage:
-#   mux start default <repo> <ticket>
+#   mux start default <repo> <ticket> [base]
 # Example:
-#   mux start default hub.sohonet.com FIL-1234
+#   mux start default hub.sohonet.com FIL-1234 staging
 #
-# Assumes worktrunk is configured so `wt switch --create <ticket>`
+# Assumes worktrunk is configured so `wt switch --create <ticket> --base <base>`
 # inside ~/devel/<repo> materialises the worktree at ~/devel/<ticket>.
 # See ~/.config/worktrunk/config.toml worktree-path template.
 
-name: <%= @args[0].gsub('.', '_') %>-<%= @args[1] %>
+name: <%= ((@args[2].to_s.empty? && 'staging') || @args[2]).gsub('.', '_') %>-<%= @args[1].gsub('.', '_') %>
 root: ~/devel/<%= @args[0] %>
 
-on_project_first_start: (cd ~/devel/<%= @args[0] %> && wt switch --create <%= @args[1] %>)
+on_project_first_start: (cd ~/devel/<%= @args[0] %> && wt switch --create <%= @args[1] %> --base <%= (@args[2].to_s.empty? && 'staging') || @args[2] %>)
 on_project_restart:     (cd ~/devel/<%= @args[0] %> && wt switch <%= @args[1] %>)
 
 # Panes spawn under `root` (the source repo, which always exists), then

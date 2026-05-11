@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # Start a new ticket worktree session. Takes a ticket name from $1
-# (passed by tmux command-prompt) and opens fzf to pick the source repo.
+# and a base branch from $2 (passed by tmux command-prompt), then
+# opens fzf to pick the source repo.
 set -euo pipefail
 
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
 ticket="${1:-}"
 [ -z "$ticket" ] && exit 0
+base="${2:-staging}"
+[ -z "$base" ] && base="staging"
 
 # Enumerate main repos under ~/devel (dirs with a real .git directory;
 # worktrees have .git as a file pointing back to the parent, so they're skipped).
@@ -26,4 +29,4 @@ repo=$(
 ) || exit 0
 [ -z "$repo" ] && exit 0
 
-exec tmuxinator start default "$repo" "$ticket"
+exec tmuxinator start default "$repo" "$ticket" "$base"

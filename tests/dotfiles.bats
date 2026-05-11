@@ -399,10 +399,11 @@ setup() {
     assert_file_exists "$HOME/.config/tmuxinator/default.yml"
 }
 
-@test "tmuxinator default template sanitises dots in the session name" {
+@test "tmuxinator default template names sessions from base and ticket with sanitised dots" {
     # Tmux treats `.` as target syntax separator, so repo names like
-    # `hub.sohonet.com` must be rewritten before becoming a session name.
-    assert_file_contains "$HOME/.config/tmuxinator/default.yml" "name: <%= @args[0].gsub('.', '_') %>-<%= @args[1] %>"
+    # `FIL-V5.2.16-RC1` and bases like `release.2026` must be
+    # rewritten before becoming a session name.
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" "name: <%= ((@args[2].to_s.empty? && 'staging') || @args[2]).gsub('.', '_') %>-<%= @args[1].gsub('.', '_') %>"
 }
 
 @test "tmuxinator default template roots panes in the source repo" {
@@ -415,9 +416,9 @@ setup() {
     assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'pre_window: cd ~/devel/<%= @args[1] %>'
 }
 
-@test "tmuxinator default template creates the worktree on first start" {
+@test "tmuxinator default template creates the worktree from the base branch on first start" {
     assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'on_project_first_start:'
-    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'wt switch --create <%= @args[1] %>'
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'wt switch --create <%= @args[1] %> --base <%= (@args[2].to_s.empty? && '\''staging'\'') || @args[2] %>'
 }
 
 @test "tmuxinator default template switches (no --create) on restart" {
@@ -438,8 +439,13 @@ setup() {
     assert_file_contains "$HOME/.config/setmeup/new-ticket.sh" 'tmuxinator start default'
 }
 
-@test "tmux.conf binds n to new-ticket via command-prompt" {
-    assert_file_contains "$HOME/.tmux.conf" 'command-prompt -p "ticket:"'
+@test "new-ticket.sh passes ticket and base to tmuxinator" {
+    assert_file_contains "$HOME/.config/setmeup/new-ticket.sh" 'base="${2:-staging}"'
+    assert_file_contains "$HOME/.config/setmeup/new-ticket.sh" 'tmuxinator start default "$repo" "$ticket" "$base"'
+}
+
+@test "tmux.conf binds n to new-ticket via ticket and base prompts" {
+    assert_file_contains "$HOME/.tmux.conf" 'command-prompt -p "ticket:,base:" -I ",staging"'
     assert_file_contains "$HOME/.tmux.conf" 'new-ticket.sh'
 }
 
