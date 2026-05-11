@@ -17,6 +17,10 @@ setup() {
     mise which opencode
 }
 
+@test "pi coding agent is installed" {
+    mise which pi
+}
+
 @test "npx skills CLI is available" {
     mise exec node@lts -- npx -y skills --version
 }
