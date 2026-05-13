@@ -134,6 +134,10 @@ setup() {
     [ "$status" -ne 0 ]
 }
 
+@test "tmux.conf binds g to a zsh popup" {
+    assert_file_contains "$HOME/.tmux.conf" "bind-key \"g\" display-popup -E -w 80% -h 80% \"zsh\""
+}
+
 @test "tpm is installed via chezmoi externals" {
     assert_dir_exists "$HOME/.tmux/plugins/tpm"
 }

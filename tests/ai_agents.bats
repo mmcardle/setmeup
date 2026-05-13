@@ -17,6 +17,10 @@ setup() {
     mise which opencode
 }
 
+@test "pi coding agent uses current npm package" {
+    assert_file_contains "$HOME/.config/mise/config.toml" '"npm:@earendil-works/pi-coding-agent" = "latest"'
+}
+
 @test "pi coding agent is installed" {
     mise which pi
 }
