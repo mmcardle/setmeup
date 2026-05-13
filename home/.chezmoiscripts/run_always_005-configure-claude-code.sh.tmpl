@@ -19,6 +19,22 @@ REQUIRED_PERMISSIONS=(
     'Bash(make *)'
 )
 
+# Claude-waiting hooks: each event runs the same flag-writer script with a
+# different argument so tmux/sesh can surface which Claude sessions are busy,
+# idle, or asking for attention.
+FLAG_BIN="$HOME/.local/bin/claude-waiting-flag.sh"
+HOOKS_JSON=$(cat <<HOOKS
+{
+  "hooks": {
+    "Notification":     [{"hooks": [{"type":"command","command":"$FLAG_BIN attention"}]}],
+    "Stop":             [{"hooks": [{"type":"command","command":"$FLAG_BIN idle"}]}],
+    "UserPromptSubmit": [{"hooks": [{"type":"command","command":"$FLAG_BIN running"}]}],
+    "SessionEnd":       [{"hooks": [{"type":"command","command":"$FLAG_BIN clear"}]}]
+  }
+}
+HOOKS
+)
+
 if [[ -f "$SETTINGS_FILE" ]]; then
     # Merge statusLine into existing settings, preserving all other keys
     jq --argjson sl "$STATUSLINE_JSON" '. * $sl' "$SETTINGS_FILE" > "${SETTINGS_FILE}.tmp"
@@ -34,6 +50,18 @@ for perm in "${REQUIRED_PERMISSIONS[@]}"; do
         jq --arg p "$perm" '.permissions.allow = ((.permissions.allow // []) + [$p])' "$SETTINGS_FILE" > "${SETTINGS_FILE}.tmp"
         mv "${SETTINGS_FILE}.tmp" "$SETTINGS_FILE"
     fi
+done
+
+# Merge claude-waiting hooks. Each event is set to exactly the setmeup hook
+# definition so re-running chezmoi apply converges to the same state; if the
+# user wants extra hooks on these events, they can append additional entries
+# manually and only the setmeup-named command is reset here.
+for event in Notification Stop UserPromptSubmit SessionEnd; do
+    expected=$(jq -r --arg e "$event" '.hooks[$e]' <<<"$HOOKS_JSON")
+    jq --arg e "$event" --argjson v "$expected" \
+        '.hooks = ((.hooks // {}) + {($e): $v})' \
+        "$SETTINGS_FILE" > "${SETTINGS_FILE}.tmp"
+    mv "${SETTINGS_FILE}.tmp" "$SETTINGS_FILE"
 done
 
 echo "[setmeup] Claude Code settings configured."

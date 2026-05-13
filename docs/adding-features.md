@@ -155,10 +155,11 @@ run_onchange_001-install-packages.sh.tmpl      # system packages (apt/brew)
 run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
 run_onchange_003-install-mise-tools.sh.tmpl    # mise tool installs
 run_onchange_004-install-agent-skills.sh.tmpl  # agent skills (re-runs when mise config changes)
-run_always_005-configure-claude-code.sh.tmpl # Claude Code settings (statusLine merge)
+run_always_005-configure-claude-code.sh.tmpl   # Claude Code settings (statusLine + permissions + hooks merge)
+run_always_006-rebuild-font-cache.sh.tmpl      # fontconfig rebuild after font install
 ```
 
-When adding a new script, pick the next number (e.g. `005`). To insert between existing scripts, use a number in the gap (e.g. `003` and `004` have room for `0035` if needed, but generally append).
+When adding a new script, pick the next number (e.g. `007`). To insert between existing scripts, use a number in the gap (e.g. `003` and `004` have room for `0035` if needed, but generally append).
 
 All scripts use `run_onchange_` with a self-referencing hash so they re-run when their content changes:
 
@@ -209,6 +210,48 @@ docker run --rm setmeup-debug bash -c 'chezmoi managed --source=$HOME/setmeup/ho
 docker run --rm setmeup-debug bash -c 'mise exec node@lts -- node --version'
 ```
 
+### Adding a helper script under `~/.local/bin/`
+
+For small executables Claude Code, tmux, or other tools call as commands (hook callbacks, status renderers, sesh annotators), drop them in `home/dot_local/bin/` using chezmoi's `executable_` prefix:
+
+```
+home/dot_local/bin/executable_my-helper.sh   →   ~/.local/bin/my-helper.sh   (chmod +x on apply)
+```
+
+The source file in the repo does **not** need its execute bit set — `executable_` handles that at apply time. Add tests that assert both existence and `-x`:
+
+```bash
+@test "my-helper.sh exists" {
+    assert_file_exists "$HOME/.local/bin/my-helper.sh"
+}
+
+@test "my-helper.sh is executable" {
+    [ -x "$HOME/.local/bin/my-helper.sh" ]
+}
+```
+
+### Adding a Claude Code hook
+
+Hooks in `~/.claude/settings.json` are merged by `home/.chezmoiscripts/run_always_005-configure-claude-code.sh.tmpl` so re-running `chezmoi apply` converges to the same state without clobbering user keys.
+
+1. **Test**: assert the merged command in `tests/claude_waiting.bats` (or a sibling bats file):
+   ```bash
+   run jq -r '.hooks.<EventName>[0].hooks[0].command' "$HOME/.claude/settings.json"
+   [[ "$output" == *"my-callback.sh"* ]]
+   ```
+2. **Implement**: add the event to the `for event in …` loop in the configure script and define the command in the `HOOKS_JSON` heredoc next to the existing entries. Keep callbacks under `~/.local/bin/` (see above).
+3. **Idempotency**: the configure script uses `jq` to set exactly the setmeup-managed entries on each apply. If users want extra hooks alongside these, they can append to the array manually — but be aware that the setmeup entry is the source of truth on every apply.
+
+### Adding a new BATS test file
+
+When you create a brand-new `tests/<name>.bats` (rather than adding to an existing file), three places must be kept in sync or the prepared image will silently run stale content (or skip the file entirely):
+
+1. **`tests/Dockerfile`**, `FROM prepared-setup AS prepared` block — add a `COPY` line for the new bats file and add it to the trailing `CMD` invocation.
+2. **`tests/run_tests.sh`**, `FAST_BATS_FILES` — append `$HOME/tests/<name>.bats` so `make test` includes it.
+3. **`tests/run_tests.sh`**, `fast_image_hash()` array — append the absolute path so edits to the file invalidate the prepared image cache.
+
+`tests/test_fast_image_hash_covers_bats.sh` runs as part of `make test` and will fail loudly if you miss step 3. After the changes, run `make test-rebuild` once to refresh the prepared image.
+
 ### Adding OS-conditional behavior
 
 Use chezmoi template syntax in `.tmpl` files:
@@ -239,6 +282,7 @@ dot_some_macos_thing
 | `mise_tools.bats` | Mise tools are installed correctly |
 | `ai_agents.bats` | AI coding agent and skills installation |
 | `claude_code.bats` | Claude Code statusline and settings configuration |
+| `claude_waiting.bats` | Claude-waiting tmux/sesh indicator: flag writer, status renderer, sesh annotator, settings.json hooks |
 | `update_script.bats` | Update script exists and is executable |
 
 ## Test Helpers Reference

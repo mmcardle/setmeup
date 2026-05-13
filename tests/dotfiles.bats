@@ -112,8 +112,11 @@ setup() {
 }
 
 @test "sesh-popup.sh configures sesh preview" {
+    # Preview window position is unchanged; the bind moved from `sesh preview {}`
+    # to `sesh preview {2}` after the claude-waiting annotator added a
+    # tab-delimited bare-name field at index 2.
     assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "right:55%"
-    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "sesh preview {}"
+    assert_file_contains "$HOME/.config/setmeup/sesh-popup.sh" "sesh preview {2}"
 }
 
 @test "tmux.conf binds s to sesh-popup.sh" {
