@@ -31,6 +31,8 @@ setmeup/
 │   │   └── setmeup/
 │   │       ├── bashrc.tmpl         # Shell config sourced from ~/.bashrc (mise, history, prompt, auto-update)
 │   │       ├── zshrc.tmpl          # Shell config sourced from ~/.zshrc (p10k, oh-my-zsh, mise, auto-update)
+│   │       ├── claude-plugins.list # Claude Code plugins to install via the native plugin manager (full plugins, not just skills)
+│   │       ├── codex-skills.list   # Codex-only skills installed via `npx skills add -a codex`
 │   │       └── executable_sesh-popup.sh # Sesh+fzf launcher invoked by tmux Ctrl-a s (mise-shim safe)
 │   │
 │   │
@@ -39,7 +41,7 @@ setmeup/
 │       ├── run_onchange_001-install-packages.sh.tmpl      # System packages (apt/brew)
 │       ├── run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
 │       ├── run_onchange_003-install-mise-tools.sh.tmpl    # Mise tools (runs when config changes)
-│       ├── run_onchange_004-install-agent-skills.sh.tmpl  # Superpowers skills (re-runs when mise config changes)
+│       ├── run_onchange_004-install-agent-skills.sh.tmpl  # Claude Code plugins (full install via `claude plugin install`) + Codex skills via `npx skills`; re-runs when lists or mise config change
 │       ├── run_always_005-configure-claude-code.sh.tmpl # Claude Code settings (statusLine merge)
 │       └── run_always_006-rebuild-font-cache.sh.tmpl    # Rebuild fontconfig cache after font install
 │

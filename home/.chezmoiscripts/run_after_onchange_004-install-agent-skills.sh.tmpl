@@ -1,0 +1,67 @@
+#!/bin/bash
+# Install Claude Code plugins (full plugins: skills + commands + agents +
+# hooks + MCP servers) and Codex-only skills. Re-runs when this script,
+# either list, or the mise config changes.
+# hash:                 {{ include ".chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl" | sha256sum }}
+# mise config hash:     {{ include "dot_config/mise/config.toml" | sha256sum }}
+# claude plugins hash:  {{ include "dot_config/setmeup/claude-plugins.list" | sha256sum }}
+# codex skills hash:    {{ include "dot_config/setmeup/codex-skills.list" | sha256sum }}
+set -e
+
+export PATH="$HOME/.local/bin:$PATH"
+
+CLAUDE_PLUGINS_LIST="{{ .chezmoi.sourceDir }}/dot_config/setmeup/claude-plugins.list"
+CODEX_SKILLS_LIST="{{ .chezmoi.sourceDir }}/dot_config/setmeup/codex-skills.list"
+
+# --- Claude Code plugins (native plugin manager) -------------------------
+
+if [[ ! -f "$CLAUDE_PLUGINS_LIST" ]]; then
+    echo "[setmeup] ERROR: claude-plugins.list not found at $CLAUDE_PLUGINS_LIST"
+    exit 1
+fi
+
+echo "[setmeup] Installing Claude Code plugins..."
+
+# Claude Code is installed as an npm tool by mise; chain node@lts so npm
+# is on PATH (mise needs npm to resolve the npm:@... tool), then claude
+# itself comes from the npm package.
+CLAUDE_EXEC=(mise exec node@lts 'npm:@anthropic-ai/claude-code' --)
+
+# Strip comments/blank lines to a normalized stream of: <plugin>@<marketplace> <source>
+plugin_lines=$(grep -vE '^\s*(#|$)' "$CLAUDE_PLUGINS_LIST" || true)
+
+# Register marketplaces (deduped). `claude plugin marketplace add` is
+# idempotent — it reports the marketplace is already on disk and exits 0.
+declare -A seen_sources=()
+while read -r _plugin source; do
+    [ -z "${source:-}" ] && continue
+    [ -n "${seen_sources[$source]:-}" ] && continue
+    seen_sources["$source"]=1
+    echo "[setmeup]   marketplace add: $source"
+    "${CLAUDE_EXEC[@]}" claude plugin marketplace add "$source" </dev/null
+done <<< "$plugin_lines"
+
+# Install plugins. `claude plugin install` is idempotent — it prints
+# "already installed" and exits 0 when the plugin is already on disk —
+# so let its output stream through and rely on its exit code.
+while read -r plugin _source; do
+    [ -z "${plugin:-}" ] && continue
+    echo "[setmeup]   plugin install: $plugin"
+    "${CLAUDE_EXEC[@]}" claude plugin install "$plugin" -s user </dev/null
+done <<< "$plugin_lines"
+
+# --- Codex-only skills (npx skills) --------------------------------------
+
+if [[ -f "$CODEX_SKILLS_LIST" ]]; then
+    codex_lines=$(grep -vE '^\s*(#|$)' "$CODEX_SKILLS_LIST" || true)
+    if [[ -n "$codex_lines" ]]; then
+        echo "[setmeup] Installing Codex skills via npx..."
+        while read -r package; do
+            [ -z "${package:-}" ] && continue
+            echo "[setmeup]   codex skills add: $package"
+            mise exec node@lts -- npx -y skills add "$package" -a codex -g -y </dev/null
+        done <<< "$codex_lines"
+    fi
+fi
+
+echo "[setmeup] Agent skills and plugins installed."

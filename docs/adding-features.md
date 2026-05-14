@@ -154,7 +154,7 @@ Scripts live in `home/.chezmoiscripts/` and use a **numeric prefix** for executi
 run_onchange_001-install-packages.sh.tmpl      # system packages (apt/brew)
 run_onchange_002-macos-defaults.sh.tmpl        # macOS defaults
 run_onchange_003-install-mise-tools.sh.tmpl    # mise tool installs
-run_onchange_004-install-agent-skills.sh.tmpl  # agent skills (re-runs when mise config changes)
+run_onchange_004-install-agent-skills.sh.tmpl  # Claude Code plugins (claude plugin install) + Codex skills (npx skills); re-runs when lists or mise config change
 run_always_005-configure-claude-code.sh.tmpl   # Claude Code settings (statusLine + permissions + hooks merge)
 run_always_006-rebuild-font-cache.sh.tmpl      # fontconfig rebuild after font install
 ```

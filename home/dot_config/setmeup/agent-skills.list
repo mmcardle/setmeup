@@ -1,5 +1,0 @@
-# Agent skills to install via `npx skills add`
-# Format: <package> <agent1> [agent2] ...
-obra/superpowers claude-code codex
-gianchub/claude-plugins claude-code codex
-mmcardle/ai-skills claude-code codex

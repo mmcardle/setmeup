@@ -1,0 +1,19 @@
+#!/bin/sh
+# Install mise tools whenever the mise config changes
+# mise config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+set -e
+
+echo "[setmeup] Installing mise tools..."
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# mise refuses to read untrusted config, which silently turns
+# `mise install --yes` into a no-op (it reports "all tools are installed"
+# while installing nothing). Trust the global config explicitly so the
+# install actually runs.
+if [ -f "$HOME/.config/mise/config.toml" ]; then
+    mise trust "$HOME/.config/mise/config.toml" >/dev/null
+fi
+
+mise install --yes
+echo "[setmeup] Mise tools installed."

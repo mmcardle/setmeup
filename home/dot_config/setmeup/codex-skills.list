@@ -1,0 +1,14 @@
+# Codex-only skills installed via `npx skills add -a codex`.
+#
+# Format: <package>
+#   - <package> is a github repo (owner/name) or URL handed to `skills add`
+#
+# These skills are installed for Codex via `skills add -a codex`. For
+# Claude Code, prefer claude-plugins.list — the native plugin manager
+# pulls commands/agents/hooks/MCP servers in addition to skills.
+#
+# Lines starting with # and blank lines are ignored.
+
+obra/superpowers
+gianchub/claude-plugins
+mmcardle/ai-skills

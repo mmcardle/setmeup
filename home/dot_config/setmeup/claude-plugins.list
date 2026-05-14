@@ -1,0 +1,19 @@
+# Claude Code plugins to install via the native plugin manager.
+#
+# Each line: <plugin>@<marketplace>  <marketplace_source>
+#   - <plugin>@<marketplace>  passed to `claude plugin install`
+#   - <marketplace_source>    passed to `claude plugin marketplace add`
+#                             (github repo "owner/name", URL, or path)
+#
+# Marketplaces are deduped and registered once before any plugin install.
+# This installs commands, agents, hooks, skills, and MCP servers — the
+# whole plugin — unlike `npx skills add` which only installs skill files.
+#
+# Lines starting with # and blank lines are ignored.
+
+superpowers@superpowers-marketplace                obra/superpowers-marketplace
+blueprints@gianchub-plugins                        gianchub/claude-plugins
+ecc@ecc                                            affaan-m/everything-claude-code
+code-simplifier@claude-plugins-official            anthropics/claude-plugins-official
+swift-lsp@claude-plugins-official                  anthropics/claude-plugins-official
+rust-analyzer-lsp@claude-plugins-official          anthropics/claude-plugins-official
