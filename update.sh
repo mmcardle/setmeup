@@ -35,19 +35,41 @@ mise install --yes
 info "Upgrading mise tools..."
 mise upgrade --yes
 
-info "Installing and refreshing agent skills..."
-SKILLS_LIST="$HOME/.config/setmeup/agent-skills.list"
-if [ -f "$SKILLS_LIST" ]; then
-    grep -v '^\s*#' "$SKILLS_LIST" | grep -v '^\s*$' | while read -r package agents; do
-        agent_flags=""
-        for agent in $agents; do
-            agent_flags="$agent_flags -a $agent"
-        done
-        info "Installing $package for $agents..."
-        mise exec node@lts -- npx -y skills add "$package" $agent_flags -g -y </dev/null || warn "Failed to install $package for $agents (non-fatal)"
+info "Installing and refreshing Claude Code plugins..."
+CLAUDE_PLUGINS_LIST="$HOME/.config/setmeup/claude-plugins.list"
+if [ -f "$CLAUDE_PLUGINS_LIST" ]; then
+    plugin_lines="$(grep -vE '^\s*(#|$)' "$CLAUDE_PLUGINS_LIST" || true)"
+
+    # Register marketplaces (deduped). marketplace add is idempotent.
+    printf '%s\n' "$plugin_lines" | awk '{print $2}' | sort -u | while read -r source; do
+        [ -n "$source" ] || continue
+        info "marketplace add: $source"
+        mise exec node@lts npm:@anthropic-ai/claude-code -- claude plugin marketplace add "$source" </dev/null \
+            || warn "marketplace add failed for $source (non-fatal)"
+    done
+
+    # Install plugins. install errors when plugin is already installed; tolerate.
+    printf '%s\n' "$plugin_lines" | while read -r plugin _source; do
+        [ -n "$plugin" ] || continue
+        info "plugin install: $plugin"
+        mise exec node@lts npm:@anthropic-ai/claude-code -- claude plugin install "$plugin" -s user </dev/null \
+            || warn "plugin install failed for $plugin (non-fatal — may already be installed)"
     done
 else
-    warn "agent-skills.list not found at $SKILLS_LIST, skipping skill installation"
+    warn "claude-plugins.list not found at $CLAUDE_PLUGINS_LIST, skipping plugin install"
+fi
+
+info "Installing and refreshing Codex skills..."
+CODEX_SKILLS_LIST="$HOME/.config/setmeup/codex-skills.list"
+if [ -f "$CODEX_SKILLS_LIST" ]; then
+    grep -vE '^\s*(#|$)' "$CODEX_SKILLS_LIST" | while read -r package; do
+        [ -n "$package" ] || continue
+        info "codex skills add: $package"
+        mise exec node@lts -- npx -y skills add "$package" -a codex -g -y </dev/null \
+            || warn "Failed to install $package for codex (non-fatal)"
+    done
+else
+    warn "codex-skills.list not found at $CODEX_SKILLS_LIST, skipping codex skill install"
 fi
 
 # Update the check timestamp

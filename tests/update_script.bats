@@ -13,13 +13,22 @@ setup() {
     [ -x "$HOME/setmeup/update.sh" ]
 }
 
-@test "agent-skills.list exists" {
-    assert_file_exists "$HOME/.config/setmeup/agent-skills.list"
+@test "claude-plugins.list exists" {
+    assert_file_exists "$HOME/.config/setmeup/claude-plugins.list"
 }
 
-@test "agent-skills.list contains expected skills" {
-    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "obra/superpowers claude-code codex"
-    assert_file_contains "$HOME/.config/setmeup/agent-skills.list" "gianchub/claude-plugins claude-code codex"
+@test "claude-plugins.list contains expected plugin@marketplace entries" {
+    assert_file_contains "$HOME/.config/setmeup/claude-plugins.list" "blueprints@gianchub-plugins"
+    assert_file_contains "$HOME/.config/setmeup/claude-plugins.list" "superpowers@superpowers-marketplace"
+}
+
+@test "codex-skills.list exists" {
+    assert_file_exists "$HOME/.config/setmeup/codex-skills.list"
+}
+
+@test "codex-skills.list contains expected packages" {
+    assert_file_contains "$HOME/.config/setmeup/codex-skills.list" "obra/superpowers"
+    assert_file_contains "$HOME/.config/setmeup/codex-skills.list" "gianchub/claude-plugins"
 }
 
 @test "update.sh contains mise upgrade" {
@@ -56,7 +65,13 @@ EOF
     [[ "$output" == *"setmeup: bootstrap your dev machine"* ]]
 }
 
-@test "update.sh reads agent-skills.list for installation" {
-    assert_file_contains "$HOME/setmeup/update.sh" "agent-skills.list"
+@test "update.sh installs Claude plugins via the native plugin CLI" {
+    assert_file_contains "$HOME/setmeup/update.sh" "claude-plugins.list"
+    assert_file_contains "$HOME/setmeup/update.sh" "claude plugin install"
+    assert_file_contains "$HOME/setmeup/update.sh" "claude plugin marketplace add"
+}
+
+@test "update.sh installs Codex skills via npx skills" {
+    assert_file_contains "$HOME/setmeup/update.sh" "codex-skills.list"
     assert_file_contains "$HOME/setmeup/update.sh" "skills add"
 }

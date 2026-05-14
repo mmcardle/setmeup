@@ -662,12 +662,12 @@ setup() {
 # --- Chezmoi scripts fail fast if mise is missing ---
 
 @test "install-mise-tools script fails fast without mise guard" {
-    run grep -c "skipping tool install" "$HOME/setmeup/home/.chezmoiscripts/run_onchange_003-install-mise-tools.sh.tmpl"
+    run grep -c "skipping tool install" "$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_003-install-mise-tools.sh.tmpl"
     [ "$output" = "0" ]
 }
 
 @test "install-agent-skills script fails fast without mise guard" {
-    run grep -c "skipping agent skills install" "$HOME/setmeup/home/.chezmoiscripts/run_onchange_004-install-agent-skills.sh.tmpl"
+    run grep -c "skipping agent skills install" "$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
     [ "$output" = "0" ]
 }
 
