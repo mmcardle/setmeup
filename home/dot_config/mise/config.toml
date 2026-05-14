@@ -14,6 +14,7 @@ gh = "latest"
 direnv = "latest"
 "aqua:joshmedeski/sesh" = "latest"
 "ubi:max-sixty/worktrunk" = { version = "latest", exe = "wt" }
+glow = "latest"
 zoxide = "latest"
 delta = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"

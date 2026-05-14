@@ -84,3 +84,7 @@ setup() {
 @test "mise tool installed: wt (worktrunk)" {
     assert_mise_tool wt
 }
+
+@test "mise tool installed: glow" {
+    assert_mise_tool glow
+}
