@@ -17,7 +17,12 @@
 #
 # Also prunes flag files whose tmux pane no longer exists when a tmux
 # server is reachable. --ansi is required on the fzf side.
+#
+# Perf: a single jq invocation reads every flag file, and ANSI stripping
+# uses bash parameter expansion — avoids ~80 forks per popup open with a
+# busy session list.
 set -euo pipefail
+shopt -s extglob
 
 STATE_DIR="${HOME}/.local/state/claude-waiting"
 
@@ -35,42 +40,42 @@ if [ "${#tmux_cmd[@]}" -gt 0 ]; then
     live_panes=$("${tmux_cmd[@]}" list-panes -a -F '#{pane_id}' 2>/dev/null || true)
 fi
 
-is_stale() {
-    local pane="$1"
-    [ -z "$pane" ] && return 1
-    [ -z "$live_panes" ] && return 1
-    if printf '%s\n' "$live_panes" | grep -qFx "$pane"; then
-        return 1
-    fi
-    return 0
-}
-
-declare -A flag_state=()
-if [ -d "$STATE_DIR" ]; then
-    shopt -s nullglob
-    for f in "$STATE_DIR"/*.json; do
-        pane=$(jq -r '.tmux_pane_id // empty' "$f" 2>/dev/null || echo "")
-        if is_stale "$pane"; then
-            rm -f "$f"
-            continue
-        fi
-        state=$(jq -r '.state // empty' "$f" 2>/dev/null || echo "")
-        name=$(jq -r '.tmux_session // empty' "$f" 2>/dev/null || echo "")
-        if [ -n "$state" ] && [ -n "$name" ]; then
-            cur="${flag_state[$name]:-}"
-            case "$cur:$state" in
-                attention:*) ;;
-                *:attention) flag_state["$name"]="$state" ;;
-                idle:running) ;;
-                *) flag_state["$name"]="$state" ;;
-            esac
-        fi
-    done
+declare -A live_set=()
+if [ -n "$live_panes" ]; then
+    while IFS= read -r p; do
+        [ -n "$p" ] && live_set["$p"]=1
+    done <<<"$live_panes"
 fi
 
-strip_ansi() {
-    printf '%s' "$1" | sed -E $'s/\x1B\\[[0-9;]*m//g'
-}
+declare -A flag_state=()
+
+if [ -d "$STATE_DIR" ]; then
+    shopt -s nullglob
+    files=("$STATE_DIR"/*.json)
+    shopt -u nullglob
+    if [ "${#files[@]}" -gt 0 ]; then
+        # SOH (\x01) separator — bash's `read` with whitespace IFS (\t)
+        # collapses adjacent delimiters and drops empty fields, which shifts
+        # everything left when tmux_pane_id is blank. Use a non-whitespace
+        # delimiter so empty fields survive.
+        while IFS=$'\x01' read -r fname pane state name; do
+            [ -z "$fname" ] && continue
+            if [ -n "$live_panes" ] && [ -n "$pane" ] && [ -z "${live_set[$pane]:-}" ]; then
+                rm -f "$fname"
+                continue
+            fi
+            if [ -n "$state" ] && [ -n "$name" ]; then
+                cur="${flag_state[$name]:-}"
+                case "$cur:$state" in
+                    attention:*) ;;
+                    *:attention) flag_state["$name"]="$state" ;;
+                    idle:running) ;;
+                    *) flag_state["$name"]="$state" ;;
+                esac
+            fi
+        done < <(jq -r 'input_filename as $f | [$f, .tmux_pane_id // "", .state // "", .tmux_session // ""] | join("\u0001")' "${files[@]}" 2>/dev/null || true)
+    fi
+fi
 
 SYM_RUNNING=$'\033[38;5;46m●\033[0m'
 SYM_ATTENTION=$'\033[38;5;196m●\033[0m'
@@ -81,7 +86,7 @@ BG_IDLE=$'\033[48;5;58m'
 BG_RESET=$'\033[0m'
 
 while IFS= read -r line; do
-    stripped=$(strip_ansi "$line")
+    stripped="${line//$'\x1b['*([0-9;])m/}"
     name="${stripped#* }"
 
     field1="$line"

@@ -6,6 +6,9 @@
 # - Prunes flag files whose tmux pane no longer exists when a tmux server
 #   is reachable (use TMUX_SOCKET to point at a non-default socket; tests
 #   rely on this to scope state to a test-only server).
+#
+# Perf: a single jq invocation reads every flag file at once. The status
+# bar redraws every 2s, so per-tick fork count matters.
 set -euo pipefail
 
 STATE_DIR="${HOME}/.local/state/claude-waiting"
@@ -29,29 +32,28 @@ if [ "${#tmux_cmd[@]}" -gt 0 ]; then
     live_panes=$("${tmux_cmd[@]}" list-panes -a -F '#{pane_id}' 2>/dev/null || true)
 fi
 
-is_stale() {
-    local pane="$1"
-    [ -z "$pane" ] && return 1
-    [ -z "$live_panes" ] && return 1
-    if printf '%s\n' "$live_panes" | grep -qFx "$pane"; then
-        return 1
-    fi
-    return 0
-}
+declare -A live_set=()
+if [ -n "$live_panes" ]; then
+    while IFS= read -r p; do
+        [ -n "$p" ] && live_set["$p"]=1
+    done <<<"$live_panes"
+fi
 
 attention=0
 idle=0
 attention_targets=()
 idle_targets=()
 
-for f in "${files[@]}"; do
-    pane=$(jq -r '.tmux_pane_id // empty' "$f" 2>/dev/null || echo "")
-    if is_stale "$pane"; then
-        rm -f "$f"
+# SOH (\x01) separator — bash's `read` with whitespace IFS (\t) collapses
+# adjacent delimiters and drops empty fields, which shifts everything left
+# when tmux_pane_id is blank. Use a non-whitespace delimiter.
+while IFS=$'\x01' read -r fname pane state session window; do
+    [ -z "$fname" ] && continue
+    if [ -n "$live_panes" ] && [ -n "$pane" ] && [ -z "${live_set[$pane]:-}" ]; then
+        rm -f "$fname"
         continue
     fi
-    state=$(jq -r '.state // empty' "$f" 2>/dev/null || echo "")
-    label=$(jq -r '(.tmux_session // "?") + ":" + (.tmux_window // "?")' "$f" 2>/dev/null || echo "?")
+    label="${session:-?}:${window:-?}"
     case "$state" in
         attention)
             attention=$((attention + 1))
@@ -62,7 +64,7 @@ for f in "${files[@]}"; do
             idle_targets+=("$label")
             ;;
     esac
-done
+done < <(jq -r 'input_filename as $f | [$f, .tmux_pane_id // "", .state // "", .tmux_session // "", .tmux_window // ""] | join("\u0001")' "${files[@]}" 2>/dev/null || true)
 
 [ "$attention" -eq 0 ] && [ "$idle" -eq 0 ] && exit 0
 
