@@ -235,12 +235,12 @@ setup() {
     assert_file_contains "$HOME/.aliases" "alias gs="
 }
 
-@test "aliases file contains gd1 alias for no-pager diff" {
-    assert_file_contains "$HOME/.aliases" "alias gd1='git --no-pager diff'"
+@test "aliases file contains gd1 alias for single-column git diff" {
+    assert_file_contains "$HOME/.aliases" "alias gd1='git -c delta.side-by-side=false diff'"
 }
 
-@test "aliases file contains gd2 alias for git diff" {
-    assert_file_contains "$HOME/.aliases" "alias gd2='git diff'"
+@test "aliases file contains gd2 alias for side-by-side git diff" {
+    assert_file_contains "$HOME/.aliases" "alias gd2='git -c delta.side-by-side=true diff'"
 }
 
 @test "aliases file contains dc alias" {
