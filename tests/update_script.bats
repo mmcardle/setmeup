@@ -65,6 +65,40 @@ EOF
     [[ "$output" == *"setmeup: bootstrap your dev machine"* ]]
 }
 
+@test "update.sh removes legacy Pi package before refreshing tools" {
+    local fake_bin="$BATS_TEST_TMPDIR/fake-bin"
+    local test_home="$BATS_TEST_TMPDIR/home"
+    local mise_log="$BATS_TEST_TMPDIR/mise.log"
+
+    mkdir -p "$fake_bin" "$test_home/setmeup" "$test_home/.local/state/setmeup"
+
+    cat > "$fake_bin/chezmoi" <<'EOF'
+#!/usr/bin/env bash
+if [[ "$1" == "source-path" ]]; then
+    printf '%s\n' "$HOME/setmeup/home"
+    exit 0
+fi
+exit 0
+EOF
+    chmod +x "$fake_bin/chezmoi"
+
+    cat > "$fake_bin/mise" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >> "$MISE_LOG"
+exit 0
+EOF
+    chmod +x "$fake_bin/mise"
+
+    cp "$HOME/setmeup/bootstrap.sh" "$test_home/setmeup/bootstrap.sh"
+    cp "$HOME/setmeup/update.sh" "$test_home/setmeup/update.sh"
+
+    run env HOME="$test_home" PATH="$fake_bin:$PATH" MISE_LOG="$mise_log" sh "$test_home/setmeup/update.sh"
+    [ "$status" -eq 0 ]
+    grep -qF "uninstall --yes npm:@mariozechner/pi-coding-agent" "$mise_log"
+    grep -qF "exec node@lts -- npm uninstall -g @mariozechner/pi-coding-agent" "$mise_log"
+    grep -qF "reshim" "$mise_log"
+}
+
 @test "update.sh installs Claude plugins via the native plugin CLI" {
     assert_file_contains "$HOME/setmeup/update.sh" "claude-plugins.list"
     assert_file_contains "$HOME/setmeup/update.sh" "claude plugin install"

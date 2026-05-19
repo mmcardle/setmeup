@@ -15,5 +15,16 @@ if [ -f "$HOME/.config/mise/config.toml" ]; then
     mise trust "$HOME/.config/mise/config.toml" >/dev/null
 fi
 
+echo "[setmeup] Removing legacy Pi package if present..."
+mise uninstall --yes npm:@mariozechner/pi-coding-agent >/dev/null 2>&1 || true
+mise exec node@lts -- npm uninstall -g @mariozechner/pi-coding-agent >/dev/null 2>&1 || true
+mise reshim >/dev/null 2>&1 || true
+
 mise install --yes
+
+# Clean up again after install so a newly installed node can remove old global npm bins.
+mise uninstall --yes npm:@mariozechner/pi-coding-agent >/dev/null 2>&1 || true
+mise exec node@lts -- npm uninstall -g @mariozechner/pi-coding-agent >/dev/null 2>&1 || true
+mise reshim >/dev/null 2>&1 || true
+
 echo "[setmeup] Mise tools installed."

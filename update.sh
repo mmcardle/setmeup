@@ -7,6 +7,13 @@ warn()  { printf '\033[1;33m[setmeup]\033[0m %s\n' "$1"; }
 
 export PATH="$HOME/.local/bin:$PATH"
 
+cleanup_legacy_pi() {
+    info "Removing legacy Pi package if present..."
+    mise uninstall --yes npm:@mariozechner/pi-coding-agent >/dev/null 2>&1 || true
+    mise exec node@lts -- npm uninstall -g @mariozechner/pi-coding-agent >/dev/null 2>&1 || true
+    mise reshim >/dev/null 2>&1 || true
+}
+
 bootstrap_script=""
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 if [ -f "$script_dir/bootstrap.sh" ]; then
@@ -29,11 +36,15 @@ if ! chezmoi update 2>/dev/null; then
     chezmoi apply
 fi
 
+cleanup_legacy_pi
+
 info "Installing mise tools..."
 mise install --yes
 
 info "Upgrading mise tools..."
 mise upgrade --yes
+
+cleanup_legacy_pi
 
 info "Installing and refreshing Claude Code plugins..."
 CLAUDE_PLUGINS_LIST="$HOME/.config/setmeup/claude-plugins.list"
