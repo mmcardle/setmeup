@@ -20,3 +20,9 @@ name = "sesh config"
 path = "~/.config/sesh/"
 startup_command = "nvim sesh.toml"
 preview_command = "bat --color=always ~/.config/sesh/sesh.toml"
+
+[[session]]
+name = "tmuxinator config"
+path = "~/.config/tmuxinator/"
+startup_command = "nvim default.yml"
+preview_command = "bat --color=always ~/.config/tmuxinator/default.yml"

@@ -89,6 +89,13 @@ setup() {
     assert_file_contains "$HOME/.config/sesh/sesh.toml" 'name = "zsh config"'
     assert_file_contains "$HOME/.config/sesh/sesh.toml" 'name = "tmux config"'
     assert_file_contains "$HOME/.config/sesh/sesh.toml" 'name = "sesh config"'
+    assert_file_contains "$HOME/.config/sesh/sesh.toml" 'name = "tmuxinator config"'
+}
+
+@test "managed sesh config opens tmuxinator config" {
+    assert_file_contains "$HOME/.config/sesh/sesh.toml" 'path = "~/.config/tmuxinator/"'
+    assert_file_contains "$HOME/.config/sesh/sesh.toml" 'startup_command = "nvim default.yml"'
+    assert_file_contains "$HOME/.config/sesh/sesh.toml" 'preview_command = "bat --color=always ~/.config/tmuxinator/default.yml"'
 }
 
 @test "sesh-popup.sh is executable" {
