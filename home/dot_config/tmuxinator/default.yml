@@ -24,6 +24,6 @@ windows:
       layout: main-vertical
       panes:
         - claude
-        - touch secrets.env && make setup && docker compose build
+        - touch secrets.env && make bootstrap-dev
         -
   - server:

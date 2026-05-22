@@ -495,6 +495,10 @@ setup() {
     assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'on_project_restart:'
 }
 
+@test "tmuxinator default bootstrap pane prepares secrets and runs bootstrap-dev" {
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'touch secrets.env && make bootstrap-dev'
+}
+
 # --- New-ticket launcher ---
 
 @test "managed dotfile exists: .config/setmeup/new-ticket.sh" {
