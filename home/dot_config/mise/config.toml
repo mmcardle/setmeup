@@ -21,6 +21,7 @@ delta = "latest"
 "npm:@openai/codex" = "latest"
 "npm:opencode-ai" = "latest"
 "npm:@earendil-works/pi-coding-agent" = "latest"
+"npm:opensrc" = "latest"
 
 [settings]
 experimental = true

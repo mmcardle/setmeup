@@ -88,3 +88,7 @@ setup() {
 @test "mise tool installed: glow" {
     assert_mise_tool glow
 }
+
+@test "mise tool installed: opensrc" {
+    assert_mise_tool opensrc
+}
