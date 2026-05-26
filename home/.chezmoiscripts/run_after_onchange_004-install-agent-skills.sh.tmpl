@@ -33,7 +33,7 @@ ensure_claude_native_binary() {
     # mise's npm backend installs with --ignore-scripts=true, but Claude Code's
     # npm wrapper requires postinstall to copy the platform-native binary over
     # bin/claude.exe. Run that postinstall explicitly before using the plugin CLI.
-    claude_bin="$("${CLAUDE_EXEC[@]}" sh -c 'command -v claude')"
+    claude_bin="$(mise which claude)"
     claude_real="$(mise exec node@lts -- node -e 'console.log(require("fs").realpathSync(process.argv[1]))' "$claude_bin")"
     claude_pkg_dir="$(dirname "$(dirname "$claude_real")")"
 

@@ -15,7 +15,7 @@ cleanup_legacy_pi() {
 }
 
 ensure_claude_native_binary() {
-    claude_bin="$(mise exec node@lts npm:@anthropic-ai/claude-code -- sh -c 'command -v claude')"
+    claude_bin="$(mise which claude)"
     claude_real="$(mise exec node@lts -- node -e 'console.log(require("fs").realpathSync(process.argv[1]))' "$claude_bin")"
     claude_pkg_dir="$(dirname "$(dirname "$claude_real")")"
 

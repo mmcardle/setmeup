@@ -110,6 +110,12 @@ EOF
     assert_file_contains "$HOME/setmeup/update.sh" "claude --version"
 }
 
+@test "update.sh locates Claude Code through mise, not PATH" {
+    assert_file_contains "$HOME/setmeup/update.sh" "mise which claude"
+    run grep -F "command -v claude" "$HOME/setmeup/update.sh"
+    [ "$status" -ne 0 ]
+}
+
 @test "update.sh installs Codex skills via npx skills" {
     assert_file_contains "$HOME/setmeup/update.sh" "codex-skills.list"
     assert_file_contains "$HOME/setmeup/update.sh" "skills add"

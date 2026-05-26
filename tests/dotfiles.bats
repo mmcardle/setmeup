@@ -733,6 +733,13 @@ FAKE_TMUXINATOR
     assert_file_contains "$script" 'claude --version'
 }
 
+@test "install-agent-skills locates Claude Code through mise, not PATH" {
+    local script="$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
+    assert_file_contains "$script" 'mise which claude'
+    run grep -F "command -v claude" "$script"
+    [ "$status" -ne 0 ]
+}
+
 @test "macos-defaults script exists in chezmoi source" {
     assert_file_exists "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl"
 }
