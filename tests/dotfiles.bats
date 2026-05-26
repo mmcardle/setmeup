@@ -527,7 +527,7 @@ setup() {
     local script="$HOME/.config/setmeup/new-ticket.sh"
     run grep -F 'fzf --tmux' "$script"
     [ "$status" -ne 0 ]
-    assert_file_contains "$script" 'list_devel_repos | fzf \\'
+    assert_file_contains "$script" 'list_devel_repos | fzf \'
 }
 
 @test "new-ticket.sh popup mode prompts and defaults base to staging" {
@@ -725,6 +725,12 @@ FAKE_TMUXINATOR
 @test "install-agent-skills script fails fast without mise guard" {
     run grep -c "skipping agent skills install" "$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
     [ "$output" = "0" ]
+}
+
+@test "install-agent-skills repairs mise-installed Claude Code native binary" {
+    local script="$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
+    assert_file_contains "$script" 'install.cjs'
+    assert_file_contains "$script" 'claude --version'
 }
 
 @test "macos-defaults script exists in chezmoi source" {
