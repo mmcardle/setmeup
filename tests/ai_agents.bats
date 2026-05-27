@@ -93,6 +93,10 @@ setup() {
     "${CLAUDE_EXEC[@]}" claude plugin list 2>&1 | grep -qi 'review-pr-changes'
 }
 
+@test "visual-qna plugin is installed" {
+    "${CLAUDE_EXEC[@]}" claude plugin list 2>&1 | grep -qi 'visual-qna'
+}
+
 # Plugins, unlike skills, also bring commands/agents/hooks. Spot-check
 # that the installed plugin tree exposes the broader assets — this is
 # precisely the part `npx skills add` was unable to install.

@@ -1,0 +1,5 @@
+# Codex configuration managed by setmeup.
+# Enables the Playwright MCP server for browser-backed tools.
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest"]

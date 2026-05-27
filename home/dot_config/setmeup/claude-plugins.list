@@ -18,3 +18,4 @@ code-simplifier@claude-plugins-official            anthropics/claude-plugins-off
 swift-lsp@claude-plugins-official                  anthropics/claude-plugins-official
 rust-analyzer-lsp@claude-plugins-official          anthropics/claude-plugins-official
 review-pr-changes@mmcardle-ai-skills               mmcardle/ai-skills
+visual-qna@mmcardle-ai-skills                      mmcardle/ai-skills
