@@ -96,3 +96,7 @@ setup() {
 @test "mise tool installed: go" {
     assert_mise_tool go
 }
+
+@test "mise tool installed: opensrc" {
+    assert_mise_tool opensrc
+}

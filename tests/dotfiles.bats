@@ -43,6 +43,22 @@ setup() {
     assert_file_contains "$HOME/.tmux.conf" "setw -g mode-keys vi"
 }
 
+@test "tmux.conf uses a truecolor-capable default terminal" {
+    # screen-256color carries no RGB capability, so truecolor backgrounds
+    # (e.g. highlight fills) get mangled under modern terminals like Ghostty.
+    assert_file_contains "$HOME/.tmux.conf" 'set -g default-terminal "tmux-256color"'
+}
+
+@test "tmux.conf enables RGB truecolor passthrough for the outer terminal" {
+    assert_file_contains "$HOME/.tmux.conf" "terminal-overrides"
+    assert_file_contains "$HOME/.tmux.conf" ":RGB"
+}
+
+@test "tmux.conf no longer uses legacy screen-256color (regression)" {
+    run grep -F 'screen-256color' "$HOME/.tmux.conf"
+    [ "$status" -ne 0 ]
+}
+
 @test "tmux.conf loads tpm" {
     assert_file_contains "$HOME/.tmux.conf" "run '~/.tmux/plugins/tpm/tpm'"
 }
