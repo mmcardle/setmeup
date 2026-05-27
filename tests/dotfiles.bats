@@ -391,6 +391,10 @@ setup() {
     assert_command_exists http
 }
 
+@test "system package installed: socat" {
+    assert_command_exists socat
+}
+
 # --- Modern tool aliases ---
 
 @test "aliases file conditionally aliases cat to bat" {

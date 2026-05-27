@@ -26,6 +26,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
     tmuxinator \
     neovim \
     httpie \
+    socat \
     fontconfig
 {{ else if eq .chezmoi.os "darwin" -}}
 echo "[setmeup] Installing system packages via brew..."
@@ -42,7 +43,8 @@ brew install \
     tmux \
     tmuxinator \
     neovim \
-    httpie
+    httpie \
+    socat
 {{ end -}}
 
 echo "[setmeup] System packages installed."

@@ -143,6 +143,7 @@ make test-file FILE=dotfiles.bats
 1. Test: `assert_mise_tool <tool>` in `tests/mise_tools.bats`
 2. Implement: add `<tool> = "latest"` to `home/dot_config/mise/config.toml`
 3. If mise doesn't find the tool in its default registry, use the aqua backend: `"aqua:<owner>/<repo>" = "latest"` (mise will suggest this in its error output)
+4. If the tool isn't in the mise registry at all — e.g. a traditional C program with no prebuilt release like `socat` (`mise registry | grep <tool>` returns nothing) — it isn't mise-installable. Add it as a system package instead (see below).
 
 ### Adding a new system package
 
