@@ -10,8 +10,9 @@ SETTINGS_FILE="$HOME/.claude/settings.json"
 
 mkdir -p "$HOME/.claude"
 
-# Define the statusLine config to merge
+# Define the statusLine and MCP configs to merge
 STATUSLINE_JSON='{"statusLine":{"type":"command","command":"bash ~/.claude/statusline-command.sh"}}'
+PLAYWRIGHT_MCP_JSON='{"mcpServers":{"playwright":{"command":"npx","args":["-y","@playwright/mcp@latest"]}}}'
 
 # Permissions to ensure are in the allow list
 REQUIRED_PERMISSIONS=(
@@ -36,12 +37,12 @@ HOOKS
 )
 
 if [[ -f "$SETTINGS_FILE" ]]; then
-    # Merge statusLine into existing settings, preserving all other keys
-    jq --argjson sl "$STATUSLINE_JSON" '. * $sl' "$SETTINGS_FILE" > "${SETTINGS_FILE}.tmp"
+    # Merge statusLine and Playwright MCP into existing settings, preserving all other keys
+    jq --argjson sl "$STATUSLINE_JSON" --argjson mcp "$PLAYWRIGHT_MCP_JSON" '. * $sl * $mcp' "$SETTINGS_FILE" > "${SETTINGS_FILE}.tmp"
     mv "${SETTINGS_FILE}.tmp" "$SETTINGS_FILE"
 else
-    # Create new settings file with just statusLine
-    echo "$STATUSLINE_JSON" | jq . > "$SETTINGS_FILE"
+    # Create new settings file with statusLine and Playwright MCP
+    jq -n --argjson sl "$STATUSLINE_JSON" --argjson mcp "$PLAYWRIGHT_MCP_JSON" '$sl * $mcp' > "$SETTINGS_FILE"
 fi
 
 # Ensure required permissions are present in the allow list

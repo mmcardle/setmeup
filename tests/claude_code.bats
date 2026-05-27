@@ -48,3 +48,13 @@ setup() {
     # setup_environment.sh pre-seeds a test key before chezmoi apply
     assert_file_contains "$HOME/.claude/settings.json" '"setmeup_test_marker"'
 }
+
+@test "claude settings.json enables Playwright MCP" {
+    run jq -r '.mcpServers.playwright.command' "$HOME/.claude/settings.json"
+    [ "$status" -eq 0 ]
+    [ "$output" = "npx" ]
+
+    run jq -r '.mcpServers.playwright.args | join(" ")' "$HOME/.claude/settings.json"
+    [ "$status" -eq 0 ]
+    [ "$output" = "-y @playwright/mcp@latest" ]
+}

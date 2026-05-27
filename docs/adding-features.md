@@ -116,6 +116,13 @@ make test-file FILE=dotfiles.bats
    - Add `set -g @plugin '<author>/<plugin>'` to `home/dot_tmux.conf` (before the TPM `run` line)
    - Add the plugin as a chezmoi external in `home/.chezmoiexternal.toml` (plugins are installed declaratively via chezmoi, not via TPM's runtime installer, because chezmoi scripts run before externals are downloaded)
 
+### Adding a Claude Code plugin
+
+1. Test: in `tests/ai_agents.bats`, add a `<marketplace> marketplace is registered` test (`"${CLAUDE_EXEC[@]}" claude plugin marketplace list 2>&1 | grep -qi '<marketplace>'`) and a `<plugin> plugin is installed` test (`"${CLAUDE_EXEC[@]}" claude plugin list 2>&1 | grep -qi '<plugin>'`)
+2. Implement: add a line `<plugin>@<marketplace>  <marketplace_source>` to `home/dot_config/setmeup/claude-plugins.list`. Find `<marketplace>` (the registered name) and `<plugin>` in the source repo's `.claude-plugin/marketplace.json`; `<marketplace_source>` is the GitHub `owner/name`, URL, or path handed to `claude plugin marketplace add`.
+3. Re-run requires rebuilding the prepared test image (`make test-rebuild`) because `run_after_onchange_004-install-agent-skills.sh.tmpl` only re-runs `claude plugin install` when the list's hash changes.
+4. Codex-only skills go in `codex-skills.list` instead (installed via `npx skills add -a codex`). A repo can appear in both lists — `claude-plugins.list` gives Claude the full plugin (commands/agents/hooks/MCP + skills), `codex-skills.list` gives Codex the skill files.
+
 ### Adding a tmux key binding
 
 1. Test: add `assert_file_contains "$HOME/.tmux.conf" "bind-key \"<key>\" <command>"` in `tests/dotfiles.bats` near the other `tmux.conf binds <k>` tests

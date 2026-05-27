@@ -17,3 +17,4 @@ ecc@ecc                                            affaan-m/everything-claude-co
 code-simplifier@claude-plugins-official            anthropics/claude-plugins-official
 swift-lsp@claude-plugins-official                  anthropics/claude-plugins-official
 rust-analyzer-lsp@claude-plugins-official          anthropics/claude-plugins-official
+review-pr-changes@mmcardle-ai-skills               mmcardle/ai-skills

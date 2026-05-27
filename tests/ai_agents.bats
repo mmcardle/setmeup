@@ -14,6 +14,13 @@ setup() {
     mise which codex
 }
 
+@test "codex config enables Playwright MCP" {
+    assert_file_exists "$HOME/.codex/config.toml"
+    assert_file_contains "$HOME/.codex/config.toml" '[mcp_servers.playwright]'
+    assert_file_contains "$HOME/.codex/config.toml" 'command = "npx"'
+    assert_file_contains "$HOME/.codex/config.toml" 'args = ["-y", "@playwright/mcp@latest"]'
+}
+
 @test "opencode is installed" {
     mise which opencode
 }
@@ -59,6 +66,10 @@ setup() {
     "${CLAUDE_EXEC[@]}" claude plugin marketplace list 2>&1 | grep -qiE '(ecc|everything-claude-code)'
 }
 
+@test "mmcardle-ai-skills marketplace is registered" {
+    "${CLAUDE_EXEC[@]}" claude plugin marketplace list 2>&1 | grep -qi 'mmcardle-ai-skills'
+}
+
 # --- Claude plugins are installed (full install, not just skills) ---
 
 @test "blueprints plugin is installed" {
@@ -76,6 +87,10 @@ setup() {
 
 @test "code-simplifier plugin is installed" {
     "${CLAUDE_EXEC[@]}" claude plugin list 2>&1 | grep -qi 'code-simplifier'
+}
+
+@test "review-pr-changes plugin is installed" {
+    "${CLAUDE_EXEC[@]}" claude plugin list 2>&1 | grep -qi 'review-pr-changes'
 }
 
 # Plugins, unlike skills, also bring commands/agents/hooks. Spot-check
