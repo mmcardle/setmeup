@@ -518,9 +518,46 @@ setup() {
     assert_file_contains "$HOME/.config/setmeup/new-ticket.sh" 'tmuxinator start default "$repo" "$ticket" "$base"'
 }
 
-@test "tmux.conf binds n to new-ticket via ticket and base prompts" {
-    assert_file_contains "$HOME/.tmux.conf" 'command-prompt -p "ticket:,base:" -I ",staging"'
-    assert_file_contains "$HOME/.tmux.conf" 'new-ticket.sh'
+@test "new-ticket.sh prompts for missing ticket and base" {
+    assert_file_contains "$HOME/.config/setmeup/new-ticket.sh" 'read -r -p "ticket> " ticket'
+    assert_file_contains "$HOME/.config/setmeup/new-ticket.sh" 'read -r -p "base [staging]> " base'
+}
+
+@test "new-ticket.sh uses fzf directly inside the popup" {
+    local script="$HOME/.config/setmeup/new-ticket.sh"
+    run grep -F 'fzf --tmux' "$script"
+    [ "$status" -ne 0 ]
+    assert_file_contains "$script" 'list_devel_repos | fzf \'
+}
+
+@test "new-ticket.sh popup mode prompts and defaults base to staging" {
+    local script="$HOME/.config/setmeup/new-ticket.sh"
+    local fake_home="$BATS_TEST_TMPDIR/fake-home"
+    local capture="$BATS_TEST_TMPDIR/tmuxinator-args"
+    mkdir -p "$fake_home/devel/app/.git" "$fake_home/.local/share/mise/shims"
+
+    cat > "$fake_home/.local/share/mise/shims/fzf" <<'FAKE_FZF'
+#!/usr/bin/env bash
+sed -n '1p'
+FAKE_FZF
+    chmod +x "$fake_home/.local/share/mise/shims/fzf"
+
+    cat > "$fake_home/.local/share/mise/shims/tmuxinator" <<'FAKE_TMUXINATOR'
+#!/usr/bin/env bash
+printf '%s\n' "$@" > "$NEW_TICKET_CAPTURE"
+FAKE_TMUXINATOR
+    chmod +x "$fake_home/.local/share/mise/shims/tmuxinator"
+
+    run bash -c 'printf "FIL-123\n\n" | HOME="$1" NEW_TICKET_CAPTURE="$2" "$3"' bash "$fake_home" "$capture" "$script"
+    [ "$status" -eq 0 ]
+    [ "$(tr '\n' ' ' < "$capture")" = "start default app FIL-123 staging " ]
+}
+
+@test "tmux.conf binds n to new-ticket in a popup" {
+    assert_file_contains "$HOME/.tmux.conf" 'bind-key "n" display-popup'
+    assert_file_contains "$HOME/.tmux.conf" '~/.config/setmeup/new-ticket.sh'
+    run grep -F 'command-prompt -p "ticket:,base:"' "$HOME/.tmux.conf"
+    [ "$status" -ne 0 ]
 }
 
 # --- Worktrunk shell integration ---
@@ -688,6 +725,19 @@ setup() {
 @test "install-agent-skills script fails fast without mise guard" {
     run grep -c "skipping agent skills install" "$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
     [ "$output" = "0" ]
+}
+
+@test "install-agent-skills repairs mise-installed Claude Code native binary" {
+    local script="$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
+    assert_file_contains "$script" 'install.cjs'
+    assert_file_contains "$script" 'claude --version'
+}
+
+@test "install-agent-skills locates Claude Code through mise, not PATH" {
+    local script="$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
+    assert_file_contains "$script" 'mise which claude'
+    run grep -F "command -v claude" "$script"
+    [ "$status" -ne 0 ]
 }
 
 @test "macos-defaults script exists in chezmoi source" {

@@ -27,6 +27,28 @@ echo "[setmeup] Installing Claude Code plugins..."
 # itself comes from the npm package.
 CLAUDE_EXEC=(mise exec node@lts 'npm:@anthropic-ai/claude-code' --)
 
+ensure_claude_native_binary() {
+    local claude_bin claude_real claude_pkg_dir
+
+    # mise's npm backend installs with --ignore-scripts=true, but Claude Code's
+    # npm wrapper requires postinstall to copy the platform-native binary over
+    # bin/claude.exe. Run that postinstall explicitly before using the plugin CLI.
+    claude_bin="$(mise which claude)"
+    claude_real="$(mise exec node@lts -- node -e 'console.log(require("fs").realpathSync(process.argv[1]))' "$claude_bin")"
+    claude_pkg_dir="$(dirname "$(dirname "$claude_real")")"
+
+    if [[ ! -f "$claude_pkg_dir/install.cjs" ]]; then
+        echo "[setmeup] ERROR: Claude Code postinstall script not found at $claude_pkg_dir/install.cjs"
+        exit 1
+    fi
+
+    echo "[setmeup] Repairing Claude Code native binary..."
+    mise exec node@lts -- node "$claude_pkg_dir/install.cjs"
+    "${CLAUDE_EXEC[@]}" claude --version >/dev/null
+}
+
+ensure_claude_native_binary
+
 # Strip comments/blank lines to a normalized stream of: <plugin>@<marketplace> <source>
 plugin_lines=$(grep -vE '^\s*(#|$)' "$CLAUDE_PLUGINS_LIST" || true)
 
