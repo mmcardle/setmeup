@@ -161,6 +161,18 @@ setup() {
     assert_file_contains "$HOME/.tmux.conf" "bind-key \"g\" display-popup -E -w 80% -h 80% \"zsh\""
 }
 
+@test "tmux.conf binds S to capture-pane scrollback workaround (avoids copy-mode crash)" {
+    # Workaround for tmux/tmux#4962: copy-mode triggers a libmalloc
+    # double-free on macOS arm64. See TMUX_BUG.md. The bind captures
+    # the pane history to a per-pane tmpfile and opens it read-only
+    # in vim, so users can search scrollback without entering
+    # copy-mode.
+    assert_file_contains "$HOME/.tmux.conf" 'bind-key "S" run-shell'
+    assert_file_contains "$HOME/.tmux.conf" 'tmux capture-pane'
+    assert_file_contains "$HOME/.tmux.conf" '/tmp/tmux-scrollback.#{pane_id}'
+    assert_file_contains "$HOME/.tmux.conf" 'vim -R'
+}
+
 @test "tpm is installed via chezmoi externals" {
     assert_dir_exists "$HOME/.tmux/plugins/tpm"
 }
