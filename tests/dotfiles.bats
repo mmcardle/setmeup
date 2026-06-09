@@ -520,7 +520,14 @@ setup() {
 
 @test "tmuxinator default template creates the worktree from the base branch on first start" {
     assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'on_project_first_start:'
-    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'wt switch --create <%= @args[1] %> --base <%= (@args[2].to_s.empty? && '\''staging'\'') || @args[2] %>'
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'wt switch --create <%= @args[1] %> --base origin/<%= (@args[2].to_s.empty? && '\''staging'\'') || @args[2] %>'
+}
+
+@test "tmuxinator default template fetches the base from origin before creating the worktree" {
+    # Without this fetch, `wt switch --create --base origin/<base>` would
+    # use whatever origin/<base> happened to be at the last fetch — which
+    # is why we'd otherwise start a ticket from a stale snapshot.
+    assert_file_contains "$HOME/.config/tmuxinator/default.yml" 'git fetch origin <%= (@args[2].to_s.empty? && '\''staging'\'') || @args[2] %> && wt switch --create'
 }
 
 @test "tmuxinator default template switches (no --create) on restart" {
