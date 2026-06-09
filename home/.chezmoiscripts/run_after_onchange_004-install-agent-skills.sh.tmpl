@@ -5,6 +5,7 @@
 # hash:                 {{ include ".chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl" | sha256sum }}
 # mise config hash:     {{ include "dot_config/mise/config.toml" | sha256sum }}
 # claude plugins hash:  {{ include "dot_config/setmeup/claude-plugins.list" | sha256sum }}
+# claude installer hash:{{ include "dot_local/bin/executable_setmeup-install-claude-plugins.sh" | sha256sum }}
 # codex skills hash:    {{ include "dot_config/setmeup/codex-skills.list" | sha256sum }}
 set -e
 
@@ -49,28 +50,10 @@ ensure_claude_native_binary() {
 
 ensure_claude_native_binary
 
-# Strip comments/blank lines to a normalized stream of: <plugin>@<marketplace> <source>
-plugin_lines=$(grep -vE '^\s*(#|$)' "$CLAUDE_PLUGINS_LIST" || true)
-
-# Register marketplaces (deduped). `claude plugin marketplace add` is
-# idempotent — it reports the marketplace is already on disk and exits 0.
-declare -A seen_sources=()
-while read -r _plugin source; do
-    [ -z "${source:-}" ] && continue
-    [ -n "${seen_sources[$source]:-}" ] && continue
-    seen_sources["$source"]=1
-    echo "[setmeup]   marketplace add: $source"
-    "${CLAUDE_EXEC[@]}" claude plugin marketplace add "$source" </dev/null
-done <<< "$plugin_lines"
-
-# Install plugins. `claude plugin install` is idempotent — it prints
-# "already installed" and exits 0 when the plugin is already on disk —
-# so let its output stream through and rely on its exit code.
-while read -r plugin _source; do
-    [ -z "${plugin:-}" ] && continue
-    echo "[setmeup]   plugin install: $plugin"
-    "${CLAUDE_EXEC[@]}" claude plugin install "$plugin" -s user </dev/null
-done <<< "$plugin_lines"
+# Register marketplaces and install missing plugins via the shared helper.
+# The helper skips plugins that are already installed, so re-running this
+# installer never re-enables a plugin the user has chosen to disable.
+"$HOME/.local/bin/setmeup-install-claude-plugins.sh" "$CLAUDE_PLUGINS_LIST"
 
 # --- Codex-only skills (npx skills) --------------------------------------
 

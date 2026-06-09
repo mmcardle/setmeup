@@ -66,23 +66,11 @@ CLAUDE_PLUGINS_LIST="$HOME/.config/setmeup/claude-plugins.list"
 if [ -f "$CLAUDE_PLUGINS_LIST" ]; then
     ensure_claude_native_binary || warn "Claude Code native binary repair failed; plugin install may fail"
 
-    plugin_lines="$(grep -vE '^\s*(#|$)' "$CLAUDE_PLUGINS_LIST" || true)"
-
-    # Register marketplaces (deduped). marketplace add is idempotent.
-    printf '%s\n' "$plugin_lines" | awk '{print $2}' | sort -u | while read -r source; do
-        [ -n "$source" ] || continue
-        info "marketplace add: $source"
-        mise exec node@lts npm:@anthropic-ai/claude-code -- claude plugin marketplace add "$source" </dev/null \
-            || warn "marketplace add failed for $source (non-fatal)"
-    done
-
-    # Install plugins. install errors when plugin is already installed; tolerate.
-    printf '%s\n' "$plugin_lines" | while read -r plugin _source; do
-        [ -n "$plugin" ] || continue
-        info "plugin install: $plugin"
-        mise exec node@lts npm:@anthropic-ai/claude-code -- claude plugin install "$plugin" -s user </dev/null \
-            || warn "plugin install failed for $plugin (non-fatal — may already be installed)"
-    done
+    # Register marketplaces and install missing plugins via the shared helper.
+    # The helper skips plugins that are already installed, so this update pass
+    # never re-enables a plugin the user has chosen to disable.
+    "$HOME/.local/bin/setmeup-install-claude-plugins.sh" "$CLAUDE_PLUGINS_LIST" \
+        || warn "Claude plugin install failed (non-fatal)"
 else
     warn "claude-plugins.list not found at $CLAUDE_PLUGINS_LIST, skipping plugin install"
 fi

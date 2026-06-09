@@ -108,6 +108,41 @@ setup() {
     find "$plugin_root" \( -path '*/commands/*' -o -path '*/agents/*' \) -type f | head -1 | grep -q .
 }
 
+# --- Disabling a plugin survives a re-install pass ---
+#
+# `claude plugin install` re-enables a disabled plugin. Both setmeup-update and
+# the onchange installer run an install pass on every update, so without a guard
+# a user's decision to disable a plugin is silently undone each time. The shared
+# installer helper must skip plugins that are already installed.
+
+@test "claude plugin installer helper exists and is executable" {
+    assert_file_exists "$HOME/.local/bin/setmeup-install-claude-plugins.sh"
+    [ -x "$HOME/.local/bin/setmeup-install-claude-plugins.sh" ]
+}
+
+@test "re-running the plugin installer does not re-enable a disabled plugin" {
+    local plugin="visual-qna@mmcardle-ai-skills"
+    local list="$HOME/.config/setmeup/claude-plugins.list"
+
+    # Start from a known-enabled state, then disable like a user would.
+    "${CLAUDE_EXEC[@]}" claude plugin enable "$plugin" </dev/null >/dev/null 2>&1 || true
+    "${CLAUDE_EXEC[@]}" claude plugin disable "$plugin" </dev/null
+
+    # Run the installer the same way setmeup-update / chezmoi onchange do.
+    "$HOME/.local/bin/setmeup-install-claude-plugins.sh" "$list"
+
+    # The plugin must remain disabled.
+    local json enabled
+    json="$("${CLAUDE_EXEC[@]}" claude plugin list --json </dev/null)"
+    enabled="$(printf '%s' "$json" | mise exec node@lts -- node -e \
+        'const a=JSON.parse(require("fs").readFileSync(0,"utf8"));const p=a.find(x=>x.id==="'"$plugin"'");console.log(p?p.enabled:"missing")')"
+
+    # Restore enabled state so later runs/tests are unaffected.
+    "${CLAUDE_EXEC[@]}" claude plugin enable "$plugin" </dev/null >/dev/null 2>&1 || true
+
+    [ "$enabled" = "false" ]
+}
+
 # --- Codex-only skills (npx skills) ---
 
 @test "codex skills list does not list claude-code packages" {

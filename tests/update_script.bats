@@ -99,10 +99,19 @@ EOF
     grep -qF "reshim" "$mise_log"
 }
 
-@test "update.sh installs Claude plugins via the native plugin CLI" {
+@test "update.sh installs Claude plugins via the shared installer helper" {
     assert_file_contains "$HOME/setmeup/update.sh" "claude-plugins.list"
-    assert_file_contains "$HOME/setmeup/update.sh" "claude plugin install"
-    assert_file_contains "$HOME/setmeup/update.sh" "claude plugin marketplace add"
+    assert_file_contains "$HOME/setmeup/update.sh" "setmeup-install-claude-plugins.sh"
+}
+
+@test "installer helper drives the native plugin CLI" {
+    assert_file_contains "$HOME/.local/bin/setmeup-install-claude-plugins.sh" "claude plugin install"
+    assert_file_contains "$HOME/.local/bin/setmeup-install-claude-plugins.sh" "claude plugin marketplace add"
+}
+
+@test "installer helper skips already-installed plugins" {
+    # The guard against re-enabling disabled plugins: query installed ids and skip them.
+    assert_file_contains "$HOME/.local/bin/setmeup-install-claude-plugins.sh" "claude plugin list --json"
 }
 
 @test "update.sh repairs mise-installed Claude Code native binary before plugin install" {
