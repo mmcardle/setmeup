@@ -11,5 +11,7 @@ Thumbs.db
 
 # Claude
 .claude/
+.pi/
 
 .cache/
+.env

@@ -81,8 +81,16 @@ if [ -f "$CODEX_SKILLS_LIST" ]; then
     grep -vE '^\s*(#|$)' "$CODEX_SKILLS_LIST" | while read -r package; do
         [ -n "$package" ] || continue
         info "codex skills add: $package"
-        mise exec node@lts -- npx -y skills add "$package" -a codex -g -y </dev/null \
-            || warn "Failed to install $package for codex (non-fatal)"
+        # `skills` CLI has no --quiet flag; capture output and only surface it
+        # on failure. `npx --silent` suppresses npm's own chatter.
+        skill_log=$(mktemp)
+        if mise exec node@lts -- npx --silent -y skills add "$package" -a codex -g -y </dev/null >"$skill_log" 2>&1; then
+            rm -f "$skill_log"
+        else
+            cat "$skill_log" >&2
+            rm -f "$skill_log"
+            warn "Failed to install $package for codex (non-fatal)"
+        fi
     done
 else
     warn "codex-skills.list not found at $CODEX_SKILLS_LIST, skipping codex skill install"

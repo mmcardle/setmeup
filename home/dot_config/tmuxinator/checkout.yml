@@ -1,0 +1,30 @@
+# ~/.config/tmuxinator/checkout.yml — managed by chezmoi (setmeup)
+#
+# Usage:
+#   mux start checkout <repo> <branch>
+# Example:
+#   mux start checkout hub.sohonet.com FIL-1234
+#
+# Attaches to an existing branch (local or on origin). `wt switch` without
+# --create materialises the worktree on first invocation if one doesn't
+# already exist for the branch. We fetch origin first so a recently pushed
+# remote branch is visible to wt.
+
+name: checkout-<%= @args[1].gsub('.', '_') %>
+root: ~/devel/<%= @args[0] %>
+
+on_project_first_start: (cd ~/devel/<%= @args[0] %> && git fetch origin && wt switch <%= @args[1] %>)
+on_project_restart:     (cd ~/devel/<%= @args[0] %> && wt switch <%= @args[1] %>)
+
+# Panes spawn under `root` (the source repo), then cd into whichever path
+# wt actually materialised the worktree at — so the two can't drift.
+pre_window: cd "$(wt list --format json | jq -r --arg b '<%= @args[1] %>' '.[] | select(.branch==$b) | .path')"
+
+windows:
+  - editor:
+      layout: main-vertical
+      panes:
+        - claude
+        - touch secrets.env && make bootstrap-dev
+        -
+  - server:
