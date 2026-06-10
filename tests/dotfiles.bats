@@ -599,6 +599,112 @@ FAKE_TMUXINATOR
     [ "$status" -ne 0 ]
 }
 
+# --- Checkout-ticket launcher ---
+
+@test "managed dotfile exists: .config/setmeup/checkout-ticket.sh" {
+    assert_file_exists "$HOME/.config/setmeup/checkout-ticket.sh"
+}
+
+@test "checkout-ticket.sh is executable" {
+    [ -x "$HOME/.config/setmeup/checkout-ticket.sh" ]
+}
+
+@test "checkout-ticket.sh starts tmuxinator checkout" {
+    assert_file_contains "$HOME/.config/setmeup/checkout-ticket.sh" 'tmuxinator start checkout'
+}
+
+@test "checkout-ticket.sh passes branch and repo to tmuxinator" {
+    assert_file_contains "$HOME/.config/setmeup/checkout-ticket.sh" 'tmuxinator start checkout "$repo" "$branch"'
+}
+
+@test "checkout-ticket.sh enumerates branches via git for-each-ref" {
+    assert_file_contains "$HOME/.config/setmeup/checkout-ticket.sh" 'git -C "$HOME/devel/$repo" for-each-ref'
+    assert_file_contains "$HOME/.config/setmeup/checkout-ticket.sh" 'refs/heads'
+    assert_file_contains "$HOME/.config/setmeup/checkout-ticket.sh" 'refs/remotes/origin'
+}
+
+@test "checkout-ticket.sh fetches origin before listing branches" {
+    assert_file_contains "$HOME/.config/setmeup/checkout-ticket.sh" 'git -C "$HOME/devel/$repo" fetch origin'
+}
+
+@test "checkout-ticket.sh uses fzf directly inside the popup" {
+    local script="$HOME/.config/setmeup/checkout-ticket.sh"
+    run grep -F 'fzf --tmux' "$script"
+    [ "$status" -ne 0 ]
+    assert_file_contains "$script" 'list_devel_repos | fzf \'
+}
+
+@test "checkout-ticket.sh popup mode picks repo then branch via fzf" {
+    local script="$HOME/.config/setmeup/checkout-ticket.sh"
+    local fake_home="$BATS_TEST_TMPDIR/fake-home"
+    local capture="$BATS_TEST_TMPDIR/tmuxinator-args"
+    mkdir -p "$fake_home/.local/share/mise/shims"
+
+    # Build a real git repo with a couple of local branches so for-each-ref
+    # returns something. fzf will pick the first listed branch.
+    local repo_dir="$fake_home/devel/app"
+    mkdir -p "$repo_dir"
+    git -C "$repo_dir" init -q -b main
+    git -C "$repo_dir" config user.email "test@example.com"
+    git -C "$repo_dir" config user.name "Test"
+    git -C "$repo_dir" commit --allow-empty -qm init
+    git -C "$repo_dir" branch FIL-existing
+
+    cat > "$fake_home/.local/share/mise/shims/fzf" <<'FAKE_FZF'
+#!/usr/bin/env bash
+sed -n '1p'
+FAKE_FZF
+    chmod +x "$fake_home/.local/share/mise/shims/fzf"
+
+    cat > "$fake_home/.local/share/mise/shims/tmuxinator" <<'FAKE_TMUXINATOR'
+#!/usr/bin/env bash
+printf '%s\n' "$@" > "$CHECKOUT_TICKET_CAPTURE"
+FAKE_TMUXINATOR
+    chmod +x "$fake_home/.local/share/mise/shims/tmuxinator"
+
+    # No stdin needed — the script picks repo and branch via fzf
+    run bash -c 'HOME="$1" CHECKOUT_TICKET_CAPTURE="$2" "$3" </dev/null' bash "$fake_home" "$capture" "$script"
+    [ "$status" -eq 0 ]
+    # tmuxinator should be invoked: start checkout <repo> <branch>
+    local args
+    args="$(tr '\n' ' ' < "$capture")"
+    [[ "$args" == "start checkout app "*" " ]]
+    # Branch must be one of the repo's branches (first alphabetically: FIL-existing or main)
+    [[ "$args" == *"FIL-existing"* || "$args" == *"main"* ]]
+}
+
+@test "tmux.conf binds m to checkout-ticket in a popup" {
+    assert_file_contains "$HOME/.tmux.conf" 'bind-key "m" display-popup'
+    assert_file_contains "$HOME/.tmux.conf" '~/.config/setmeup/checkout-ticket.sh'
+    # Default prefix-m (select-pane -m) must be unbound first so our binding wins.
+    assert_file_contains "$HOME/.tmux.conf" 'unbind-key -T prefix m'
+}
+
+# --- Tmuxinator checkout template ---
+
+@test "managed dotfile exists: .config/tmuxinator/checkout.yml" {
+    assert_file_exists "$HOME/.config/tmuxinator/checkout.yml"
+}
+
+@test "tmuxinator checkout template uses wt switch without --create" {
+    # checkout.yml attaches to an existing branch — must not pass --create
+    # (which forces creation of a new branch and would conflict).
+    local tmpl="$HOME/.config/tmuxinator/checkout.yml"
+    assert_file_contains "$tmpl" 'wt switch <%= @args[1] %>'
+    run grep -F 'wt switch --create' "$tmpl"
+    [ "$status" -ne 0 ]
+}
+
+@test "tmuxinator checkout template fetches origin on first start" {
+    # Without a fetch, a freshly-pushed remote branch would be invisible to wt.
+    assert_file_contains "$HOME/.config/tmuxinator/checkout.yml" 'git fetch origin && wt switch'
+}
+
+@test "tmuxinator checkout template derives worktree path from wt list" {
+    assert_file_contains "$HOME/.config/tmuxinator/checkout.yml" 'wt list --format json'
+    assert_file_contains "$HOME/.config/tmuxinator/checkout.yml" 'select(.branch'
+}
+
 # --- Worktrunk shell integration ---
 
 @test "setmeup zshrc sources worktrunk shell init when wt is present" {
