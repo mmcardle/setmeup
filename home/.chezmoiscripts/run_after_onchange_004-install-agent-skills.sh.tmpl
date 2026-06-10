@@ -81,7 +81,15 @@ if [[ -f "$CODEX_SKILLS_LIST" ]]; then
         while read -r package; do
             [ -z "${package:-}" ] && continue
             echo "[setmeup]   codex skills add: $package"
-            mise exec node@lts -- npx -y skills add "$package" -a codex -g -y </dev/null
+            # `skills` CLI has no --quiet flag; capture output and only show it
+            # on failure. `npx --silent` suppresses npm's own chatter.
+            skill_log=$(mktemp)
+            if ! mise exec node@lts -- npx --silent -y skills add "$package" -a codex -g -y </dev/null >"$skill_log" 2>&1; then
+                cat "$skill_log" >&2
+                rm -f "$skill_log"
+                exit 1
+            fi
+            rm -f "$skill_log"
         done <<< "$codex_lines"
     fi
 fi
