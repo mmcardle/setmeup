@@ -191,14 +191,6 @@ setup() {
     assert_file_contains "$HOME/.vimrc" "filetype plugin indent on"
 }
 
-@test "managed dotfile exists: .config/nvim/init.vim" {
-    assert_file_exists "$HOME/.config/nvim/init.vim"
-}
-
-@test "nvim init.vim sources vimrc" {
-    assert_file_contains "$HOME/.config/nvim/init.vim" "source ~/.vimrc"
-}
-
 # --- Nerd Font ---
 
 @test "nerd font directory exists" {
@@ -779,6 +771,27 @@ FAKE_TMUXINATOR
     [ "$status" -ne 0 ]
 }
 
+# --- Neovim ---
+
+@test "nvim init.lua exists" {
+    assert_file_exists "$HOME/.config/nvim/init.lua"
+}
+
+@test "nvim init.lua sources vimrc" {
+    assert_file_contains "$HOME/.config/nvim/init.lua" ".vimrc"
+}
+
+@test "nvim init.lua includes lazy.nvim bootstrap" {
+    assert_file_contains "$HOME/.config/nvim/init.lua" "lazy.nvim"
+}
+
+@test "nvim init.vim does not exist" {
+    if [[ -f "$HOME/.config/nvim/init.vim" ]]; then
+        echo "init.vim should not exist alongside init.lua" >&2
+        return 1
+    fi
+}
+
 @test "macos-defaults script exists in chezmoi source" {
     assert_file_exists "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl"
 }
@@ -801,4 +814,32 @@ FAKE_TMUXINATOR
 
 @test "macos-defaults script enables tap to click" {
     assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_onchange_002-macos-defaults.sh.tmpl" "com.apple.driver.AppleBluetoothMultitouch.trackpad"
+}
+
+@test "nvim lsp plugin spec exists" {
+    assert_file_exists "$HOME/.config/nvim/lua/plugins/lsp.lua"
+}
+
+@test "nvim lsp config includes gopls" {
+    assert_file_contains "$HOME/.config/nvim/lua/plugins/lsp.lua" "gopls"
+}
+
+@test "nvim lsp config includes pyright" {
+    assert_file_contains "$HOME/.config/nvim/lua/plugins/lsp.lua" "pyright"
+}
+
+@test "nvim lsp config includes rust_analyzer" {
+    assert_file_contains "$HOME/.config/nvim/lua/plugins/lsp.lua" "rust_analyzer"
+}
+
+@test "nvim lsp config includes ts_ls" {
+    assert_file_contains "$HOME/.config/nvim/lua/plugins/lsp.lua" "ts_ls"
+}
+
+@test "nvim treesitter plugin spec exists" {
+    assert_file_exists "$HOME/.config/nvim/lua/plugins/treesitter.lua"
+}
+
+@test "nvim telescope plugin spec exists" {
+    assert_file_exists "$HOME/.config/nvim/lua/plugins/telescope.lua"
 }
