@@ -140,6 +140,21 @@ make test-file FILE=dotfiles.bats
 1. Test: add `@test` blocks using `assert_file_contains` for both `$HOME/.config/setmeup/bashrc` and `$HOME/.config/setmeup/zshrc` in `tests/dotfiles.bats`
 2. Implement: add the section to both `home/dot_config/setmeup/bashrc.tmpl` and `home/dot_config/setmeup/zshrc.tmpl`, using the established `# ---` separator pattern. Place it in the correct position relative to other sections (e.g. SSH Agent goes before Mise so SSH is available for git-over-SSH operations).
 
+### Adding a zsh directory-change (chpwd) hook
+
+For behaviour that should run on every `cd` (e.g. auto-`ls`, auto-sourcing a
+Python venv), use zsh's native `chpwd` hook mechanism — zsh-only, so it lives in
+`zshrc.tmpl` and not `bashrc.tmpl`.
+
+1. Test: add `assert_file_contains` blocks in `tests/dotfiles.bats` asserting the
+   registration (`add-zsh-hook chpwd <fn>`) and the hook's key behaviour strings
+2. Implement: in `home/dot_config/setmeup/zshrc.tmpl`, `autoload -Uz add-zsh-hook`
+   once, define a `_setmeup_chpwd_<name>` function, then register it with
+   `add-zsh-hook chpwd _setmeup_chpwd_<name>`
+3. Keep hooks idempotent and non-destructive — e.g. the venv hook only
+   deactivates venvs it activated (tracked via `_SETMEUP_VENV_ROOT`) and only
+   activates when `$VIRTUAL_ENV` is empty, so manual venvs are never disturbed
+
 ### Adding a new mise tool
 
 1. Test: `assert_mise_tool <tool>` in `tests/mise_tools.bats`
