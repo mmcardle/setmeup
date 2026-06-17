@@ -363,6 +363,32 @@ setup() {
     assert_dir_exists "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
 }
 
+# --- Zsh chpwd hooks (auto-ls + auto-venv) ---
+
+@test "setmeup zshrc autoloads add-zsh-hook" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "autoload -Uz add-zsh-hook"
+}
+
+@test "setmeup zshrc registers chpwd auto-ls hook" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "add-zsh-hook chpwd _setmeup_chpwd_ls"
+}
+
+@test "setmeup zshrc registers chpwd auto-venv hook" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "add-zsh-hook chpwd _setmeup_chpwd_venv"
+}
+
+@test "setmeup zshrc auto-venv checks .venv and venv" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" ".venv venv"
+}
+
+@test "setmeup zshrc auto-venv deactivates on leaving tree" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "deactivate"
+}
+
+@test "setmeup zshrc auto-venv guards against active VIRTUAL_ENV" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" '[[ -z "$VIRTUAL_ENV" ]]'
+}
+
 # --- Zsh plugins ---
 
 @test "zsh-autosuggestions plugin is installed" {

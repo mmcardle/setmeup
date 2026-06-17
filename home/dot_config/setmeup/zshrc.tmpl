@@ -84,6 +84,39 @@ fi
 [ -f ~/.aliases ] && source ~/.aliases
 
 # ---------------------------------------------------------------------------
+# Directory-change hooks (auto-ls + auto-venv)
+# ---------------------------------------------------------------------------
+autoload -Uz add-zsh-hook
+
+# List directory contents whenever you cd into a directory
+_setmeup_chpwd_ls() {
+    ls
+}
+add-zsh-hook chpwd _setmeup_chpwd_ls
+
+# Auto-source a Python venv on entering its tree; deactivate on leaving.
+# Only venvs activated by this hook are tracked, so a manually-activated venv
+# is never deactivated or overridden.
+_setmeup_chpwd_venv() {
+    if [[ -n "$_SETMEUP_VENV_ROOT" && "$PWD" != "$_SETMEUP_VENV_ROOT"* ]]; then
+        deactivate 2>/dev/null
+        unset _SETMEUP_VENV_ROOT
+    fi
+
+    if [[ -z "$VIRTUAL_ENV" ]]; then
+        local _venv
+        for _venv in .venv venv; do
+            if [[ -f "$PWD/$_venv/bin/activate" ]]; then
+                source "$PWD/$_venv/bin/activate"
+                _SETMEUP_VENV_ROOT="$PWD"
+                break
+            fi
+        done
+    fi
+}
+add-zsh-hook chpwd _setmeup_chpwd_venv
+
+# ---------------------------------------------------------------------------
 # Auto-update check (daily)
 # ---------------------------------------------------------------------------
 _setmeup_check_updates() {
