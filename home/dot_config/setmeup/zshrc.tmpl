@@ -72,6 +72,18 @@ if (( $+commands[mise] )); then
 fi
 
 # ---------------------------------------------------------------------------
+# fzf Ctrl-R fuzzy history search
+# (after mise activation so the fzf shim is on PATH)
+# ---------------------------------------------------------------------------
+if (( $+commands[fzf] )); then
+    source <(fzf --zsh)
+    # Scope fzf to Ctrl-R only: restore zsh's default emacs bindings for the
+    # other two widgets the integration would otherwise grab.
+    bindkey '^T' transpose-chars
+    bindkey '\ec' capitalize-word
+fi
+
+# ---------------------------------------------------------------------------
 # Worktrunk shell integration (enables `wt` directory switching)
 # ---------------------------------------------------------------------------
 if command -v wt >/dev/null 2>&1; then

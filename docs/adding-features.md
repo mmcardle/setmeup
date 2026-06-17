@@ -155,6 +155,14 @@ Python venv), use zsh's native `chpwd` hook mechanism — zsh-only, so it lives 
    deactivates venvs it activated (tracked via `_SETMEUP_VENV_ROOT`) and only
    activates when `$VIRTUAL_ENV` is empty, so manual venvs are never disturbed
 
+### Adding a shell tool integration (fzf, etc.)
+
+A shell integration that depends on a mise-managed binary (e.g. `source <(fzf --zsh)`) must come **after** `mise activate` so the tool's shim is on `PATH`, and should be guarded on the command being present (`if (( $+commands[fzf] )); then ... fi`).
+
+1. Test: `assert_file_contains` for the integration line plus the command guard in `tests/dotfiles.bats`; add an ordering test that asserts the integration line's number is greater than the `mise activate zsh` line (mirror the `sources aliases after mise activation` test).
+2. Implement: add the guarded section to `home/dot_config/setmeup/zshrc.tmpl` after the Mise block. To scope a multi-key integration to just one key, re-bind the unwanted widgets back to their zsh defaults (fzf's `--zsh` binds `^R`→`fzf-history-widget`, `^T`→file picker, `\ec`→cd; restore `^T`→`transpose-chars` and `\ec`→`capitalize-word` to keep only Ctrl-R).
+3. Verifying key bindings at runtime: fzf only binds keys in **interactive** shells, so a plain `zsh -c` won't show them. Use `zsh -f -i -c '... ; bindkey "^R"'` (rc-free, interactive) inside the test image to confirm a binding resolves to the expected widget.
+
 ### Adding a new mise tool
 
 1. Test: `assert_mise_tool <tool>` in `tests/mise_tools.bats`

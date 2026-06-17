@@ -327,6 +327,37 @@ setup() {
     fi
 }
 
+# --- fzf Ctrl-R history integration ---
+
+@test "setmeup zshrc guards fzf integration on fzf presence" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" '(( $+commands[fzf] ))'
+}
+
+@test "setmeup zshrc sources fzf zsh integration" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "fzf --zsh"
+}
+
+@test "setmeup zshrc restores Ctrl-T default (fzf scoped to Ctrl-R only)" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "transpose-chars"
+}
+
+@test "setmeup zshrc restores Alt-C default (fzf scoped to Ctrl-R only)" {
+    assert_file_contains "$HOME/.config/setmeup/zshrc" "capitalize-word"
+}
+
+@test "setmeup zshrc sources fzf integration after mise activation" {
+    local file="$HOME/.config/setmeup/zshrc"
+    local mise_line fzf_line
+    mise_line=$(grep -n "mise activate zsh" "$file" | head -1 | cut -d: -f1)
+    fzf_line=$(grep -n "fzf --zsh" "$file" | head -1 | cut -d: -f1)
+    [ -n "$mise_line" ] || { echo "mise activation not found in $file" >&2; return 1; }
+    [ -n "$fzf_line" ] || { echo "fzf integration not found in $file" >&2; return 1; }
+    if (( fzf_line < mise_line )); then
+        echo "expected fzf integration (line $fzf_line) to come AFTER mise activate (line $mise_line) in $file" >&2
+        return 1
+    fi
+}
+
 # --- SSH config ---
 
 @test "setmeup bashrc configures SSH agent socket" {
