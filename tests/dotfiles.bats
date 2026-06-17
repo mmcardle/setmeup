@@ -692,6 +692,15 @@ FAKE_TMUXINATOR
     assert_file_contains "$HOME/.config/tmuxinator/checkout.yml" 'git fetch origin && wt switch'
 }
 
+@test "tmuxinator checkout template fast-forwards the branch to origin on first start" {
+    # `wt switch` only materialises the worktree on the local branch ref; if the
+    # local branch is behind origin the worktree shows stale content. After the
+    # fetch+switch we fast-forward the worktree to origin/<branch> so checkout
+    # always lands on the latest pushed changes. --ff-only (tolerated) leaves
+    # un-pushed local commits and local-only branches untouched.
+    assert_file_contains "$HOME/.config/tmuxinator/checkout.yml" 'merge --ff-only origin/<%= @args[1] %>'
+}
+
 @test "tmuxinator checkout template derives worktree path from wt list" {
     assert_file_contains "$HOME/.config/tmuxinator/checkout.yml" 'wt list --format json'
     assert_file_contains "$HOME/.config/tmuxinator/checkout.yml" 'select(.branch'
