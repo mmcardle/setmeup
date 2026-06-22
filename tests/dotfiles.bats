@@ -173,6 +173,39 @@ setup() {
     assert_file_contains "$HOME/.tmux.conf" 'vim -R'
 }
 
+@test "tmux.conf caps history-limit at 50000 (copy-mode crash memory hygiene)" {
+    # See TMUX_BUG.md: with copy-mode disabled this is just memory hygiene and
+    # the cap on how much prefix-S can dump. The previous 1,000,000 is gone.
+    assert_file_contains "$HOME/.tmux.conf" "set -g history-limit 50000"
+    run grep -F 'history-limit 1000000' "$HOME/.tmux.conf"
+    [ "$status" -ne 0 ]
+}
+
+@test "tmux.conf no longer binds Escape to copy-mode (crash workaround)" {
+    # bind Escape copy-mode was the last explicit key into the crashing path.
+    run grep -E '^bind[[:space:]]+Escape[[:space:]]+copy-mode' "$HOME/.tmux.conf"
+    [ "$status" -ne 0 ]
+}
+
+@test "tmux.conf re-points automatic mouse paths away from copy-mode (crash workaround)" {
+    # Wheel/drag/click must forward to mouse-aware apps but never fall back to
+    # copy-mode in a plain shell pane. See TMUX_BUG.md.
+    assert_file_contains "$HOME/.tmux.conf" "bind -n WheelUpPane"
+    assert_file_contains "$HOME/.tmux.conf" "bind -n MouseDrag1Pane"
+    assert_file_contains "$HOME/.tmux.conf" "bind -n DoubleClick1Pane"
+    assert_file_contains "$HOME/.tmux.conf" "bind -n TripleClick1Pane"
+    # No active (non-comment) binding may fall back into copy-mode from the mouse.
+    run bash -c "grep -vE '^[[:space:]]*#' '$HOME/.tmux.conf' | grep -E 'copy-mode -[eMHudS]'"
+    [ "$status" -ne 0 ]
+}
+
+@test "tmux.conf neutralises scrollbar and right-click copy-mode entry (crash workaround)" {
+    assert_file_contains "$HOME/.tmux.conf" "unbind -n MouseDown1ScrollbarUp"
+    assert_file_contains "$HOME/.tmux.conf" "unbind -n MouseDown1ScrollbarDown"
+    assert_file_contains "$HOME/.tmux.conf" "unbind -n MouseDrag1ScrollbarSlider"
+    assert_file_contains "$HOME/.tmux.conf" "unbind -n MouseDown3Pane"
+}
+
 @test "tpm is installed via chezmoi externals" {
     assert_dir_exists "$HOME/.tmux/plugins/tpm"
 }
