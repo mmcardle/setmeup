@@ -30,10 +30,21 @@ window_pane_set_mode
 cmd_copy_mode_exec         <- ...when entering COPY MODE
 ```
 
-It affects tmux **3.5a, 3.6a, and 3.6b** on macOS arm64. Homebrew's only stable
-is 3.6b, so there is no version to upgrade/downgrade to yet. The crash
-likelihood rises with session age and memory use — the upstream maintainer's
-only suggestion is "restart tmux daily."
+It affects tmux **3.5a, 3.6a, 3.6b, and current `master` / `3.7-rc`** on macOS
+arm64. A first round of fixes landed 2026-06-07 (commits `110909d2e` /
+`42f3e7f`) and shipped in the `3.7-rc` tag (2026-06-12) and master; on that
+basis upstream closed [#4962](https://github.com/tmux/tmux/issues/4962) "for the
+moment" on 2026-06-18, asking for recurrence reports against `master` or
+`3.7-rc` (explicitly *not* 3.6b).
+
+**The fix is incomplete.** The crash still reproduces on a Homebrew `--HEAD`
+build pinned to `1dd2589` (master, 2026-06-17 — confirmed to contain the
+`42f3e7f` fix), so there is no released or pre-release tmux that reliably avoids
+it yet. The crash likelihood rises with session age and memory use. Until a
+confirmed fix ships, keep the mitigation below; report fresh crashes upstream
+with the backtrace from `~/Library/Logs/DiagnosticReports/tmux-*.ips`, noting
+whether the abort is the libmalloc `POINTER_BEING_FREED_WAS_NOT_ALLOCATED` or an
+`__assert_rtn` from `grid_free_line` (the two known variants).
 
 ## Why it kept crashing despite the earlier workaround
 
