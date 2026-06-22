@@ -18,6 +18,8 @@ direnv = "latest"
 glow = "latest"
 zoxide = "latest"
 delta = "latest"
+bun = "latest"
+"github:modem-dev/hunk" = { version = "latest", exe = "hunk" }
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:@openai/codex" = "latest"
 "npm:opencode-ai" = "latest"

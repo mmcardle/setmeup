@@ -97,6 +97,10 @@ setup() {
     assert_mise_tool go
 }
 
-@test "mise tool installed: opensrc" {
-    assert_mise_tool opensrc
+@test "mise tool installed: bun" {
+    assert_mise_tool bun
+}
+
+@test "mise tool installed: hunk" {
+    assert_mise_tool hunk
 }

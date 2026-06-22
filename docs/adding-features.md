@@ -168,7 +168,8 @@ A shell integration that depends on a mise-managed binary (e.g. `source <(fzf --
 1. Test: `assert_mise_tool <tool>` in `tests/mise_tools.bats`
 2. Implement: add `<tool> = "latest"` to `home/dot_config/mise/config.toml`
 3. If mise doesn't find the tool in its default registry, use the aqua backend: `"aqua:<owner>/<repo>" = "latest"` (mise will suggest this in its error output)
-4. If the tool isn't in the mise registry at all — e.g. a traditional C program with no prebuilt release like `socat` (`mise registry | grep <tool>` returns nothing) — it isn't mise-installable. Add it as a system package instead (see below).
+4. For a tool that ships GitHub release binaries but isn't in the registry, use the `github:` backend (the non-deprecated replacement for `ubi:`): `"github:<owner>/<repo>" = "latest"`. When the binary name inside the release tarball differs from the repo name, pin it with `exe`: `"github:modem-dev/hunk" = { version = "latest", exe = "hunk" }` (the `hunk` repo ships `hunkdiff-*.tar.gz` archives whose binary is `hunk`). The `github:` backend also verifies artifact attestations and SLSA provenance. To find the binary name, download a release tarball and `tar tzf` it.
+5. If the tool isn't in the mise registry at all — e.g. a traditional C program with no prebuilt release like `socat` (`mise registry | grep <tool>` returns nothing) — it isn't mise-installable. Add it as a system package instead (see below).
 
 ### Adding a new system package
 
