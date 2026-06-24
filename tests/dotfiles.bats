@@ -161,49 +161,29 @@ setup() {
     assert_file_contains "$HOME/.tmux.conf" "bind-key \"g\" display-popup -E -w 80% -h 80% \"zsh\""
 }
 
-@test "tmux.conf binds S to capture-pane scrollback workaround (avoids copy-mode crash)" {
-    # Workaround for tmux/tmux#4962: copy-mode triggers a libmalloc
-    # double-free on macOS arm64. See TMUX_BUG.md. The bind captures
-    # the pane history to a per-pane tmpfile and opens it read-only
-    # in vim, so users can search scrollback without entering
-    # copy-mode.
-    assert_file_contains "$HOME/.tmux.conf" 'bind-key "S" run-shell'
-    assert_file_contains "$HOME/.tmux.conf" 'tmux capture-pane'
-    assert_file_contains "$HOME/.tmux.conf" '/tmp/tmux-scrollback.#{pane_id}'
-    assert_file_contains "$HOME/.tmux.conf" 'vim -R'
-}
-
-@test "tmux.conf caps history-limit at 50000 (copy-mode crash memory hygiene)" {
-    # See TMUX_BUG.md: with copy-mode disabled this is just memory hygiene and
-    # the cap on how much prefix-S can dump. The previous 1,000,000 is gone.
-    assert_file_contains "$HOME/.tmux.conf" "set -g history-limit 50000"
-    run grep -F 'history-limit 1000000' "$HOME/.tmux.conf"
-    [ "$status" -ne 0 ]
-}
-
-@test "tmux.conf no longer binds Escape to copy-mode (crash workaround)" {
-    # bind Escape copy-mode was the last explicit key into the crashing path.
+@test "tmux.conf restores full scrollback and copy-mode (crash mitigation reverted — see TMUX_BUG.md)" {
+    # The macOS arm64 copy-mode crash (tmux/tmux#5267) is an unfixed upstream
+    # tmux-server bug, present byte-for-byte in every release (2.8..master) and
+    # independent of the terminal emulator. The mitigation that disabled
+    # copy-mode cost mouse scroll + copy-paste, so it was reverted on purpose:
+    # this repo ships the full-featured (crash-prone) config again. These
+    # assertions pin that reverted state so the mitigation can't sneak back in
+    # un-noticed.
+    assert_file_contains "$HOME/.tmux.conf" "set -g history-limit 1000000"
+    # copy-mode is reachable again via the explicit Escape bind.
     run grep -E '^bind[[:space:]]+Escape[[:space:]]+copy-mode' "$HOME/.tmux.conf"
+    [ "$status" -eq 0 ]
+    # The copy-mode-disabling mitigation block must be gone.
+    run grep -F 'Disable copy-mode entry' "$HOME/.tmux.conf"
     [ "$status" -ne 0 ]
-}
-
-@test "tmux.conf re-points automatic mouse paths away from copy-mode (crash workaround)" {
-    # Wheel/drag/click must forward to mouse-aware apps but never fall back to
-    # copy-mode in a plain shell pane. See TMUX_BUG.md.
-    assert_file_contains "$HOME/.tmux.conf" "bind -n WheelUpPane"
-    assert_file_contains "$HOME/.tmux.conf" "bind -n MouseDrag1Pane"
-    assert_file_contains "$HOME/.tmux.conf" "bind -n DoubleClick1Pane"
-    assert_file_contains "$HOME/.tmux.conf" "bind -n TripleClick1Pane"
-    # No active (non-comment) binding may fall back into copy-mode from the mouse.
-    run bash -c "grep -vE '^[[:space:]]*#' '$HOME/.tmux.conf' | grep -E 'copy-mode -[eMHudS]'"
+    run grep -E '^bind -n WheelUpPane' "$HOME/.tmux.conf"
     [ "$status" -ne 0 ]
-}
-
-@test "tmux.conf neutralises scrollbar and right-click copy-mode entry (crash workaround)" {
-    assert_file_contains "$HOME/.tmux.conf" "unbind -n MouseDown1ScrollbarUp"
-    assert_file_contains "$HOME/.tmux.conf" "unbind -n MouseDown1ScrollbarDown"
-    assert_file_contains "$HOME/.tmux.conf" "unbind -n MouseDrag1ScrollbarSlider"
-    assert_file_contains "$HOME/.tmux.conf" "unbind -n MouseDown3Pane"
+    # The capped history-limit is gone too.
+    run grep -F 'history-limit 50000' "$HOME/.tmux.conf"
+    [ "$status" -ne 0 ]
+    # The prefix-S capture-pane scrollback workaround is removed.
+    run grep -F 'tmux-scrollback' "$HOME/.tmux.conf"
+    [ "$status" -ne 0 ]
 }
 
 @test "tpm is installed via chezmoi externals" {
