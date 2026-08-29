@@ -24,6 +24,9 @@ setmeup/
 │   ├── dot_claude/
 │   │   └── statusline-command.sh    # Claude Code statusline display script
 │   │
+│   ├── dot_codex/
+│   │   └── modify_private_config.toml  # Merge script: adds Playwright MCP to ~/.codex/config.toml without clobbering what Codex writes there itself
+│   │
 │   ├── dot_config/
 │   │   ├── git/config.tmpl         # Git config (templated user, aliases, defaults)
 │   │   ├── mise/config.toml        # Mise tool definitions (python, node, rust, jq, rg, fd, fzf, uv, claude-code, codex)

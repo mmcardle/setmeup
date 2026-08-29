@@ -109,6 +109,43 @@ make test-file FILE=dotfiles.bats
 1. Test: add `@test` blocks using `assert_file_exists` and `assert_file_contains` in `tests/dotfiles.bats`
 2. Implement: create `home/dot_<name>` (or `home/dot_<name>.tmpl` for templates)
 
+### Managing a config file that its own tool also writes
+
+Some tools rewrite their own config at runtime. Codex, for example, stores the
+active model, `model_reasoning_effort`, and a `[projects."..."]` `trust_level`
+table in `~/.codex/config.toml`. A plain managed file loses that fight: every
+`chezmoi apply` reverts the tool's writes, and chezmoi keeps stopping to ask
+`config.toml has changed since chezmoi last wrote it?` on each setmeup run.
+
+Use a **`modify_` script** instead. Chezmoi pipes the current target file into
+the script on stdin and takes its stdout as the new contents, so setmeup can own
+one section and leave the rest untouched:
+
+```
+home/dot_codex/modify_private_config.toml   # → ~/.codex/config.toml, mode 0600
+```
+
+Naming: prefixes go `modify_` → `private_` → `dot_` → name. `private_` matters
+here because Codex chmods the file to `0600`; without it chezmoi flips it back
+to `0644` on every apply, which is its own source of churn.
+
+Three rules make the script safe:
+
+- **Handle empty stdin** — that is a fresh machine with no file yet, so print the
+  whole managed file.
+- **Rewrite the managed section in place**, don't strip-and-append. Appending
+  moves the section every time the tool adds a table after it.
+- **Be byte-stable**. Running the script twice on its own output must produce an
+  identical file, or `chezmoi diff` is never clean.
+
+1. Test: in `tests/ai_agents.bats`, simulate the tool's own write, run
+   `chezmoi apply "$HOME/.<tool>/config.toml"`, then assert (a) the tool's keys
+   survived, (b) the managed section is still there, (c) it is restored if
+   deleted, (d) two applies produce identical bytes, (e) the section is not
+   duplicated, and (f) the mode is still `600`. Back up and restore the file
+   (contents *and* mode) in `teardown` so the tests do not leak into each other.
+2. Implement: `home/dot_<tool>/modify_private_config.<ext>`
+
 ### Adding a tmux plugin
 
 1. Test: add `assert_file_contains "$HOME/.tmux.conf" "<author>/<plugin>"` and `assert_dir_exists "$HOME/.tmux/plugins/<plugin>"` in `tests/dotfiles.bats`

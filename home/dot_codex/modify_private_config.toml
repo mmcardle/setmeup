@@ -1,0 +1,61 @@
+#!/bin/sh
+# ~/.codex/config.toml — merged by chezmoi (setmeup)
+#
+# Codex writes to this file itself: the active model, model_reasoning_effort,
+# and a [projects."..."] trust_level table per directory you approve. A plain
+# managed file would revert all of that on every `chezmoi apply`, so chezmoi
+# would keep asking "config.toml has changed since chezmoi last wrote it?" on
+# each setmeup run.
+#
+# As a modify_ script chezmoi hands us the current file on stdin and takes our
+# stdout as the new contents, so setmeup owns only the [mcp_servers.playwright]
+# table and leaves everything else exactly where Codex put it.
+set -eu
+
+existing=$(cat)
+
+# Nothing there yet (fresh machine): write the managed file from scratch.
+if [ -z "$existing" ]; then
+    cat <<'EOF'
+# Codex configuration managed by setmeup.
+# Enables the Playwright MCP server for browser-backed tools.
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest"]
+EOF
+    exit 0
+fi
+
+printf '%s\n' "$existing" | awk '
+    function emit_managed_table() {
+        print "[mcp_servers.playwright]"
+        print "command = \"npx\""
+        print "args = [\"-y\", \"@playwright/mcp@latest\"]"
+    }
+
+    # Rewrite the managed table where it already sits, so updates to it reach
+    # existing machines without shuffling the rest of the file around.
+    /^[ \t]*\[mcp_servers\.playwright\][ \t]*$/ {
+        emit_managed_table()
+        found = 1
+        skipping = 1
+        next
+    }
+
+    # Drop the old table body: `key = value` lines only. A blank line, comment,
+    # or the next table header belongs to whatever comes after, so keep it.
+    skipping {
+        if ($0 ~ /^[ \t]*[^][ \t#]/ && $0 ~ /=/) next
+        skipping = 0
+    }
+
+    { print }
+
+    END {
+        if (!found) {
+            print ""
+            print "# Enables the Playwright MCP server for browser-backed tools."
+            emit_managed_table()
+        }
+    }
+'

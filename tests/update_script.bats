@@ -132,5 +132,5 @@ EOF
 
 @test "setmeup configures Playwright MCP for Claude and Codex" {
     assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_always_005-configure-claude-code.sh.tmpl" "@playwright/mcp@latest"
-    assert_file_contains "$HOME/setmeup/home/dot_codex/config.toml" "@playwright/mcp@latest"
+    assert_file_contains "$HOME/setmeup/home/dot_codex/modify_private_config.toml" "@playwright/mcp@latest"
 }
