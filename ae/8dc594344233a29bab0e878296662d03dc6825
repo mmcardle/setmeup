@@ -1,0 +1,23 @@
+tests/dotfiles.bats
+  s_d85af3b58be18f::t_22350799f05ec2 294-302
+tests/mise_tools.bats
+  s_d85af3b58be18f::t_83a5d56e778b6a 107-115
+home/dot_aliases
+  s_d85af3b58be18f::t_83a5d56e778b6a 28-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "ae8dc594344233a29bab0e878296662d03dc6825",
+  "prompts": {},
+  "sessions": {
+    "s_d85af3b58be18f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ef9512e-17bd-4c7e-a9fc-a915723ceb04",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Mark McArdle <mark.mcardle@sohonet.com>"
+    }
+  }
+}
