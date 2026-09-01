@@ -291,6 +291,15 @@ setup() {
     assert_file_contains "$HOME/.aliases" "alias ll="
 }
 
+# eza's --icons flag takes an optional always/auto/never value, so a bare
+# --icons swallows the next argument: `ls somedir` becomes
+# `eza --icons somedir` and fails. The value must be pinned with `=`.
+@test "eza aliases pin --icons=auto so path arguments are not eaten" {
+    assert_file_contains "$HOME/.aliases" 'alias ls="eza --icons=auto"'
+    assert_file_contains "$HOME/.aliases" 'alias ll="eza -l --icons=auto"'
+    assert_file_contains "$HOME/.aliases" 'alias la="eza -la --icons=auto"'
+}
+
 # --- Shell config sources aliases ---
 
 @test "setmeup bashrc sources aliases" {

@@ -25,7 +25,9 @@ alias l='ls -CF'
 
 # Modern tool replacements (only alias if the tool is available)
 command -v bat &>/dev/null && alias cat="bat"
-command -v eza &>/dev/null && alias ls="eza --icons" && alias ll="eza -l --icons" && alias la="eza -la --icons"
+# --icons takes an optional always/auto/never value; pin it with = so a
+# following path argument isn't parsed as that value (`ls somedir` broke).
+command -v eza &>/dev/null && alias ls="eza --icons=auto" && alias ll="eza -l --icons=auto" && alias la="eza -la --icons=auto"
 command -v rg  &>/dev/null && alias grep="rg"
 command -v sesh &>/dev/null && alias s='~/.config/setmeup/sesh-popup.sh'
 command -v tmuxinator &>/dev/null && alias mux='tmuxinator'

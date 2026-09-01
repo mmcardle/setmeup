@@ -104,3 +104,12 @@ setup() {
 @test "mise tool installed: hunk" {
     assert_mise_tool hunk
 }
+
+# Regression test: eza's --icons flag takes an optional value, so a bare
+# --icons in the alias makes `ls somedir` fail with
+# "invalid value 'somedir' for '--icons [<WHEN>]'".
+@test "ls alias resolves to eza and accepts a path argument" {
+    run bash -ic 'type ls; ls "$HOME"'
+    echo "$output" | grep -q "eza"
+    [ "$status" -eq 0 ]
+}
