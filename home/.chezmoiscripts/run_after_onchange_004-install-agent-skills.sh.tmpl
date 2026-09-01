@@ -29,22 +29,24 @@ echo "[setmeup] Installing Claude Code plugins..."
 CLAUDE_EXEC=(mise exec node@lts 'npm:@anthropic-ai/claude-code' --)
 
 ensure_claude_native_binary() {
-    local claude_bin claude_real claude_pkg_dir
+    local claude_install_dir install_cjs
 
     # mise's npm backend installs with --ignore-scripts=true, but Claude Code's
     # npm wrapper requires postinstall to copy the platform-native binary over
     # bin/claude.exe. Run that postinstall explicitly before using the plugin CLI.
-    claude_bin="$(mise which claude)"
-    claude_real="$(mise exec node@lts -- node -e 'console.log(require("fs").realpathSync(process.argv[1]))' "$claude_bin")"
-    claude_pkg_dir="$(dirname "$(dirname "$claude_real")")"
+    # The package's path under the mise install dir varies between mise/npm
+    # versions (lib/node_modules vs node_modules), so search for install.cjs
+    # instead of deriving its location from the claude binary's path.
+    claude_install_dir="$(mise where 'npm:@anthropic-ai/claude-code')"
+    install_cjs="$(find "$claude_install_dir" -name install.cjs -path '*/claude-code/*' -not -path '*/claude-code/node_modules/*' | head -n 1)"
 
-    if [[ ! -f "$claude_pkg_dir/install.cjs" ]]; then
-        echo "[setmeup] ERROR: Claude Code postinstall script not found at $claude_pkg_dir/install.cjs"
+    if [[ -z "$install_cjs" ]]; then
+        echo "[setmeup] ERROR: Claude Code postinstall script (install.cjs) not found under $claude_install_dir"
         exit 1
     fi
 
     echo "[setmeup] Repairing Claude Code native binary..."
-    mise exec node@lts -- node "$claude_pkg_dir/install.cjs"
+    mise exec node@lts -- node "$install_cjs"
     "${CLAUDE_EXEC[@]}" claude --version >/dev/null
 }
 
