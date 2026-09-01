@@ -1,0 +1,21 @@
+home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl
+  s_d85af3b58be18f::t_4d335645214649 32,37-44,49
+tests/dotfiles.bats
+  s_d85af3b58be18f::t_b8e14e42c44caa 954
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "018b0d9e73249443ea5d785bb8cfdd58dd75ceed",
+  "prompts": {},
+  "sessions": {
+    "s_d85af3b58be18f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ef9512e-17bd-4c7e-a9fc-a915723ceb04",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Mark McArdle <mark.mcardle@sohonet.com>"
+    }
+  }
+}
