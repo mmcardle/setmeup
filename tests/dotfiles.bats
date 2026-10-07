@@ -1037,3 +1037,21 @@ FAKE_TMUXINATOR
 @test "nvim telescope plugin spec exists" {
     assert_file_exists "$HOME/.config/nvim/lua/plugins/telescope.lua"
 }
+
+# --- Scripts run on macOS's stock bash 3.2 ---
+#
+# macOS ships /bin/bash 3.2, and a fresh machine has no newer bash on PATH, so
+# `#!/usr/bin/env bash` resolves to 3.2. Bash 4+ features such as associative
+# arrays (`declare -A`) crash there with "declare: -A: invalid option", and
+# bash 3.2 cannot split fields on IFS=$'\x01' (it uses that byte internally),
+# so every record lands in the first variable.
+
+@test "shipped scripts avoid bash 4+ only features" {
+    run grep -rnE "declare -[aA]*[An]|local -[aA]*[An]|typeset -[aA]*[An]|mapfile|readarray|\\$\\{[A-Za-z_]+(,,|\\^\\^)|IFS=\\$'\\\\x01'" \
+        "$HOME/setmeup/home" "$HOME/setmeup/bootstrap.sh" "$HOME/setmeup/update.sh"
+    if [ "$status" -eq 0 ]; then
+        echo "features missing from bash 3.2 found (macOS /bin/bash is 3.2):" >&2
+        echo "$output" >&2
+        return 1
+    fi
+}

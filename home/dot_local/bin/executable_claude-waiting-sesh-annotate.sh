@@ -40,40 +40,45 @@ if [ "${#tmux_cmd[@]}" -gt 0 ]; then
     live_panes=$("${tmux_cmd[@]}" list-panes -a -F '#{pane_id}' 2>/dev/null || true)
 fi
 
-declare -A live_set=()
-if [ -n "$live_panes" ]; then
-    while IFS= read -r p; do
-        [ -n "$p" ] && live_set["$p"]=1
-    done <<<"$live_panes"
-fi
+# macOS ships bash 3.2, which has no associative arrays, so sets are kept as
+# newline-delimited strings. in_lines <value> <lines> succeeds if value is one
+# of the lines.
+in_lines() {
+    case $'\n'"$2"$'\n' in
+        *$'\n'"$1"$'\n'*) return 0 ;;
+    esac
+    return 1
+}
 
-declare -A flag_state=()
+# Session names per state. A session with several flag files shows its most
+# urgent state: attention beats idle, idle beats running.
+attention_names=""
+idle_names=""
+running_names=""
 
 if [ -d "$STATE_DIR" ]; then
     shopt -s nullglob
     files=("$STATE_DIR"/*.json)
     shopt -u nullglob
     if [ "${#files[@]}" -gt 0 ]; then
-        # SOH (\x01) separator — bash's `read` with whitespace IFS (\t)
+        # Unit separator (\x1f) — bash's `read` with whitespace IFS (\t)
         # collapses adjacent delimiters and drops empty fields, which shifts
         # everything left when tmux_pane_id is blank. Use a non-whitespace
-        # delimiter so empty fields survive.
-        while IFS=$'\x01' read -r fname pane state name; do
+        # delimiter so empty fields survive. Not \x01: bash 3.2 (macOS
+        # /bin/bash) uses that byte internally and won't split on it.
+        while IFS=$'\x1f' read -r fname pane state name; do
             [ -z "$fname" ] && continue
-            if [ -n "$live_panes" ] && [ -n "$pane" ] && [ -z "${live_set[$pane]:-}" ]; then
+            if [ -n "$live_panes" ] && [ -n "$pane" ] && ! in_lines "$pane" "$live_panes"; then
                 rm -f "$fname"
                 continue
             fi
-            if [ -n "$state" ] && [ -n "$name" ]; then
-                cur="${flag_state[$name]:-}"
-                case "$cur:$state" in
-                    attention:*) ;;
-                    *:attention) flag_state["$name"]="$state" ;;
-                    idle:running) ;;
-                    *) flag_state["$name"]="$state" ;;
-                esac
-            fi
-        done < <(jq -r 'input_filename as $f | [$f, .tmux_pane_id // "", .state // "", .tmux_session // ""] | join("\u0001")' "${files[@]}" 2>/dev/null || true)
+            [ -z "$name" ] && continue
+            case "$state" in
+                attention) attention_names+="$name"$'\n' ;;
+                idle) idle_names+="$name"$'\n' ;;
+                running) running_names+="$name"$'\n' ;;
+            esac
+        done < <(jq -r 'input_filename as $f | [$f, .tmux_pane_id // "", .state // "", .tmux_session // ""] | join("\u001f")' "${files[@]}" 2>/dev/null || true)
     fi
 fi
 
@@ -89,9 +94,19 @@ while IFS= read -r line; do
     stripped="${line//$'\x1b['*([0-9;])m/}"
     name="${stripped#* }"
 
+    if in_lines "$name" "$attention_names"; then
+        state=attention
+    elif in_lines "$name" "$idle_names"; then
+        state=idle
+    elif in_lines "$name" "$running_names"; then
+        state=running
+    else
+        state=""
+    fi
+
     field1="$line"
     symbol=""
-    case "${flag_state[$name]:-}" in
+    case "$state" in
         running)
             field1="${BG_RUNNING}${line}${BG_RESET}"
             symbol="$SYM_RUNNING"

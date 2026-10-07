@@ -27,36 +27,43 @@ fi
 # PATH, then claude itself comes from the npm package.
 CLAUDE_EXEC=(mise exec node@lts 'npm:@anthropic-ai/claude-code' --)
 
+# macOS ships bash 3.2, which has no associative arrays, so sets are kept as
+# newline-delimited strings. in_lines <value> <lines> succeeds if value is one
+# of the lines.
+in_lines() {
+    case $'\n'"$2"$'\n' in
+        *$'\n'"$1"$'\n'*) return 0 ;;
+    esac
+    return 1
+}
+
 # Strip comments/blank lines to a normalized stream of: <plugin>@<marketplace> <source>
 plugin_lines=$(grep -vE '^\s*(#|$)' "$PLUGINS_LIST" || true)
 
 # Register marketplaces (deduped). `claude plugin marketplace add` is
 # idempotent — it reports the marketplace is already on disk and exits 0.
-declare -A seen_sources=()
+seen_sources=""
 while read -r _plugin source; do
     [ -z "${source:-}" ] && continue
-    [ -n "${seen_sources[$source]:-}" ] && continue
-    seen_sources["$source"]=1
+    in_lines "$source" "$seen_sources" && continue
+    seen_sources+="$source"$'\n'
     echo "[setmeup]   marketplace add: $source"
     "${CLAUDE_EXEC[@]}" claude plugin marketplace add "$source" </dev/null
 done <<< "$plugin_lines"
 
 # Collect the ids of already-installed plugins (enabled OR disabled). These are
 # skipped below so we never re-enable a plugin the user disabled.
-declare -A installed=()
-while read -r id; do
-    [ -z "$id" ] && continue
-    installed["$id"]=1
-done < <("${CLAUDE_EXEC[@]}" claude plugin list --json </dev/null 2>/dev/null \
+installed=$("${CLAUDE_EXEC[@]}" claude plugin list --json </dev/null 2>/dev/null \
     | mise exec node@lts -- node -e \
-        'let a=[];try{a=JSON.parse(require("fs").readFileSync(0,"utf8"))}catch(e){};for(const p of a)if(p&&p.id)console.log(p.id)')
+        'let a=[];try{a=JSON.parse(require("fs").readFileSync(0,"utf8"))}catch(e){};for(const p of a)if(p&&p.id)console.log(p.id)' \
+    || true)
 
 # Install only the plugins that are not already on disk. `claude plugin install`
 # is idempotent for missing plugins; we additionally skip installed ones so
 # their enabled/disabled state is left untouched.
 while read -r plugin _source; do
     [ -z "${plugin:-}" ] && continue
-    if [ -n "${installed[$plugin]:-}" ]; then
+    if in_lines "$plugin" "$installed"; then
         echo "[setmeup]   already installed, leaving as-is: $plugin"
         continue
     fi
