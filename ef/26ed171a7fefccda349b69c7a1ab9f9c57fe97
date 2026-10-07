@@ -1,0 +1,21 @@
+home/dot_config/tmuxinator/checkout.yml
+  s_d48cf0d834acc2::t_b9896f46f4b5dd 22,27-29
+home/dot_config/tmuxinator/default.yml
+  s_d48cf0d834acc2::t_b9896f46f4b5dd 24-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ef26ed171a7fefccda349b69c7a1ab9f9c57fe97",
+  "prompts": {},
+  "sessions": {
+    "s_d48cf0d834acc2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c8851ee0-6bd5-4bc5-b7a7-dd27cdf3e574",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Mark McArdle <mark.mcardle@sohonet.com>"
+    }
+  }
+}
