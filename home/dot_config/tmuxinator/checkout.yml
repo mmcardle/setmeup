@@ -19,12 +19,14 @@
 name: checkout-<%= @args[1].gsub('.', '_') %>
 root: ~/devel/<%= @args[0] %>
 
-on_project_first_start: (cd ~/devel/<%= @args[0] %> && git fetch origin && wt switch <%= @args[1] %> && { git -C "$(wt list --format json | jq -r --arg b '<%= @args[1] %>' '.[] | select(.branch==$b) | .path')" merge --ff-only origin/<%= @args[1] %> 2>/dev/null || true; })
+on_project_first_start: (cd ~/devel/<%= @args[0] %> && git fetch origin && wt switch <%= @args[1] %> && { git -C "$(wt list --format json | jq -r --arg b '<%= @args[1] %>' '(.items? // .)[] | select(.branch==$b) | (.worktree.path? // .path)')" merge --ff-only origin/<%= @args[1] %> 2>/dev/null || true; })
 on_project_restart:     (cd ~/devel/<%= @args[0] %> && wt switch <%= @args[1] %>)
 
 # Panes spawn under `root` (the source repo), then cd into whichever path
 # wt actually materialised the worktree at — so the two can't drift.
-pre_window: cd "$(wt list --format json | jq -r --arg b '<%= @args[1] %>' '.[] | select(.branch==$b) | .path')"
+# wt 0.80 wraps the list as {"items": [...]} with the path under
+# .worktree.path; the jq also reads the older bare-list format.
+pre_window: cd "$(wt list --format json | jq -r --arg b '<%= @args[1] %>' '(.items? // .)[] | select(.branch==$b) | (.worktree.path? // .path)')"
 
 windows:
   - editor:
