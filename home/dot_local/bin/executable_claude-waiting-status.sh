@@ -32,24 +32,27 @@ if [ "${#tmux_cmd[@]}" -gt 0 ]; then
     live_panes=$("${tmux_cmd[@]}" list-panes -a -F '#{pane_id}' 2>/dev/null || true)
 fi
 
-declare -A live_set=()
-if [ -n "$live_panes" ]; then
-    while IFS= read -r p; do
-        [ -n "$p" ] && live_set["$p"]=1
-    done <<<"$live_panes"
-fi
+# live_panes is one pane id per line. macOS ships bash 3.2, which has no
+# associative arrays, so membership is a case match on the padded string.
+pane_is_live() {
+    case $'\n'"$live_panes"$'\n' in
+        *$'\n'"$1"$'\n'*) return 0 ;;
+    esac
+    return 1
+}
 
 attention=0
 idle=0
 attention_targets=()
 idle_targets=()
 
-# SOH (\x01) separator — bash's `read` with whitespace IFS (\t) collapses
+# Unit separator (\x1f) — bash's `read` with whitespace IFS (\t) collapses
 # adjacent delimiters and drops empty fields, which shifts everything left
-# when tmux_pane_id is blank. Use a non-whitespace delimiter.
-while IFS=$'\x01' read -r fname pane state session window; do
+# when tmux_pane_id is blank. Use a non-whitespace delimiter. Not \x01: bash
+# 3.2 (macOS /bin/bash) uses that byte internally and won't split on it.
+while IFS=$'\x1f' read -r fname pane state session window; do
     [ -z "$fname" ] && continue
-    if [ -n "$live_panes" ] && [ -n "$pane" ] && [ -z "${live_set[$pane]:-}" ]; then
+    if [ -n "$live_panes" ] && [ -n "$pane" ] && ! pane_is_live "$pane"; then
         rm -f "$fname"
         continue
     fi
@@ -64,7 +67,7 @@ while IFS=$'\x01' read -r fname pane state session window; do
             idle_targets+=("$label")
             ;;
     esac
-done < <(jq -r 'input_filename as $f | [$f, .tmux_pane_id // "", .state // "", .tmux_session // "", .tmux_window // ""] | join("\u0001")' "${files[@]}" 2>/dev/null || true)
+done < <(jq -r 'input_filename as $f | [$f, .tmux_pane_id // "", .state // "", .tmux_session // "", .tmux_window // ""] | join("\u001f")' "${files[@]}" 2>/dev/null || true)
 
 [ "$attention" -eq 0 ] && [ "$idle" -eq 0 ] && exit 0
 
