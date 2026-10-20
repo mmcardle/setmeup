@@ -134,6 +134,22 @@ install_mise() {
 }
 
 # ---------------------------------------------------------------------------
+# Update an existing setmeup checkout
+# ---------------------------------------------------------------------------
+# chezmoi init only clones when the source has no git repo yet; it never
+# pulls. Without this, re-running bootstrap on a machine that already has
+# setmeup applies the commit that was checked out the first time.
+update_existing_source() {
+    local src="$HOME/.local/share/chezmoi"
+    if [ ! -d "$src/.git" ]; then
+        return
+    fi
+    info "Updating existing setmeup checkout in $src..."
+    git -C "$src" pull --ff-only \
+        || error "Could not update $src (local changes or a diverged branch?). Fix it with git, then re-run bootstrap."
+}
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 main() {
@@ -166,6 +182,7 @@ main() {
         ln -sfn "$script_dir/home" "$chezmoi_src"
         chezmoi init --apply
     else
+        update_existing_source
         info "Initializing chezmoi with $SETMEUP_REPO..."
         chezmoi init --apply "$SETMEUP_REPO"
     fi

@@ -10,7 +10,7 @@ FAST_STATE_FILE="$STATE_DIR/fast-image.hash"
 FAST_IMAGE_REPO="setmeup-test-fast"
 FULL_IMAGE_REPO="setmeup-test-full"
 
-FAST_BATS_FILES='$HOME/tests/banner.bats $HOME/tests/backup.bats $HOME/tests/claude_code.bats $HOME/tests/claude_waiting.bats $HOME/tests/dotfiles.bats $HOME/tests/ai_agents.bats $HOME/tests/update_script.bats'
+FAST_BATS_FILES='$HOME/tests/banner.bats $HOME/tests/bootstrap.bats $HOME/tests/backup.bats $HOME/tests/claude_code.bats $HOME/tests/claude_waiting.bats $HOME/tests/dotfiles.bats $HOME/tests/ai_agents.bats $HOME/tests/update_script.bats'
 FULL_BATS_FILES='$HOME/tests/*.bats'
 
 sha_file() {
@@ -88,6 +88,7 @@ fast_image_hash() {
         "$REPO_ROOT/tests/ai_agents.bats"
         "$REPO_ROOT/tests/backup.bats"
         "$REPO_ROOT/tests/banner.bats"
+        "$REPO_ROOT/tests/bootstrap.bats"
         "$REPO_ROOT/tests/claude_code.bats"
         "$REPO_ROOT/tests/claude_waiting.bats"
         "$REPO_ROOT/tests/dotfiles.bats"
