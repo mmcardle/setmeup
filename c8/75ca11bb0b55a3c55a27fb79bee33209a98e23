@@ -1,0 +1,21 @@
+docs/adding-features.md
+  s_f1533fe33d225c::t_68d99f009e04e1 208
+home/dot_config/mise/config.toml
+  s_f1533fe33d225c::t_407785950003cf 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c875ca11bb0b55a3c55a27fb79bee33209a98e23",
+  "prompts": {},
+  "sessions": {
+    "s_f1533fe33d225c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9af0a968-60b1-463b-ad4b-daeef2078529",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Mark McArdle <mark.mcardle@sohonet.com>"
+    }
+  }
+}
