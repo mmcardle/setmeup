@@ -54,6 +54,7 @@ setmeup/
     ├── chezmoi-test-config.toml    # Pre-seeded config for non-interactive tests
     ├── setup_environment.sh        # Phases 1-3: verify tools, backup dotfiles, chezmoi apply
     ├── test_helper.bash            # Shared BATS assertion helpers
+    ├── bootstrap.bats              # Bootstrap tests (updating an existing checkout)
     ├── backup.bats                 # Backup verification tests
     ├── dotfiles.bats               # Dotfile existence and content tests
     ├── shell_clean.bats            # Interactive shell cleanliness test
