@@ -1,0 +1,28 @@
+home/dot_config/mise/config.toml
+  s_321fefcefc0ea9::t_14280a8622f20b 23-26
+tests/update_script.bats
+  s_321fefcefc0ea9::t_b7ac7294667e14 118-120,123-126
+tests/dotfiles.bats
+  s_321fefcefc0ea9::t_b7ac7294667e14 964-971,974,976
+home/dot_local/bin/executable_setmeup-install-claude-plugins.sh
+  s_321fefcefc0ea9::t_14280a8622f20b 26-28
+tests/ai_agents.bats
+  s_321fefcefc0ea9::t_b7ac7294667e14 6,13-24
+  s_321fefcefc0ea9::t_f414ac686ee776 25-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "34a56c9c67628c7e641a5aca1e8b43c58e40ec83",
+  "prompts": {},
+  "sessions": {
+    "s_321fefcefc0ea9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "814a7fd8-ff8e-40e9-b3fb-e39e1c0ccaf1",
+        "model": "claude-fable-5-2"
+      },
+      "human_author": "Mark McArdle <mark.mcardle@sohonet.com>"
+    }
+  }
+}
