@@ -7,21 +7,6 @@ warn()  { printf '\033[1;33m[setmeup]\033[0m %s\n' "$1"; }
 
 export PATH="$HOME/.local/bin:$PATH"
 
-ensure_claude_native_binary() {
-    claude_bin="$(mise which claude)"
-    claude_real="$(mise exec node@lts -- node -e 'console.log(require("fs").realpathSync(process.argv[1]))' "$claude_bin")"
-    claude_pkg_dir="$(dirname "$(dirname "$claude_real")")"
-
-    if [ ! -f "$claude_pkg_dir/install.cjs" ]; then
-        warn "Claude Code postinstall script not found at $claude_pkg_dir/install.cjs"
-        return 1
-    fi
-
-    info "Repairing Claude Code native binary..."
-    mise exec node@lts -- node "$claude_pkg_dir/install.cjs"
-    mise exec node@lts npm:@anthropic-ai/claude-code -- claude --version >/dev/null
-}
-
 bootstrap_script=""
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 if [ -f "$script_dir/bootstrap.sh" ]; then
@@ -53,8 +38,6 @@ mise upgrade --yes
 info "Installing and refreshing Claude Code plugins..."
 CLAUDE_PLUGINS_LIST="$HOME/.config/setmeup/claude-plugins.list"
 if [ -f "$CLAUDE_PLUGINS_LIST" ]; then
-    ensure_claude_native_binary || warn "Claude Code native binary repair failed; plugin install may fail"
-
     # Register marketplaces and install missing plugins via the shared helper.
     # The helper skips plugins that are already installed, so this update pass
     # never re-enables a plugin the user has chosen to disable.

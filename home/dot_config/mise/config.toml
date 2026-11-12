@@ -20,7 +20,10 @@ zoxide = "latest"
 delta = "latest"
 bun = "latest"
 "github:modem-dev/hunk" = "latest"
-"npm:@anthropic-ai/claude-code" = "latest"
+# Native binary. Not the npm package: mise installs npm packages without
+# running their postinstall scripts, and the npm package only works after its
+# postinstall copies the real binary into place.
+"aqua:anthropics/claude-code" = "latest"
 "npm:@openai/codex" = "latest"
 "npm:opencode-ai" = "latest"
 "npm:@earendil-works/pi-coding-agent" = "latest"
