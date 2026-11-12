@@ -1,0 +1,28 @@
+home/dot_local/bin/executable_setmeup-install-pr-skill.sh
+  s_0054dffd0e9459::t_07a3abe8b7b4ff 1-15
+update.sh
+  s_0054dffd0e9459::t_07a3abe8b7b4ff 88-91
+tests/ai_agents.bats
+  s_0054dffd0e9459::t_fa8d6c21b85dbd 283-295
+home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl
+  s_0054dffd0e9459::t_07a3abe8b7b4ff 3,10,83
+  s_0054dffd0e9459::t_33d4dc35757493 84
+docs/adding-features.md
+  s_0054dffd0e9459::t_07a3abe8b7b4ff 165-169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8b1cb23e3f2242396df5cfafcd4e2cf9658977d7",
+  "prompts": {},
+  "sessions": {
+    "s_0054dffd0e9459": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1cf1e-f865-7163-9636-d58597f03893",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Mark McArdle <mark.mcardle@sohonet.com>"
+    }
+  }
+}
