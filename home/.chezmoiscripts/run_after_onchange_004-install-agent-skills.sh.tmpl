@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Install Claude Code plugins (full plugins: skills + commands + agents +
-# hooks + MCP servers) and Codex-only skills. Re-runs when this script,
+# hooks + MCP servers), Codex-only skills, and the shared PR skill. Re-runs when this script,
 # either list, or the mise config changes.
 # hash:                 {{ include ".chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl" | sha256sum }}
 # mise config hash:     {{ include "dot_config/mise/config.toml" | sha256sum }}
 # claude plugins hash:  {{ include "dot_config/setmeup/claude-plugins.list" | sha256sum }}
 # claude installer hash:{{ include "dot_local/bin/executable_setmeup-install-claude-plugins.sh" | sha256sum }}
 # codex skills hash:    {{ include "dot_config/setmeup/codex-skills.list" | sha256sum }}
+# pr installer hash:   {{ include "dot_local/bin/executable_setmeup-install-pr-skill.sh" | sha256sum }}
 set -e
 
 export PATH="$HOME/.local/bin:$PATH"
@@ -78,5 +79,7 @@ if [[ -f "$CODEX_SKILLS_LIST" ]]; then
         done <<< "$codex_lines"
     fi
 fi
+
+"$HOME/.local/bin/setmeup-install-pr-skill.sh"
 
 echo "[setmeup] Agent skills and plugins installed."

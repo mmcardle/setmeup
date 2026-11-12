@@ -280,3 +280,16 @@ simulate_codex_write() {
         echo "$skills_output" | grep -qi "blueprint"
     fi
 }
+
+@test "Matt Pocock pr skill is available to Codex and Claude Code" {
+    assert_file_exists "$HOME/.agents/skills/pr/SKILL.md"
+    assert_file_exists "$HOME/.claude/skills/pr/SKILL.md"
+    cmp "$HOME/.agents/skills/pr/SKILL.md" "$HOME/.claude/skills/pr/SKILL.md"
+}
+
+@test "only pr is installed from mattpocock skills" {
+    run jq -c '[.skills | to_entries[] | select(.value.source == "mattpocock/skills") | .key] | sort' \
+        "$HOME/.agents/.skill-lock.json"
+    [ "$status" -eq 0 ]
+    [ "$output" = '["pr"]' ]
+}
