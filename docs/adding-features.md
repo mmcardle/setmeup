@@ -27,6 +27,10 @@ make test-file FILE=dotfiles.bats
 
 # Tests matching a pattern
 make test-filter FILTER="aliases"
+make test-filter FILTER="native|installed"   # regex alternation works through make
+# Calling tests/run_tests.sh directly runs `bash -lc "bats $args"` in the
+# container, so quote a regex with `|` twice or bash treats it as a pipe:
+#   ./tests/run_tests.sh fast --filter "'native|installed'" '$HOME/tests/ai_agents.bats'
 
 # Alias for the fast local smoke suite
 make test
@@ -211,7 +215,8 @@ A shell integration that depends on a mise-managed binary (e.g. `source <(fzf --
 2. Implement: add `<tool> = "latest"` to `home/dot_config/mise/config.toml`
 3. If mise doesn't find the tool in its default registry, use the aqua backend: `"aqua:<owner>/<repo>" = "latest"` (mise will suggest this in its error output)
 4. For a tool that ships GitHub release binaries but isn't in the registry, use the `github:` backend (the non-deprecated replacement for `ubi:`): `"github:<owner>/<repo>" = "latest"`. mise puts every executable in the extracted archive on `PATH` under its own name, so `"github:modem-dev/hunk" = "latest"` gives you `hunk` even though the archives are named `hunkdiff-*.tar.gz`. Do **not** use `exe` here — that is a `ubi:` option, and mise 2026.10+ refuses to install a `github:` tool that sets it. To rename an executable, use `rename_exe` (archives) or `bin` (single-file downloads). The `github:` backend also verifies artifact attestations and SLSA provenance. To find the binary name, download a release tarball and `tar tzf` it.
-5. If the tool isn't in the mise registry at all — e.g. a traditional C program with no prebuilt release like `socat` (`mise registry | grep <tool>` returns nothing) — it isn't mise-installable. Add it as a system package instead (see below).
+5. Prefer a native binary over an `npm:` package, even when the tool is published on npm. mise installs npm packages **without running their postinstall scripts**, so packages that copy their real binary into place during postinstall (Claude Code, opencode) are left broken. Native installs also skip the Node wrapper and the dependency tree. Check `mise registry | grep <tool>` for an `aqua:` entry first (`aqua:anthropics/claude-code`, `aqua:openai/codex`, `aqua:anomalyco/opencode`). Failing that, look for platform binaries in the GitHub releases and use `github:` (`github:earendil-works/pi`). Keep `npm:` only when there is no release binary, or when the package already contains its binaries and needs no postinstall (`npm:opensrc`). Test it with the `assert_native_agent` helper in `tests/ai_agents.bats`, which checks that `mise which` resolves outside `node_modules` and that the binary runs. After switching, `mise prune --dry-run` and then `mise prune` remove the old npm installs from existing machines.
+6. If the tool isn't in the mise registry at all — e.g. a traditional C program with no prebuilt release like `socat` (`mise registry | grep <tool>` returns nothing) — it isn't mise-installable. Add it as a system package instead (see below).
 
 ### Adding a new system package
 
