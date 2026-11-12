@@ -23,9 +23,9 @@ if [[ ! -f "$PLUGINS_LIST" ]]; then
     exit 1
 fi
 
-# Claude Code is installed as an npm tool by mise; chain node@lts so npm is on
-# PATH, then claude itself comes from the npm package.
-CLAUDE_EXEC=(mise exec node@lts 'npm:@anthropic-ai/claude-code' --)
+# Run the Claude Code that mise installs (a native binary), not whichever
+# `claude` happens to be first on PATH.
+CLAUDE_EXEC=(mise exec 'aqua:anthropics/claude-code' --)
 
 # macOS ships bash 3.2, which has no associative arrays, so sets are kept as
 # newline-delimited strings. in_lines <value> <lines> succeeds if value is one

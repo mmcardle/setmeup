@@ -115,14 +115,15 @@ EOF
     assert_file_contains "$HOME/.local/bin/setmeup-install-claude-plugins.sh" "claude plugin list --json"
 }
 
-@test "update.sh repairs mise-installed Claude Code native binary before plugin install" {
-    assert_file_contains "$HOME/setmeup/update.sh" "install.cjs"
-    assert_file_contains "$HOME/setmeup/update.sh" "claude --version"
+@test "update.sh does not repair or locate the npm Claude Code package" {
+    run grep -E "install\.cjs|npm:@anthropic-ai/claude-code|command -v claude" "$HOME/setmeup/update.sh"
+    [ "$status" -ne 0 ]
 }
 
-@test "update.sh locates Claude Code through mise, not PATH" {
-    assert_file_contains "$HOME/setmeup/update.sh" "mise which claude"
-    run grep -F "command -v claude" "$HOME/setmeup/update.sh"
+@test "installer helper runs the native Claude Code binary through mise" {
+    local helper="$HOME/.local/bin/setmeup-install-claude-plugins.sh"
+    assert_file_contains "$helper" "mise exec 'aqua:anthropics/claude-code' --"
+    run grep -F "npm:@anthropic-ai/claude-code" "$helper"
     [ "$status" -ne 0 ]
 }
 

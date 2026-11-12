@@ -961,16 +961,19 @@ FAKE_TMUXINATOR
     [ "$output" = "0" ]
 }
 
-@test "install-agent-skills repairs mise-installed Claude Code native binary" {
-    local script="$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
-    assert_file_contains "$script" 'install.cjs'
-    assert_file_contains "$script" 'claude --version'
+@test "mise installs Claude Code as a native binary, not the npm package" {
+    # mise installs npm packages without running their postinstall scripts,
+    # which leaves the npm Claude Code package with a placeholder instead of
+    # the real binary. The aqua package downloads the binary directly.
+    local config="$HOME/setmeup/home/dot_config/mise/config.toml"
+    assert_file_contains "$config" '"aqua:anthropics/claude-code"'
+    run grep -F "npm:@anthropic-ai/claude-code" "$config"
+    [ "$status" -ne 0 ]
 }
 
-@test "install-agent-skills locates Claude Code through mise, not PATH" {
+@test "install-agent-skills runs Claude Code through mise without repairing the npm package" {
     local script="$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
-    assert_file_contains "$script" "mise where 'npm:@anthropic-ai/claude-code'"
-    run grep -F "command -v claude" "$script"
+    run grep -E "install\.cjs|npm:@anthropic-ai/claude-code|command -v claude" "$script"
     [ "$status" -ne 0 ]
 }
 

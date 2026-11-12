@@ -3,11 +3,25 @@
 setup() {
     load test_helper
     require_setup
-    CLAUDE_EXEC=(mise exec node@lts 'npm:@anthropic-ai/claude-code' --)
+    CLAUDE_EXEC=(mise exec 'aqua:anthropics/claude-code' --)
 }
 
 @test "claude code is installed" {
     assert_mise_tool claude
+}
+
+@test "claude code installed by mise is the native binary and runs" {
+    # The npm package ships a placeholder that only works after its postinstall
+    # script runs, and mise skips postinstall scripts. The native binary has no
+    # such step, so it must not live inside a node_modules directory.
+    run mise which claude
+    [ "$status" -eq 0 ]
+    [[ "$output" != *node_modules* ]]
+    [[ "$output" != *npm-anthropic-ai-claude-code* ]]
+
+    run "${CLAUDE_EXEC[@]}" claude --version
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Claude Code"* ]]
 }
 
 @test "codex is installed" {
