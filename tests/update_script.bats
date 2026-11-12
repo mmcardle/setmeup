@@ -65,7 +65,7 @@ EOF
     [[ "$output" == *"setmeup: bootstrap your dev machine"* ]]
 }
 
-@test "update.sh removes legacy Pi package before refreshing tools" {
+@test "update.sh preserves existing packages while refreshing tools" {
     local fake_bin="$BATS_TEST_TMPDIR/fake-bin"
     local test_home="$BATS_TEST_TMPDIR/home"
     local mise_log="$BATS_TEST_TMPDIR/mise.log"
@@ -94,9 +94,10 @@ EOF
 
     run env HOME="$test_home" PATH="$fake_bin:$PATH" MISE_LOG="$mise_log" sh "$test_home/setmeup/update.sh"
     [ "$status" -eq 0 ]
-    grep -qF "uninstall --yes npm:@mariozechner/pi-coding-agent" "$mise_log"
-    grep -qF "exec node@lts -- npm uninstall -g @mariozechner/pi-coding-agent" "$mise_log"
-    grep -qF "reshim" "$mise_log"
+    run grep -F "uninstall" "$mise_log"
+    [ "$status" -eq 1 ]
+    grep -qxF "install --yes" "$mise_log"
+    grep -qxF "upgrade --yes" "$mise_log"
 }
 
 @test "update.sh installs Claude plugins via the shared installer helper" {
@@ -133,4 +134,27 @@ EOF
 @test "setmeup configures Playwright MCP for Claude and Codex" {
     assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_always_005-configure-claude-code.sh.tmpl" "@playwright/mcp@latest"
     assert_file_contains "$HOME/setmeup/home/dot_codex/modify_private_config.toml" "@playwright/mcp@latest"
+}
+
+@test "mise setup preserves existing packages while installing tools" {
+    local fake_bin="$BATS_TEST_TMPDIR/fake-bin"
+    local test_home="$BATS_TEST_TMPDIR/home"
+    local mise_log="$BATS_TEST_TMPDIR/mise.log"
+    mkdir -p "$fake_bin" "$test_home/.config/mise"
+    touch "$test_home/.config/mise/config.toml"
+
+    cat > "$fake_bin/mise" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >> "$MISE_LOG"
+EOF
+    chmod +x "$fake_bin/mise"
+
+    # The only template expression is in a comment, so sh can run the source directly.
+    run env HOME="$test_home" PATH="$fake_bin:$PATH" MISE_LOG="$mise_log" \
+        sh "$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_003-install-mise-tools.sh.tmpl"
+    [ "$status" -eq 0 ]
+    run grep -F "uninstall" "$mise_log"
+    [ "$status" -eq 1 ]
+    grep -qxF "trust $test_home/.config/mise/config.toml" "$mise_log"
+    grep -qxF "install --yes" "$mise_log"
 }

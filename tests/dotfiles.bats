@@ -416,14 +416,23 @@ setup() {
     assert_dir_exists "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
 }
 
-# --- Zsh chpwd hooks (auto-ls + auto-venv) ---
+# --- Zsh chpwd hooks (auto-venv) ---
 
 @test "setmeup zshrc autoloads add-zsh-hook" {
     assert_file_contains "$HOME/.config/setmeup/zshrc" "autoload -Uz add-zsh-hook"
 }
 
-@test "setmeup zshrc registers chpwd auto-ls hook" {
-    assert_file_contains "$HOME/.config/setmeup/zshrc" "add-zsh-hook chpwd _setmeup_chpwd_ls"
+@test "changing directory does not list its contents" {
+    local hooks="$BATS_TEST_TMPDIR/hooks.zsh"
+    local target="$BATS_TEST_TMPDIR/directory with spaces"
+    mkdir -p "$target"
+    touch "$target/should-not-be-listed"
+    # Exercise the directory hooks without starting SSH agents or update checks.
+    sed -n '/^autoload -Uz add-zsh-hook/,/^add-zsh-hook chpwd _setmeup_chpwd_venv/p' \
+        "$HOME/.config/setmeup/zshrc" > "$hooks"
+    run zsh -f -c 'source "$1"; cd "$2"; [[ "$PWD" == "$2" ]]' zsh "$hooks" "$target"
+    [ "$status" -eq 0 ]
+    [ -z "$output" ]
 }
 
 @test "setmeup zshrc registers chpwd auto-venv hook" {

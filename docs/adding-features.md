@@ -179,9 +179,9 @@ Three rules make the script safe:
 
 ### Adding a zsh directory-change (chpwd) hook
 
-For behaviour that should run on every `cd` (e.g. auto-`ls`, auto-sourcing a
-Python venv), use zsh's native `chpwd` hook mechanism — zsh-only, so it lives in
-`zshrc.tmpl` and not `bashrc.tmpl`.
+For behaviour that should run on every `cd` (e.g. auto-sourcing a Python venv),
+use zsh's native `chpwd` hook mechanism — zsh-only, so it lives in `zshrc.tmpl`
+and not `bashrc.tmpl`.
 
 1. Test: add `assert_file_contains` blocks in `tests/dotfiles.bats` asserting the
    registration (`add-zsh-hook chpwd <fn>`) and the hook's key behaviour strings
