@@ -96,15 +96,9 @@ fi
 [ -f ~/.aliases ] && source ~/.aliases
 
 # ---------------------------------------------------------------------------
-# Directory-change hooks (auto-ls + auto-venv)
+# Directory-change hooks (auto-venv)
 # ---------------------------------------------------------------------------
 autoload -Uz add-zsh-hook
-
-# List directory contents whenever you cd into a directory
-_setmeup_chpwd_ls() {
-    ls
-}
-add-zsh-hook chpwd _setmeup_chpwd_ls
 
 # Auto-source a Python venv on entering its tree; deactivate on leaving.
 # Only venvs activated by this hook are tracked, so a manually-activated venv
