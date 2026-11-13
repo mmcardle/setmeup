@@ -28,6 +28,25 @@ setup() {
     mise which codex
 }
 
+# Agents installed from their npm packages either depend on a postinstall
+# script (which mise skips) or run through a Node wrapper. Each one must come
+# from its native release binary instead, outside any node_modules directory.
+assert_native_agent() {
+    local tool="$1" exe="$2" npm_dir="$3"
+    run mise which "$exe"
+    [ "$status" -eq 0 ]
+    [[ "$output" != *node_modules* ]]
+    [[ "$output" != *"$npm_dir"* ]]
+
+    run mise exec "$tool" -- "$exe" --version
+    [ "$status" -eq 0 ]
+    [ -n "$output" ]
+}
+
+@test "codex installed by mise is the native binary and runs" {
+    assert_native_agent 'aqua:openai/codex' codex npm-openai-codex
+}
+
 @test "codex config enables Playwright MCP" {
     assert_file_exists "$HOME/.codex/config.toml"
     assert_file_contains "$HOME/.codex/config.toml" '[mcp_servers.playwright]'
@@ -154,8 +173,12 @@ simulate_codex_write() {
     mise which opencode
 }
 
-@test "pi coding agent uses current npm package" {
-    assert_file_contains "$HOME/.config/mise/config.toml" '"npm:@earendil-works/pi-coding-agent" = "latest"'
+@test "opencode installed by mise is the native binary and runs" {
+    assert_native_agent 'aqua:anomalyco/opencode' opencode npm-opencode-ai
+}
+
+@test "pi coding agent installed by mise is the native binary and runs" {
+    assert_native_agent 'github:earendil-works/pi' pi npm-earendil-works-pi-coding-agent
 }
 
 @test "pi coding agent is installed" {

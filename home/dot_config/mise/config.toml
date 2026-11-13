@@ -20,13 +20,14 @@ zoxide = "latest"
 delta = "latest"
 bun = "latest"
 "github:modem-dev/hunk" = "latest"
-# Native binary. Not the npm package: mise installs npm packages without
-# running their postinstall scripts, and the npm package only works after its
-# postinstall copies the real binary into place.
+# Coding agents come from their native release binaries, not npm. mise
+# installs npm packages without running postinstall scripts, and the Claude
+# Code and opencode npm packages only work after theirs copies the real binary
+# into place. Native installs also skip the Node wrapper and dependency tree.
 "aqua:anthropics/claude-code" = "latest"
-"npm:@openai/codex" = "latest"
-"npm:opencode-ai" = "latest"
-"npm:@earendil-works/pi-coding-agent" = "latest"
+"aqua:openai/codex" = "latest"
+"aqua:anomalyco/opencode" = "latest"
+"github:earendil-works/pi" = "latest"
 "npm:opensrc" = "latest"
 
 [settings]

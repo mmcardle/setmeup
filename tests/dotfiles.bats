@@ -971,6 +971,15 @@ FAKE_TMUXINATOR
     [ "$status" -ne 0 ]
 }
 
+@test "mise installs codex, opencode and pi as native binaries, not npm packages" {
+    local config="$HOME/setmeup/home/dot_config/mise/config.toml"
+    assert_file_contains "$config" '"aqua:openai/codex"'
+    assert_file_contains "$config" '"aqua:anomalyco/opencode"'
+    assert_file_contains "$config" '"github:earendil-works/pi"'
+    run grep -E 'npm:(@openai/codex|opencode-ai|@earendil-works/pi-coding-agent)' "$config"
+    [ "$status" -ne 0 ]
+}
+
 @test "install-agent-skills runs Claude Code through mise without repairing the npm package" {
     local script="$HOME/setmeup/home/.chezmoiscripts/run_after_onchange_004-install-agent-skills.sh.tmpl"
     run grep -E "install\.cjs|npm:@anthropic-ai/claude-code|command -v claude" "$script"
