@@ -132,6 +132,12 @@ EOF
     assert_file_contains "$HOME/setmeup/update.sh" "skills add"
 }
 
+@test "update.sh removes the standalone pr skill instead of installing it" {
+    assert_file_contains "$HOME/setmeup/update.sh" "setmeup-remove-standalone-pr-skill.sh"
+    run grep -F "setmeup-install-pr-skill.sh" "$HOME/setmeup/update.sh"
+    [ "$status" -ne 0 ]
+}
+
 @test "setmeup configures Playwright MCP for Claude and Codex" {
     assert_file_contains "$HOME/setmeup/home/.chezmoiscripts/run_always_005-configure-claude-code.sh.tmpl" "@playwright/mcp@latest"
     assert_file_contains "$HOME/setmeup/home/dot_codex/modify_private_config.toml" "@playwright/mcp@latest"

@@ -68,9 +68,9 @@ else
     warn "codex-skills.list not found at $CODEX_SKILLS_LIST, skipping codex skill install"
 fi
 
-info "Installing and refreshing the shared PR skill..."
-"$HOME/.local/bin/setmeup-install-pr-skill.sh" \
-    || warn "PR skill install failed (non-fatal)"
+# The mattpocock-skills plugin now provides `pr` to Claude Code.
+"$HOME/.local/bin/setmeup-remove-standalone-pr-skill.sh" \
+    || warn "Standalone pr skill cleanup failed (non-fatal)"
 
 # Update the check timestamp
 mkdir -p "$HOME/.local/state/setmeup"

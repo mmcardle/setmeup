@@ -222,6 +222,10 @@ simulate_codex_write() {
     "${CLAUDE_EXEC[@]}" claude plugin marketplace list 2>&1 | grep -qi 'mmcardle-ai-skills'
 }
 
+@test "mattpocock marketplace is registered" {
+    "${CLAUDE_EXEC[@]}" claude plugin marketplace list 2>&1 | grep -qi 'mattpocock'
+}
+
 # --- Claude plugins are installed (full install, not just skills) ---
 
 @test "blueprints plugin is installed" {
@@ -247,6 +251,10 @@ simulate_codex_write() {
 
 @test "visual-qna plugin is installed" {
     "${CLAUDE_EXEC[@]}" claude plugin list 2>&1 | grep -qi 'visual-qna'
+}
+
+@test "mattpocock-skills plugin is installed" {
+    "${CLAUDE_EXEC[@]}" claude plugin list 2>&1 | grep -qi 'mattpocock-skills@mattpocock'
 }
 
 # Plugins, unlike skills, also bring commands/agents/hooks. Spot-check
@@ -318,15 +326,54 @@ simulate_codex_write() {
     fi
 }
 
-@test "Matt Pocock pr skill is available to Codex and Claude Code" {
-    assert_file_exists "$HOME/.agents/skills/pr/SKILL.md"
-    assert_file_exists "$HOME/.claude/skills/pr/SKILL.md"
-    cmp "$HOME/.agents/skills/pr/SKILL.md" "$HOME/.claude/skills/pr/SKILL.md"
+# --- Matt Pocock's skills: plugin for Claude Code, skill files for Codex ---
+
+@test "codex skills list includes mattpocock skills" {
+    grep -qE '^\s*mattpocock/skills\s*$' "$HOME/.config/setmeup/codex-skills.list"
 }
 
-@test "only pr is installed from mattpocock skills" {
-    run jq -c '[.skills | to_entries[] | select(.value.source == "mattpocock/skills") | .key] | sort' \
+@test "the whole Matt Pocock skill collection is installed for Codex" {
+    local skill
+    for skill in pr tdd grill-me to-spec setup-pre-commit; do
+        assert_file_exists "$HOME/.agents/skills/$skill/SKILL.md"
+    done
+
+    run jq '[.skills | to_entries[] | select(.value.source == "mattpocock/skills")] | length' \
         "$HOME/.agents/.skill-lock.json"
     [ "$status" -eq 0 ]
-    [ "$output" = '["pr"]' ]
+    [ "$output" -ge 27 ]
+}
+
+@test "Claude Code gets Matt Pocock skills from the plugin, not standalone copies" {
+    # A standalone ~/.claude/skills/pr next to the plugin would list the
+    # skill twice (pr and mattpocock-skills:pr).
+    [ ! -e "$HOME/.claude/skills/pr" ]
+    [ ! -L "$HOME/.claude/skills/pr" ]
+    [ ! -e "$HOME/.local/bin/setmeup-install-pr-skill.sh" ]
+}
+
+@test "standalone pr skill left by earlier setmeup versions is removed" {
+    mkdir -p "$HOME/.claude/skills"
+    ln -s ../../.agents/skills/pr "$HOME/.claude/skills/pr"
+
+    run "$HOME/.local/bin/setmeup-remove-standalone-pr-skill.sh"
+    [ "$status" -eq 0 ]
+
+    [ ! -L "$HOME/.claude/skills/pr" ]
+    # Codex keeps its copy.
+    assert_file_exists "$HOME/.agents/skills/pr/SKILL.md"
+}
+
+@test "a user's own pr skill for Claude Code is left alone" {
+    mkdir -p "$HOME/.claude/skills/pr"
+    echo "mine" > "$HOME/.claude/skills/pr/SKILL.md"
+
+    run "$HOME/.local/bin/setmeup-remove-standalone-pr-skill.sh"
+    local helper_status="$status"
+    local kept=no
+    [ -f "$HOME/.claude/skills/pr/SKILL.md" ] && kept=yes
+    rm -rf "$HOME/.claude/skills/pr"
+
+    [ "$helper_status" -eq 0 ]
+    [ "$kept" = yes ]
 }

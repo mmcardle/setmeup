@@ -166,10 +166,13 @@ Three rules make the script safe:
 > **Installation is delegated to a shared helper.** Both the onchange script and `update.sh` call `~/.local/bin/setmeup-install-claude-plugins.sh <plugins-list>` (source: `home/dot_local/bin/executable_setmeup-install-claude-plugins.sh`). The helper registers each marketplace, then installs **only plugins that are not already installed** — it queries `claude plugin list --json` and skips ids it finds there. This is deliberate: `claude plugin install` re-enables a disabled plugin, so a plain re-install pass would silently undo a user's choice to disable a plugin. Skipping already-installed plugins preserves enabled/disabled state across every update. If you change the helper, the onchange script re-runs because the script includes the helper's hash in its trigger comments. The behavior is covered by the `re-running the plugin installer does not re-enable a disabled plugin` test in `tests/ai_agents.bats`.
 4. Codex-only skills go in `codex-skills.list` instead (installed via `npx skills add -a codex`). A repo can appear in both lists — `claude-plugins.list` gives Claude the full plugin (commands/agents/hooks/MCP + skills), `codex-skills.list` gives Codex the skill files.
 
-The standalone `pr` skill from `mattpocock/skills` is installed for both Codex
-and Claude Code by `setmeup-install-pr-skill.sh`, called during setup and updates.
-It selects `--skill pr` explicitly; the upstream Claude plugin bundles the entire
-collection and is intentionally not installed.
+`mattpocock/skills` is in both lists. Claude Code gets the `mattpocock-skills`
+plugin (the engineering and productivity skills, namespaced as
+`mattpocock-skills:<skill>`); Codex gets every skill file in the repo, including
+the `misc` and `in-progress` ones the plugin leaves out. Earlier versions linked
+a standalone `pr` skill into `~/.claude/skills`; `setmeup-remove-standalone-pr-skill.sh`
+(called during setup and updates) removes that link so the skill is not listed
+twice, and `home/.chezmoiremove` deletes the old installer script.
 
 ### Adding a tmux key binding
 
